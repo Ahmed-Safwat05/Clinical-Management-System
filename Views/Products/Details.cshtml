@@ -1,0 +1,219 @@
+@model ProductDetailsViewModel
+@{
+    ViewData["Title"] = Model?.Product?.Name ?? "تفاصيل المنتج";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">المخزون</span>
+        <h1>تفاصيل المنتج</h1>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-right"></i>
+        العودة للمنتجات
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model?.Product is null)
+{
+    <div class="alert alert-warning">المنتج غير موجود</div>
+}
+else
+{
+    <div class="row">
+        <!-- Product Info -->
+        <div class="col-lg-6">
+            <div class="content-card">
+                <h3 class="mb-4">معلومات المنتج</h3>
+
+                <div class="detail-tile">
+                    <span>اسم المنتج</span>
+                    <strong>@Model.Product.Name</strong>
+                </div>
+
+                <div class="detail-tile">
+                    <span>الوحدة</span>
+                    <strong>@Model.Product.Unit</strong>
+                </div>
+
+                <div class="detail-tile">
+                    <span>السعر (التكلفة)</span>
+                    <strong>@Model.Product.CostPrice.ToString("C")</strong>
+                </div>
+
+                <div class="detail-tile">
+                    <span>الحالة</span>
+                    <strong>
+                        @if (Model.Product.IsActive)
+                        {
+                            <span class="badge bg-success">نشط</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">غير نشط</span>
+                        }
+                    </strong>
+                </div>
+
+                <div class="detail-tile">
+                    <span>تاريخ الإنشاء</span>
+                    <strong>@Model.Product.CreatedAt.ToString("yyyy-MM-dd HH:mm")</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Info -->
+        <div class="col-lg-6">
+            <div class="content-card">
+                <h3 class="mb-4">معلومات المخزون</h3>
+
+                <div class="detail-tile @(Model.LowStockWarning ? "border-warning" : "")">
+                    <span>الكمية المتاحة</span>
+                    <strong class="@(Model.LowStockWarning ? "text-warning" : "")">
+                        @Model.Product.QuantityInStock
+                        @if (Model.LowStockWarning)
+                        {
+                            <span class="badge bg-warning-subtle text-warning ms-2">
+                                <i class="bi bi-exclamation-triangle"></i> منخفضة
+                            </span>
+                        }
+                    </strong>
+                </div>
+
+                <div class="detail-tile">
+                    <span>الحد الأدنى للمخزون</span>
+                    <strong>@Model.Product.MinimumQuantity</strong>
+                </div>
+
+                <div class="detail-tile">
+                    <span>حالة المخزون</span>
+                    <strong>
+                        @if (Model.Product.QuantityInStock <= 0)
+                        {
+                            <span class="badge bg-danger">نفذ</span>
+                        }
+                        else if (Model.Product.QuantityInStock <= Model.Product.MinimumQuantity)
+                        {
+                            <span class="badge bg-warning">منخفض جداً</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">متوفر</span>
+                        }
+                    </strong>
+                </div>
+            </div>
+
+            <!-- Stock Actions -->
+            <div class="content-card mt-3">
+                <h4 class="mb-4">تحديث المخزون</h4>
+
+                <!-- Add Stock Form -->
+                <div class="mb-4">
+                    <form asp-action="AddStock" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="id" value="@Model.Product.Id" />
+                        <input type="number" name="quantity" class="form-control" placeholder="الكمية" min="1" required />
+                        <input type="text" name="reason" class="form-control" placeholder="السبب" required />
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i>
+                            إضافة كمية
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Remove Stock Form -->
+                <form asp-action="RemoveStock" method="post" class="d-flex gap-2">
+                    <input type="hidden" name="id" value="@Model.Product.Id" />
+                    <input type="number" name="quantity" class="form-control" placeholder="الكمية" min="1" required />
+                    <input type="text" name="reason" class="form-control" placeholder="السبب" required />
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-dash-circle"></i>
+                        سحب كمية
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="content-card">
+                <h3 class="mb-4">سجل حركات المخزون</h3>
+
+                @if (Model.Transactions.Count == 0)
+                {
+                    <div class="alert alert-info">لا توجد حركات مخزون لهذا المنتج</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table admin-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>النوع</th>
+                                    <th>الكمية</th>
+                                    <th>السبب</th>
+                                    <th>الزيارة</th>
+                                    <th>التاريخ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in Model.Transactions)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (transaction.Type == StockTransactionType.In)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-arrow-down"></i> إدخال
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-arrow-up"></i> إخراج
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>@transaction.Quantity</td>
+                                        <td>@transaction.Reason</td>
+                                        <td>
+                                            @if (transaction.VisitId.HasValue)
+                                            {
+                                                <a asp-controller="Visits" asp-action="Details" asp-route-id="@transaction.VisitId">
+                                                    #@transaction.VisitId
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td>@transaction.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

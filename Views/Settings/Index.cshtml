@@ -1,0 +1,105 @@
+@model SettingsViewModel
+@{
+    ViewData["Title"] = "الإعدادات";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إعدادات النظام</span>
+        <h1>الإعدادات</h1>
+        <p>إدارة بيانات العيادة، الأسعار الافتراضية، وبيانات التشغيل.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<form asp-action="Index" method="post" class="content-card form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="form-section">
+        <div class="form-section-title">
+            <i class="bi bi-hospital"></i>
+            بيانات العيادة
+        </div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="ClinicName" class="form-label">اسم العيادة</label>
+                <input asp-for="ClinicName" class="form-control" />
+                <span asp-validation-for="ClinicName" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">
+            <i class="bi bi-cash-stack"></i>
+            التسعير
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="DefaultExamPrice" class="form-label">سعر الكشف الافتراضي</label>
+                <input asp-for="DefaultExamPrice" class="form-control" />
+                <span asp-validation-for="DefaultExamPrice" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="MaxDiscount" class="form-label">أقصى خصم</label>
+                <input asp-for="MaxDiscount" class="form-control" />
+                <span asp-validation-for="MaxDiscount" class="text-danger"></span>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check form-switch mb-2">
+                    <input asp-for="AllowDiscount" class="form-check-input" />
+                    <label asp-for="AllowDiscount" class="form-check-label">السماح بالخصم</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn-primary" type="submit">
+            <i class="bi bi-check2-circle"></i>
+            حفظ الإعدادات
+        </button>
+    </div>
+</form>
+
+<div class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>إدارة البيانات</h2>
+            <p>عمليات حذف تشغيلية للزيارات والمواعيد فقط.</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <form asp-action="DeleteAllVisits" method="post" data-confirm="هل تريد حذف كل الزيارات؟" data-success-message="تم حذف كل الزيارات">
+                <button class="btn btn-danger-soft w-100" type="submit">
+                    <i class="bi bi-trash3"></i>
+                    حذف كل الزيارات
+                </button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <form asp-action="DeleteAllAppointments" method="post" data-confirm="هل تريد حذف كل المواعيد؟" data-success-message="تم حذف كل المواعيد">
+                <button class="btn btn-danger-soft w-100" type="submit">
+                    <i class="bi bi-calendar-x"></i>
+                    حذف كل المواعيد
+                </button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <form asp-action="ResetOperationalData" method="post" data-confirm="هل تريد تصفير الزيارات والمواعيد؟" data-success-message="تم تصفير بيانات التشغيل">
+                <button class="btn btn-danger-soft w-100" type="submit">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    تصفير بيانات التشغيل
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

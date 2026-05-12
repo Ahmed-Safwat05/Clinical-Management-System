@@ -1,0 +1,52 @@
+@model IReadOnlyList<Procedure>
+@{
+    ViewData["Title"] = "الإجراءات";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة الخدمات الطبية</span>
+        <h1>الإجراءات</h1>
+        <p>إدارة الإجراءات الطبية وأسعارها المستخدمة في الزيارات.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i>
+        إضافة إجراء
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="table-toolbar">
+        <div class="table-search">
+            <i class="bi bi-search"></i>
+            <input type="search" class="form-control" data-table-search placeholder="بحث باسم الإجراء أو السعر..." />
+        </div>
+    </div>
+    <div class="table-responsive">
+    <table class="table admin-table mb-0" data-admin-table>
+        <thead><tr><th>اسم الإجراء</th><th>السعر</th><th class="text-end">الإجراءات</th></tr></thead>
+        <tbody>
+        @foreach (var procedure in Model)
+        {
+            <tr>
+                <td>@procedure.Name</td>
+                <td>@procedure.Price.ToString("N2") ج.م</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@procedure.Id" class="btn btn-sm btn-soft">
+                        <i class="bi bi-pencil-square"></i>
+                        تعديل
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@procedure.Id" method="post" class="d-inline" data-confirm="هل تريد حذف هذا الإجراء؟" data-success-message="تم حذف الإجراء بنجاح">
+                        <button class="btn btn-sm btn-danger-soft">
+                            <i class="bi bi-trash3"></i>
+                            حذف
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+    <div class="table-footer" data-table-pagination></div>
+</div>

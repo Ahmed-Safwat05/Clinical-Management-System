@@ -1,0 +1,116 @@
+@model IEnumerable<AppUser>
+@{
+    ViewData["Title"] = "إدارة المستخدمين";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة النظام</span>
+        <h1>المستخدمين</h1>
+        <p>إدارة حسابات موظفي العيادة والاستقبال.</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-person-plus-fill"></i>
+            إضافة مستخدم جديد
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMsg)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @successMsg
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is string errorMsg)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @errorMsg
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="content-card">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>اسم المستخدم</th>
+                <th>الاسم الكامل</th>
+                <th>الدور</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>@user.Username</strong>
+                    </td>
+                    <td>@user.DisplayName</td>
+                    <td>
+                        @if (user.Role == UserRole.Admin)
+                        {
+                            <span class="badge bg-danger">مسؤول</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info">موظف استقبال</span>
+                        }
+                    </td>
+                    <td>
+                        @if (user.IsActive)
+                        {
+                            <span class="badge bg-success">نشط</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">معطل</span>
+                        }
+                    </td>
+                    <td>@user.CreatedAt.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a asp-action="ChangePassword" asp-route-id="@user.Id" class="btn btn-outline-primary" title="تغيير كلمة المرور">
+                                <i class="bi bi-key"></i>
+                            </a>
+                            <form asp-action="ToggleActive" asp-route-id="@user.Id" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                @if (user.IsActive)
+                                {
+                                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('هل تريد تعطيل هذا المستخدم؟');" title="تعطيل">
+                                        <i class="bi bi-lock"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-outline-success" onclick="return confirm('هل تريد تفعيل هذا المستخدم؟');" title="تفعيل">
+                                        <i class="bi bi-unlock"></i>
+                                    </button>
+                                }
+                            </form>
+                            <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('هل تريد حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه.');" title="حذف">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info m-0">
+            لا توجد مستخدمين بعد.
+        </div>
+    }
+</div>

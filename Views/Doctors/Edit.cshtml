@@ -1,0 +1,23 @@
+@model Doctor
+@{
+    ViewData["Title"] = "تعديل طبيب";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة الفريق الطبي</span>
+        <h1>تعديل بيانات الطبيب</h1>
+        <p>حدّث الاسم أو التخصص دون تغيير أي بيانات تشغيلية أخرى.</p>
+    </div>
+</div>
+<div class="content-card form-card">
+    <form asp-action="Edit" method="post" data-success-message="تم تحديث بيانات الطبيب">
+        <input type="hidden" asp-for="Id" />
+        <partial name="_DoctorForm" model="Model" />
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> حفظ التعديلات</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

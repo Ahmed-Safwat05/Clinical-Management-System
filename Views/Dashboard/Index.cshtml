@@ -1,0 +1,103 @@
+@model DashboardAnalyticsViewModel
+@{
+    ViewData["Title"] = "لوحة التحليلات";
+    var monthlyLabelsJson = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenueChart.Select(x => x.Label));
+    var monthlyRevenueJson = System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenueChart.Select(x => x.Revenue));
+    var yearlyLabelsJson = System.Text.Json.JsonSerializer.Serialize(Model.YearlyRevenueChart.Select(x => x.Label));
+    var yearlyRevenueJson = System.Text.Json.JsonSerializer.Serialize(Model.YearlyRevenueChart.Select(x => x.Revenue));
+}
+
+<section class="dashboard-hero">
+    <div>
+        <span class="eyebrow">تحليلات تفصيلية</span>
+        <h1>لوحة مؤشرات العيادة</h1>
+        <p>متابعة شهرية وسنوية للإيرادات والزيارات والاتجاهات التشغيلية.</p>
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary hero-action">
+        <i class="bi bi-speedometer2"></i>
+        الرجوع للرئيسية
+    </a>
+</section>
+
+<section class="stats-grid">
+    <article class="dashboard-card stat-summary">
+        <div class="stat-icon bg-purple"><i class="bi bi-calendar3"></i></div>
+        <div>
+            <span>إيراد الشهر</span>
+            <strong>@Model.MonthlyRevenue.ToString("C")</strong>
+            <small class="growth @(Model.RevenueTrendPercentage >= 0 ? "positive" : "neutral")">
+                @Model.RevenueTrendPercentage.ToString("N2")% مقارنة بالشهر السابق
+            </small>
+        </div>
+    </article>
+
+    <article class="dashboard-card stat-summary">
+        <div class="stat-icon bg-green"><i class="bi bi-bar-chart-fill"></i></div>
+        <div>
+            <span>إيراد السنة</span>
+            <strong>@Model.YearlyRevenue.ToString("C")</strong>
+            <small class="growth neutral">@Model.Date.Year</small>
+        </div>
+    </article>
+
+    <article class="dashboard-card stat-summary">
+        <div class="stat-icon bg-blue"><i class="bi bi-clipboard2-pulse-fill"></i></div>
+        <div>
+            <span>زيارات الشهر</span>
+            <strong>@Model.MonthlyVisitsCount.ToString("N0")</strong>
+            <small class="growth neutral">زيارات مسجلة</small>
+        </div>
+    </article>
+
+    <article class="dashboard-card stat-summary">
+        <div class="stat-icon bg-amber"><i class="bi bi-award-fill"></i></div>
+        <div>
+            <span>أفضل طبيب هذا الشهر</span>
+            <strong>@(Model.TopDoctorName ?? "-")</strong>
+            <small class="growth neutral">@Model.TopDoctorVisitsCount زيارات</small>
+        </div>
+    </article>
+</section>
+
+<section class="dashboard-grid">
+    <div class="dashboard-card chart-panel" style="height: 300px; width: 100%;">
+        <div class="section-head">
+            <div>
+                <h2>إيرادات الشهر اليومية</h2>
+                <p>تفصيل الإيراد لكل يوم في الشهر الحالي</p>
+            </div>
+        </div>
+        <canvas id="monthlyAnalyticsChart"
+                height="280"
+                data-labels='@monthlyLabelsJson'
+                data-revenue='@monthlyRevenueJson'></canvas>
+    </div>
+
+    <div class="dashboard-card chart-panel" style="height: 300px; width: 100%;">
+        <div class="section-head">
+            <div>
+                <h2>إيرادات السنة</h2>
+                <p>مقارنة شهرية داخل السنة الحالية</p>
+            </div>
+        </div>
+        <canvas id="yearlyAnalyticsChart"
+                height="280"
+                data-labels='@yearlyLabelsJson'
+                data-revenue='@yearlyRevenueJson'></canvas>
+    </div>
+</section>
+
+<section class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>ملخص التحليل</h2>
+            <p>أرقام مجمعة من سجلات الزيارات الفعلية</p>
+        </div>
+    </div>
+    <div class="details-grid">
+        <div class="detail-tile"><span>زيارات السنة</span><strong>@Model.YearlyVisitsCount.ToString("N0")</strong></div>
+        <div class="detail-tile"><span>الشهر السابق</span><strong>@Model.PreviousMonthRevenue.ToString("C")</strong></div>
+        <div class="detail-tile"><span>الشهر الحالي</span><strong>@Model.MonthlyRevenue.ToString("C")</strong></div>
+        <div class="detail-tile"><span>الاتجاه</span><strong>@Model.RevenueTrendPercentage.ToString("N2")%</strong></div>
+    </div>
+</section>

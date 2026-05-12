@@ -1,0 +1,15 @@
+@model Doctor
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label">اسم الطبيب</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Specialty" class="form-label">التخصص</label>
+        <input asp-for="Specialty" class="form-control" />
+        <span asp-validation-for="Specialty" class="text-danger"></span>
+    </div>
+</div>

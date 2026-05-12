@@ -1,0 +1,108 @@
+@model IReadOnlyList<Product>
+@{
+    ViewData["Title"] = "المخزون";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة المخزون</span>
+        <h1>المنتجات</h1>
+        <p>إدارة المنتجات والمخزون المتوفر.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i>
+        إضافة منتج
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="content-card">
+    <div class="table-toolbar">
+        <div class="table-search">
+            <i class="bi bi-search"></i>
+            <input type="search" class="form-control" data-table-search placeholder="بحث باسم المنتج..." />
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table admin-table mb-0" data-admin-table>
+            <thead>
+                <tr>
+                    <th>اسم المنتج</th>
+                    <th>الوحدة</th>
+                    <th>الكمية المخزنة</th>
+                    <th>الحد الأدنى</th>
+                    <th>الحالة</th>
+                    <th>السعر</th>
+                    <th class="text-end">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    var isLowStock = product.QuantityInStock <= product.MinimumQuantity;
+                    <tr>
+                        <td>
+                            @if (isLowStock)
+                            {
+                                <span class="badge bg-warning-subtle text-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </span>
+                            }
+                            @product.Name
+                        </td>
+                        <td>@product.Unit</td>
+                        <td>
+                            <span class="@(isLowStock ? "text-danger fw-bold" : "")">
+                                @product.QuantityInStock
+                            </span>
+                        </td>
+                        <td>@product.MinimumQuantity</td>
+                        <td>
+                            @if (product.IsActive)
+                            {
+                                <span class="badge bg-success">نشط</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">غير نشط</span>
+                            }
+                        </td>
+                        <td>@product.CostPrice.ToString("C")</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-sm btn-soft">
+                                <i class="bi bi-eye"></i>
+                                عرض
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-soft">
+                                <i class="bi bi-pencil-square"></i>
+                                تعديل
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@product.Id" method="post" class="d-inline" data-confirm="هل تريد حذف هذا المنتج؟" data-success-message="تم حذف المنتج بنجاح">
+                                <button class="btn btn-sm btn-danger-soft">
+                                    <i class="bi bi-trash3"></i>
+                                    حذف
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="table-footer" data-table-pagination></div>
+</div>

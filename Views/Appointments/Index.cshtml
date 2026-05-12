@@ -1,0 +1,184 @@
+@model AppointmentsIndexViewModel
+@{
+    ViewData["Title"] = "المواعيد";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">نظام الدور</span>
+        <h1>المواعيد</h1>
+        <p>كل طبيب له قائمة انتظار مستقلة مرتبة حسب رقم الدور.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-calendar-plus"></i>
+        موعد جديد
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="table-toolbar">
+        <div class="table-search">
+            <i class="bi bi-search"></i>
+            <input type="search" class="form-control" data-table-search placeholder="بحث باسم المريض أو الحالة..." />
+        </div>
+        <form method="get" class="server-filter">
+            <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="form-control" />
+            <button class="btn btn-outline-primary">
+                <i class="bi bi-calendar-week"></i>
+                تحميل اليوم
+            </button>
+        </form>
+    </div>
+
+    @if (Model.DoctorQueues.Any())
+    {
+        <ul class="nav nav-pills queue-tabs mb-3" id="doctorQueueTabs" role="tablist">
+            @for (var i = 0; i < Model.DoctorQueues.Count; i++)
+            {
+                var doctorQueue = Model.DoctorQueues[i];
+                var totalWaiting = doctorQueue.ScheduledWaitingCount + doctorQueue.WalkInWaitingCount;
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(i == 0 ? "active" : "")"
+                            id="doctor-tab-@doctorQueue.DoctorId"
+                            data-bs-toggle="pill"
+                            data-bs-target="#doctor-pane-@doctorQueue.DoctorId"
+                            type="button"
+                            role="tab">
+                        @doctorQueue.DoctorName
+                        <span class="badge text-bg-light">@totalWaiting</span>
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <div class="tab-content" id="doctorQueueTabsContent">
+            @for (var i = 0; i < Model.DoctorQueues.Count; i++)
+            {
+                var doctorQueue = Model.DoctorQueues[i];
+                <div class="tab-pane fade @(i == 0 ? "show active" : "")"
+                     id="doctor-pane-@doctorQueue.DoctorId"
+                     role="tabpanel"
+                     aria-labelledby="doctor-tab-@doctorQueue.DoctorId">
+
+                    <!-- Scheduled Queue -->
+                    @if (doctorQueue.ScheduledQueue.Any())
+                    {
+                        <div class="mb-4">
+                            <h6 class="mb-3">
+                                <i class="bi bi-calendar-check"></i>
+                                المواعيد المحجوزة
+                                <span class="badge bg-info">@doctorQueue.ScheduledWaitingCount</span>
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table admin-table mb-0" data-admin-table>
+                                    <thead>
+                                        <tr>
+                                            <th>رقم الدور</th>
+                                            <th>المريض</th>
+                                            <th>الوقت</th>
+                                            <th>الحالة</th>
+                                            <th class="text-end">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var item in doctorQueue.ScheduledQueue)
+                                    {
+                                        <tr>
+                                            <td><span class="queue-pill">@item.FormattedQueueNumber</span></td>
+                                            <td>@item.PatientName</td>
+                                            <td>@item.Time</td>
+                                            <td><span class="status-badge @item.StatusBadgeClass">@item.StatusText</span></td>
+                                            <td class="text-end">
+                                                @if (item.CanCreateVisit)
+                                                {
+                                                    <a asp-controller="Visits" asp-action="Create" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success-soft">
+                                                        <i class="bi bi-clipboard2-plus"></i>
+                                                        إنشاء زيارة
+                                                    </a>
+                                                    <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل تريد إلغاء هذا الموعد؟" data-success-message="تم إلغاء الموعد">
+                                                        <input type="hidden" name="date" value="@item.Date.ToString("yyyy-MM-dd")" />
+                                                        <button class="btn btn-sm btn-danger-soft">
+                                                            <i class="bi bi-x-circle"></i>
+                                                            إلغاء
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Walk-In Queue -->
+                    @if (doctorQueue.WalkInQueue.Any())
+                    {
+                        <div>
+                            <h6 class="mb-3">
+                                <i class="bi bi-person-check"></i>
+                                المرضى الحاضرون
+                                <span class="badge bg-warning">@doctorQueue.WalkInWaitingCount</span>
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table admin-table mb-0" data-admin-table>
+                                    <thead>
+                                        <tr>
+                                            <th>رقم الدور</th>
+                                            <th>المريض</th>
+                                            <th>الوقت</th>
+                                            <th>الحالة</th>
+                                            <th class="text-end">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var item in doctorQueue.WalkInQueue)
+                                    {
+                                        <tr>
+                                            <td><span class="queue-pill walk-in">@item.FormattedQueueNumber</span></td>
+                                            <td>@item.PatientName</td>
+                                            <td>@item.Time</td>
+                                            <td><span class="status-badge @item.StatusBadgeClass">@item.StatusText</span></td>
+                                            <td class="text-end">
+                                                @if (item.CanCreateVisit)
+                                                {
+                                                    <a asp-controller="Visits" asp-action="Create" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success-soft">
+                                                        <i class="bi bi-clipboard2-plus"></i>
+                                                        إنشاء زيارة
+                                                    </a>
+                                                    <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل تريد إلغاء هذا الموعد؟" data-success-message="تم إلغاء الموعد">
+                                                        <input type="hidden" name="date" value="@item.Date.ToString("yyyy-MM-dd")" />
+                                                        <button class="btn btn-sm btn-danger-soft">
+                                                            <i class="bi bi-x-circle"></i>
+                                                            إلغاء
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!doctorQueue.ScheduledQueue.Any() && !doctorQueue.WalkInQueue.Any())
+                    {
+                        <div class="empty-state py-5">
+                            <i class="bi bi-inbox"></i>
+                            <p>لا توجد مواعيد في الانتظار</p>
+                        </div>
+                    }
+
+                    <div class="table-footer" data-table-pagination></div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state py-5">لا توجد مواعيد في هذا اليوم</div>
+    }
+</div>
