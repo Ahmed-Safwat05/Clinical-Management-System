@@ -101,3 +101,230 @@
         <div class="detail-tile"><span>الاتجاه</span><strong>@Model.RevenueTrendPercentage.ToString("N2")%</strong></div>
     </div>
 </section>
+
+<!-- Phase 4.5: Operational Insights Widgets -->
+
+<!-- Widget 1: Low Stock Alerts -->
+<section class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>منتجات قاربت على النفاد</h2>
+            <p>المنتجات التي وصلت الحد الأدنى من المخزون</p>
+        </div>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-boxes"></i>
+            عرض المخزون
+        </a>
+    </div>
+    @if (Model.LowStockProducts.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>اسم المنتج</th>
+                        <th class="text-center">الكمية الحالية</th>
+                        <th class="text-center">الحد الأدنى</th>
+                        <th class="text-center">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.LowStockProducts)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@product.Name</strong>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-danger">@product.QuantityInStock</span>
+                            </td>
+                            <td class="text-center">
+                                @product.MinimumQuantity
+                            </td>
+                            <td class="text-center">
+                                @if (product.QuantityInStock == 0)
+                                {
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                        نفاد تام
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">
+                                        <i class="bi bi-exclamation-circle-fill"></i>
+                                        تحذير
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            جميع المنتجات بحالة جيدة - لا توجد منتجات قاربت على النفاد
+        </div>
+    }
+</section>
+
+<!-- Widget 2: Most Consumed Products This Month -->
+<section class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>الأكثر استهلاكاً هذا الشهر</h2>
+            <p>أكثر 5 منتجات استخداماً خلال الشهر الحالي</p>
+        </div>
+    </div>
+    @if (Model.MostConsumedProducts.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>اسم المنتج</th>
+                        <th class="text-center">إجمالي المستهلك</th>
+                        <th class="text-center">عدد الاستخدامات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.MostConsumedProducts.Count; i++)
+                    {
+                        var product = Model.MostConsumedProducts[i];
+                        <tr>
+                            <td>
+                                <span class="badge bg-primary">@(i + 1)</span>
+                            </td>
+                            <td>
+                                <strong>@product.ProductName</strong>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info">@product.TotalQuantityConsumed</span>
+                            </td>
+                            <td class="text-center">
+                                @product.ConsumptionCount
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            لا توجد بيانات استهلاك متاحة لهذا الشهر
+        </div>
+    }
+</section>
+
+@* <!-- Widget 3: Today Queue Summary -->
+<section class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>ملخص الطابور اليوم</h2>
+            <p>حالة المواعيد والحجوزات في يومك الحالي</p>
+        </div>
+    </div>
+    <div class="queue-summary-grid">
+        <div class="queue-tile waiting">
+            <div class="queue-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+                <span>عدد المنتظرين</span>
+                <strong>@Model.QueueSummary?.WaitingCount ?? 0</strong>
+            </div>
+        </div>
+
+        <div class="queue-tile completed">
+            <div class="queue-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div>
+                <span>عدد المكتمل</span>
+                <strong>@Model.QueueSummary?.CompletedCount ?? 0</strong>
+            </div>
+        </div>
+
+        <div class="queue-tile cancelled">
+            <div class="queue-icon">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+            <div>
+                <span>عدد الملغي</span>
+                <strong>@Model.QueueSummary?.CancelledCount ?? 0</strong>
+            </div>
+        </div>
+
+        <div class="queue-tile walkin">
+            <div class="queue-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div>
+                <span>الحجوزات السريعة</span>
+                <strong>@Model.QueueSummary?.WalkInCount ?? 0</strong>
+            </div>
+        </div>
+    </div>
+</section> *@
+<!-- Widget 3: Today Queue Summary -->
+<section class="content-card shadow-sm border-0">
+    <div class="section-head mb-4">
+        <div>
+            <h2 class="fw-bold">ملخص الطابور اليوم</h2>
+            <p class="text-muted">حالة المواعيد والحجوزات في يومك الحالي</p>
+        </div>
+    </div>
+    <div class="queue-summary-grid">
+        <!-- المنتظرين -->
+        <div class="queue-tile waiting">
+            <div class="queue-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="queue-info">
+                <span>عدد المنتظرين</span>
+                <strong>@(Model.QueueSummary?.WaitingCount ?? 0)</strong>
+            </div>
+        </div>
+
+        <!-- المكتمل -->
+        <div class="queue-tile completed">
+            <div class="queue-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="queue-info">
+                <span>عدد المكتمل</span>
+                <strong>@(Model.QueueSummary?.CompletedCount ?? 0)</strong>
+            </div>
+        </div>
+
+        <!-- الملغي -->
+        <div class="queue-tile cancelled">
+            <div class="queue-icon">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+            <div class="queue-info">
+                <span>عدد الملغي</span>
+                <strong>@(Model.QueueSummary?.CancelledCount ?? 0)</strong>
+            </div>
+        </div>
+
+        <!-- الحجوزات السريعة -->
+        <div class="queue-tile walkin">
+            <div class="queue-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div class="queue-info">
+                <span>الحجوزات السريعة</span>
+                <strong>@(Model.QueueSummary?.WalkInCount ?? 0)</strong>
+            </div>
+        </div>
+    </div>
+</section>
