@@ -1,0 +1,198 @@
+@model VisitCreateViewModel
+@{
+    ViewData["Title"] = "زيارة جديدة";
+    var allowDiscount = ViewData["AllowDiscount"]?.ToString() ?? "true";
+    var maxDiscount = ViewData["MaxDiscount"]?.ToString() ?? "0";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">الاستشارات الطبية</span>
+        <h1>زيارة جديدة</h1>
+        <p>أنشئ زيارة طبية مع الإجراءات، الملاحظات، وحالة الدفع.</p>
+    </div>
+</div>
+
+<div class="content-card form-card">
+    <form asp-action="Create" method="post" data-visit-calculator data-max-discount="@maxDiscount" data-allow-discount="@allowDiscount">
+        <input type="hidden" asp-for="AppointmentId" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Date" class="form-label">التاريخ</label>
+                <input asp-for="Date" type="datetime-local" class="form-control" value="@Model.Date.ToString("yyyy-MMTHH:mm")" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="PatientId" class="form-label">المريض</label>
+                <select asp-for="PatientId" asp-items="Model.Patients" class="form-select"></select>
+                <span asp-validation-for="PatientId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DoctorId" class="form-label">الطبيب</label>
+                <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
+                <span asp-validation-for="DoctorId" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label">ملاحظات الطبيب</label>
+                <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-capsule-pill"></i>  الإجراءات الطبية
+            </div>
+            <div id="procedures-container">
+                @for (var i = 0; i < 3; i++)
+                {
+                    var current = Model.Procedures.ElementAtOrDefault(i) ?? new VisitProcedureInput();
+                    <div class="row g-2 mb-2 procedure-row">
+                        <input type="hidden" name="Procedures.Index" value="@i" />
+                        <div class="col-md-8">
+                            <select name="Procedures[@i].ProcedureId" class="form-select" data-procedure-select>
+                                <option value="">اختر الإجراء</option>
+                                @foreach (var procedure in Model.AvailableProcedureOptions)
+                                {
+                                    <option value="@procedure.Id" data-price="@procedure.Price" selected="@(procedure.Id == current.ProcedureId)">
+                                        @procedure.Name - @procedure.Price.ToString("C")
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input name="Procedures[@i].Quantity" value="@current.Quantity" type="number" min="1" class="form-control" placeholder="الكمية" data-procedure-quantity />
+                        </div>
+                    </div>
+                }
+            </div>
+            <button type="button" id="add-procedure-button" class="btn btn-outline-primary btn-sm mt-2">
+                <i class="bi bi-plus-lg"></i> إضافة إجراء آخر
+            </button>
+        </div>
+        <hr />
+        <div class="row g-2 mb-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">إجراء إضافي (يدوي)</label>
+                <input type="text" id="manual-name" class="form-control" placeholder="اسم الإجراء" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">السعر</label>
+                <input type="number" id="manual-price-val" class="form-control" placeholder="0.00" data-manual-price />
+            </div>
+            <div class="col-md-3">
+                @* إضافة id="save-to-db-btn" لربطه بالجافا سكريبت *@
+                <button type="button" id="save-to-db-btn" class="btn btn-outline-success w-100">
+                    <i class="bi bi-save"></i> حفظ في القائمة
+                </button>
+            </div>
+        </div>
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-cash"></i>
+                الحساب
+            </div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label asp-for="ExaminationPrice" class="form-label">قيمة الكشف</label>
+                    <input asp-for="ExaminationPrice" class="form-control" data-exam-price />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ProceduresPrice" class="form-label">قيمة الإجراءات</label>
+                    <input asp-for="ProceduresPrice" type="number" class="form-control" data-procedures-price readonly />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Discount" class="form-label">الخصم</label>
+                    <input asp-for="Discount" type="number" class="form-control" data-discount />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="TotalPrice" class="form-label">الإجمالي (ج.م)</label>
+                    <input asp-for="TotalPrice" type="number" class="form-control" readonly data-total-price />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-credit-card-2-front"></i>
+                الدفع
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="PaidAmount" class="form-label">المبلغ المدفوع</label>
+                    <input asp-for="PaidAmount" class="form-control" data-paid-amount />
+                    <span asp-validation-for="PaidAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check form-switch mb-2">
+                        <input asp-for="Paid" class="form-check-input" data-paid-checkbox />
+                        <label asp-for="Paid" class="form-check-label">مدفوع بالكامل</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> حفظ الزيارة</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.getElementById('save-to-db-btn').addEventListener('click', function () {
+            // 1. جلب البيانات من الحقول
+            const name = document.getElementById('manual-name').value;
+            const price = document.getElementById('manual-price-val').value;
+
+            if (!name || !price) {
+                alert("يرجى إدخال اسم الإجراء وسعره أولاً");
+                return;
+            }
+
+            // 2. تجهيز البيانات (بما فيها الـ Antiforgery Token للحماية)
+            const formData = new FormData();
+            formData.append("Name", name);
+            formData.append("Price", price);
+            formData.append("__RequestVerificationToken", document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+            // 3. إرسال الطلب للـ Procedures Controller
+            fetch('/Procedures/Create', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // هذا السطر هو الذي يجعله ينجح في الكنترولر
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 4. إضافة الإجراء الجديد لكل القوائم (Select Boxes) الموجودة في الصفحة حالياً
+                    const selects = document.querySelectorAll("[data-procedure-select]");
+                    selects.forEach(select => {
+                        const option = new Option(`${data.name} - ${data.price} ج.م`, data.id);
+                        option.dataset.price = data.price; // مهم جداً عشان الحسابات التلقائية تشتغل
+                        select.add(option);
+                    });
+
+                    alert("تم حفظ الإجراء بنجاح وإضافته للزيارة");
+                    
+                    // مسح الحقول اليدوية للاستعداد لإضافة غيرها
+                    document.getElementById('manual-name').value = '';
+                    document.getElementById('manual-price-val').value = '';
+                } else {
+                    alert("فشل الحفظ: " + (data.message || "تأكد من البيانات"));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("حدث خطأ أثناء الاتصال بالسيرفر");
+            });
+        });
+    </script>
+}

@@ -1,0 +1,23 @@
+@model Procedure
+@{
+    ViewData["Title"] = "تعديل إجراء";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة الخدمات الطبية</span>
+        <h1>تعديل الإجراء</h1>
+        <p>حدّث الاسم أو السعر المعتمد.</p>
+    </div>
+</div>
+<div class="content-card form-card">
+    <form asp-action="Edit" method="post" data-success-message="تم تحديث الإجراء">
+        <input type="hidden" asp-for="Id" />
+        <partial name="_ProcedureForm" model="Model" />
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> حفظ التعديلات</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,75 @@
+@model DeletedItemsViewModel
+@{
+    ViewData["Title"] = "المحذوفات";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">الاسترجاع</span>
+        <h1>المحذوفات</h1>
+        <p>استرجاع المرضى والأطباء المحذوفين حذفاً ناعماً.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<div class="dashboard-grid">
+    <div class="content-card">
+        <div class="section-head">
+            <div>
+                <h2>المرضى المحذوفون</h2>
+                <p>@Model.DeletedPatients.Count مريض</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead><tr><th>الاسم</th><th>الهاتف</th><th class="text-end">الإجراء</th></tr></thead>
+                <tbody>
+                @foreach (var patient in Model.DeletedPatients)
+                {
+                    <tr>
+                        <td>@patient.Name</td>
+                        <td>@patient.Phone</td>
+                        <td class="text-end">
+                            <form asp-action="RestorePatient" asp-route-id="@patient.Id" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-success-soft">استرجاع</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="section-head">
+            <div>
+                <h2>الأطباء المحذوفون</h2>
+                <p>@Model.DeletedDoctors.Count طبيب</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead><tr><th>الاسم</th><th>التخصص</th><th class="text-end">الإجراء</th></tr></thead>
+                <tbody>
+                @foreach (var doctor in Model.DeletedDoctors)
+                {
+                    <tr>
+                        <td>@doctor.Name</td>
+                        <td>@doctor.Specialty</td>
+                        <td class="text-end">
+                            <form asp-action="RestoreDoctor" asp-route-id="@doctor.Id" method="post" class="d-inline">
+                                <button class="btn btn-sm btn-success-soft">استرجاع</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

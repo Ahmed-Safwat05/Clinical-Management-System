@@ -1,0 +1,200 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "الرئيسية";
+    var labelsJson = System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(x => x.Label));
+    var revenueJson = System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(x => x.Revenue));
+    var visitsJson = System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(x => x.VisitsCount));
+}
+
+<section class="dashboard-hero">
+    <div>
+        <span class="eyebrow">نظرة سريعة</span>
+        <h1>مرحباً بك في نظام إدارة العيادة</h1>
+        <p>ملخص تشغيلي سريع لليوم: زيارات، مواعيد، إيرادات، وتنبيهات تحتاج متابعة.</p>
+    </div>
+    <a asp-controller="Appointments" asp-action="Create" class="btn btn-primary hero-action">
+        <i class="bi bi-plus-circle"></i>
+        موعد جديد
+    </a>
+</section>
+
+<section class="stats-grid" aria-label="إحصائيات سريعة">
+    
+    <div class="dashboard-card stat-summary p-3">
+        <div class="d-flex align-items-center mb-3">
+            <a asp-controller="Patients" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3">
+                <div class="stat-icon bg-blue"><i class="bi bi-people-fill"></i></div>
+                <div class="ms-3">
+                    <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي المرضى</small>
+                    <strong style="font-size: 1.5rem;">@Model.TotalPatients.ToString("N0")</strong>
+                </div>
+            </a>
+        </div>
+        <a asp-controller="Patients" asp-action="Create" class="btn btn-sm btn-outline-primary w-100">
+            <i class="bi bi-person-plus-fill"></i> إضافة
+        </a>
+    </div>
+
+    <div class="dashboard-card stat-summary p-3">
+        <div class="d-flex align-items-center mb-3">
+            <a asp-controller="Doctors" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3">
+                <div class="stat-icon bg-green"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="ms-3">
+                    <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي الأطباء</small>
+                    <strong style="font-size: 1.5rem;">@Model.TotalDoctors.ToString("N0")</strong>
+                </div>
+            </a>
+        </div>
+        <a asp-controller="Doctors" asp-action="Create" class="btn btn-sm btn-outline-success w-100">
+            <i class="bi bi-person-plus-fill"></i> إضافة
+        </a>
+    </div>
+
+    <div class="dashboard-card stat-summary p-3">
+        <div class="d-flex align-items-center mb-3">
+            <a asp-controller="Visits" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3"> 
+            <div class="stat-icon bg-amber"><i class="bi bi-clipboard2-pulse-fill"></i></div>
+            <div class="ms-3">
+                <small class="text-muted d-block" style="font-size: 0.8rem;">زيارات اليوم</small>
+                <strong style="font-size: 1.5rem;">@Model.TodayVisitsCount.ToString("N0")</strong>
+            </div>
+            </a>
+        </div>
+        <div class="bg-light p-2 rounded text-center">
+            <small class="text-primary fw-bold" style="font-size: 0.85rem;">الإيراد: @Model.TodayRevenue.ToString("N2") ج.م</small>
+        </div>
+    </div>
+
+    <div class="dashboard-card stat-summary p-3">
+        <div class="d-flex align-items-center mb-3">
+            <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3">
+                <div class="stat-icon bg-purple"><i class="bi bi-cash-stack"></i></div>
+                <div class="ms-3">
+                    <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي الإيرادات</small>
+                    <strong style="font-size: 1.5rem;">@Model.TotalRevenue.ToString("C")</strong>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</section>
+
+<section class="dashboard-grid">
+    <div class="dashboard-card appointments-panel">
+        <div class="section-head">
+            <div>
+                <h2>مواعيد اليوم</h2>
+                <p>أقرب المواعيد المسجلة حسب الوقت والدور</p>
+            </div>
+            <a asp-controller="Appointments" asp-action="Index" class="btn btn-light btn-sm">عرض الكل</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table modern-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>الوقت</th>
+                        <th>الطبيب</th>
+                        <th>التخصص</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.TodayAppointments.Any())
+                {
+                    foreach (var appointment in Model.TodayAppointments)
+                    {
+                        <tr>
+                            <td>@appointment.Time</td>
+                            <td>@appointment.DoctorName</td>
+                            <td>@appointment.Specialty</td>
+                            <td><span class="status-badge @appointment.StatusBadgeClass">@appointment.StatusText</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="empty-state">لا توجد مواعيد اليوم</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="dashboard-card chart-panel" style="height: 300px; width: 100%;">
+        <div class="section-head">
+            <div>
+                <h2>الإيرادات</h2>
+                <p>تحديث الرسم يتم بدون إعادة تحميل الصفحة</p>
+            </div>
+            <select class="form-select form-select-sm chart-period-select" data-home-chart-period>
+                <option value="weekly">أسبوعي</option>
+                <option value="monthly">شهري</option>
+                <option value="yearly">سنوي</option>
+            </select>
+        </div>
+        <canvas id="homeRevenueChart"
+                height="260"
+                data-url="@Url.Action("RevenueChart", "Home")"
+                data-labels='@labelsJson'
+                data-revenue='@revenueJson'
+                data-visits='@visitsJson'></canvas>
+    </div>
+</section>
+
+<section class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="section-head">
+            <div>
+                <h2>ضغط الأطباء اليوم</h2>
+                <p>عدد المواعيد لكل طبيب كنسبة من أعلى ضغط اليوم</p>
+            </div>
+        </div>
+
+        <div class="doctor-load-list">
+        @if (Model.DoctorLoads.Any())
+        {
+            foreach (var load in Model.DoctorLoads)
+            {
+                <div class="doctor-load-item">
+                    <div>
+                        <strong>@load.DoctorName</strong>
+                        <span>@load.AppointmentCount مواعيد</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width:@load.LoadPercentage%"></div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">لا يوجد ضغط مواعيد اليوم</div>
+        }
+        </div>
+    </div>
+
+    <div class="dashboard-card notifications-panel">
+        <div class="section-head">
+            <div>
+                <h2>التنبيهات</h2>
+                <p>تنبيهات مولدة من بيانات النظام الحالية</p>
+            </div>
+        </div>
+
+        <div class="notifications-list compact">
+            @foreach (var notification in Model.Notifications)
+            {
+                <div class="notification-item @notification.CssClass">
+                    <i class="bi @notification.Icon"></i>
+                    <div>
+                        <strong>@notification.Title</strong>
+                        <span>@notification.Message</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

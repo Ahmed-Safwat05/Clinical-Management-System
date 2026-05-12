@@ -1,0 +1,14 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+.dotnet/
+.nuget/
+.keys/
+*.user
+*.suo
+*.log
+app.stdout.log
+app.stderr.log
+app.log

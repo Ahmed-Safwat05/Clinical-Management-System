@@ -1,0 +1,52 @@
+@model IReadOnlyList<Doctor>
+@{
+    ViewData["Title"] = "الأطباء";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة الفريق الطبي</span>
+        <h1>الأطباء</h1>
+        <p>إدارة بيانات الأطباء والتخصصات المتاحة داخل العيادة.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-person-badge"></i>
+        إضافة طبيب
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="table-toolbar">
+        <div class="table-search">
+            <i class="bi bi-search"></i>
+            <input type="search" class="form-control" data-table-search placeholder="بحث باسم الطبيب أو التخصص..." />
+        </div>
+    </div>
+    <div class="table-responsive">
+    <table class="table admin-table mb-0" data-admin-table>
+        <thead><tr><th>الاسم</th><th>التخصص</th><th class="text-end">الإجراءات</th></tr></thead>
+        <tbody>
+        @foreach (var doctor in Model)
+        {
+            <tr>
+                <td>@doctor.Name</td>
+                <td>@doctor.Specialty</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@doctor.Id" class="btn btn-sm btn-soft">
+                        <i class="bi bi-pencil-square"></i>
+                        تعديل
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@doctor.Id" method="post" class="d-inline" data-confirm="هل تريد حذف هذا الطبيب؟" data-success-message="تم حذف الطبيب بنجاح">
+                        <button class="btn btn-sm btn-danger-soft">
+                            <i class="bi bi-trash3"></i>
+                            حذف
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+    <div class="table-footer" data-table-pagination></div>
+</div>

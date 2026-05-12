@@ -1,0 +1,39 @@
+@model AppointmentCreateViewModel
+@{
+    ViewData["Title"] = "موعد جديد";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">نظام الدور</span>
+        <h1>موعد جديد</h1>
+        <p>اختر المريض والطبيب والتاريخ، وسيتم توليد رقم الدور تلقائياً.</p>
+    </div>
+</div>
+<div class="content-card form-card">
+    <form asp-action="Create" method="post" data-success-message="تم إنشاء الموعد بنجاح">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Date" class="form-label">التاريخ</label>
+                <input asp-for="Date" type="datetime-local" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="PatientId" class="form-label">المريض</label>
+                <select asp-for="PatientId" asp-items="Model.Patients" class="form-select"></select>
+                <span asp-validation-for="PatientId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DoctorId" class="form-label">الطبيب</label>
+                <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
+                <span asp-validation-for="DoctorId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> حفظ الموعد</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,58 @@
+@model IReadOnlyList<Visit>
+@{
+    ViewData["Title"] = "الزيارات";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">الاستشارات الطبية</span>
+        <h1>الزيارات</h1>
+        <p>سجل الاستشارات، الإجراءات الطبية، وحالة الدفع.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-clipboard2-plus"></i>
+        زيارة جديدة
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="table-toolbar">
+        <div class="table-search">
+            <i class="bi bi-search"></i>
+            <input type="search" class="form-control" data-table-search placeholder="بحث بالمريض أو الطبيب أو التاريخ..." />
+        </div>
+    </div>
+    <div class="table-responsive">
+    <table class="table admin-table mb-0" data-admin-table>
+        <thead><tr><th>التاريخ</th><th>المريض</th><th>الطبيب</th><th>الإجمالي</th><th>المدفوع</th><th class="text-end">الإجراءات</th></tr></thead>
+        <tbody>
+        @foreach (var visit in Model)
+        {
+            <tr>
+                <td>@visit.Date.ToString("yyyy-MM-dd")</td>
+                <td>@visit.Patient?.Name</td>
+                <td>@visit.Doctor?.Name</td>
+                <td>@visit.TotalPrice.ToString("N2") ج.م
+                </td>
+                <td>
+                    @visit.PaidAmount.ToString("N2") ج.م
+                    <span class="status-badge @(visit.Paid ? "confirmed" : "waiting")">@(visit.Paid ? "مدفوع" : "مستحق")</span>
+                </td>
+                <td class="text-end">
+                    <a asp-action="Details" asp-route-id="@visit.Id" class="btn btn-sm btn-soft">
+                        <i class="bi bi-eye"></i>
+                        التفاصيل
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@visit.Id" class="btn btn-sm btn-danger">
+                          حذف
+                    </a>
+
+                </td>
+
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+    <div class="table-footer" data-table-pagination></div>
+</div>

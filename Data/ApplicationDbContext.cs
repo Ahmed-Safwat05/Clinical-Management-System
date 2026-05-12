@@ -1,0 +1,185 @@
+namespace ClinicManagementSystem.Data;
+
+using Microsoft.AspNetCore.Identity;
+
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<AppUser> AppUsers => Set<AppUser>();
+    public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<Doctor> Doctors => Set<Doctor>();
+    public DbSet<DoctorSchedule> DoctorSchedules => Set<DoctorSchedule>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<Visit> Visits => Set<Visit>();
+    public DbSet<Procedure> Procedures => Set<Procedure>();
+    public DbSet<VisitProcedure> VisitProcedures => Set<VisitProcedure>();
+    public DbSet<Setting> Settings => Set<Setting>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<StockTransaction> StockTransactions => Set<StockTransaction>();
+    public DbSet<VisitProductConsumption> VisitProductConsumptions => Set<VisitProductConsumption>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<VisitProcedure>()
+            .HasKey(x => new { x.VisitId, x.ProcedureId });
+
+        modelBuilder.Entity<Patient>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        modelBuilder.Entity<Doctor>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        modelBuilder.Entity<Appointment>()
+            .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted && x.Doctor != null && !x.Doctor.IsDeleted);
+
+        modelBuilder.Entity<Visit>()
+            .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted && x.Doctor != null && !x.Doctor.IsDeleted);
+
+        modelBuilder.Entity<VisitProcedure>()
+            .HasQueryFilter(x => x.Visit != null && x.Visit.Patient != null && !x.Visit.Patient.IsDeleted && x.Visit.Doctor != null && !x.Visit.Doctor.IsDeleted);
+
+        modelBuilder.Entity<DoctorSchedule>()
+            .HasQueryFilter(x => x.Doctor != null && !x.Doctor.IsDeleted);
+
+        modelBuilder.Entity<AppUser>()
+            .HasQueryFilter(x => x.IsActive);
+
+        modelBuilder.Entity<Procedure>()
+            .Property(x => x.Price)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.ExaminationPrice)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.ProceduresPrice)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.Discount)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.TotalPrice)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.PaidAmount)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<VisitProcedure>()
+            .Property(x => x.SubTotal)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Setting>()
+            .HasIndex(x => x.Key)
+            .IsUnique();
+
+        modelBuilder.Entity<VisitProcedure>()
+            .HasOne(x => x.Visit)
+            .WithMany(x => x.VisitProcedures)
+            .HasForeignKey(x => x.VisitId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<VisitProcedure>()
+            .HasOne(x => x.Procedure)
+            .WithMany(x => x.VisitProcedures)
+            .HasForeignKey(x => x.ProcedureId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasIndex(x => new { x.DoctorId, x.Date, x.QueueNumber })
+            .IsUnique();
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(x => x.Patient)
+            .WithMany(x => x.Appointments)
+            .HasForeignKey(x => x.PatientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(x => x.Doctor)
+            .WithMany(x => x.Appointments)
+            .HasForeignKey(x => x.DoctorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Visit>()
+            .HasOne(x => x.Patient)
+            .WithMany(x => x.Visits)
+            .HasForeignKey(x => x.PatientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Visit>()
+            .HasOne(x => x.Doctor)
+            .WithMany(x => x.Visits)
+            .HasForeignKey(x => x.DoctorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Visit>()
+            .HasOne(x => x.Appointment)
+            .WithOne(x => x.Visit)
+            .HasForeignKey<Visit>(x => x.AppointmentId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<DoctorSchedule>()
+            .HasIndex(x => new { x.DoctorId, x.DayOfWeek, x.StartTime, x.EndTime });
+
+        modelBuilder.Entity<Product>()
+            .HasQueryFilter(x => x.IsActive);
+
+        modelBuilder.Entity<Product>()
+            .Property(x => x.CostPrice)
+            .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Procedure>().HasData(
+            new Procedure { Id = 1, Name = "Medical Consultation", Price = 50m },
+            new Procedure { Id = 2, Name = "Follow-up Visit", Price = 25m },
+            new Procedure { Id = 3, Name = "Basic Checkup", Price = 40m });
+
+        modelBuilder.Entity<AppUser>()
+            .HasIndex(x => x.Username)
+            .IsUnique();
+
+        modelBuilder.Entity<StockTransaction>()
+            .HasOne(x => x.Product)
+            .WithMany()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StockTransaction>()
+            .HasOne(x => x.Visit)
+            .WithMany()
+            .HasForeignKey(x => x.VisitId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<VisitProductConsumption>()
+            .HasOne(x => x.Visit)
+            .WithMany()
+            .HasForeignKey(x => x.VisitId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<VisitProductConsumption>()
+            .HasOne(x => x.Product)
+            .WithMany()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<VisitProductConsumption>()
+            .HasOne(x => x.StockTransaction)
+            .WithMany()
+            .HasForeignKey(x => x.StockTransactionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Setting>().HasData(
+            new Setting { Id = 1, Key = "ClinicName", Value = "عيادة الخير" },
+            new Setting { Id = 2, Key = "DefaultExamPrice", Value = "100" },
+            new Setting { Id = 3, Key = "MaxDiscount", Value = "50" },
+            new Setting { Id = 4, Key = "AllowDiscount", Value = "true" });
+    }
+}

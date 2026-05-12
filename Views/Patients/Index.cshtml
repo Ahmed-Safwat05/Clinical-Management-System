@@ -1,0 +1,62 @@
+@model IReadOnlyList<Patient>
+@{
+    ViewData["Title"] = "المرضى";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة المرضى</span>
+        <h1>المرضى</h1>
+        <p>استعرض بيانات المرضى، وابحث بالاسم أو رقم الهاتف.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i>
+        إضافة مريض
+    </a>
+</div>
+
+<div class="content-card">
+    <div class="table-toolbar">
+        <div class="table-search">
+            <i class="bi bi-search"></i>
+            <input type="search" class="form-control" data-table-search placeholder="بحث داخل الجدول..." />
+        </div>
+        <form method="get" class="server-filter">
+            <input name="searchTerm" value="@ViewData["SearchTerm"]" class="form-control" placeholder="بحث من قاعدة البيانات" />
+            <button class="btn btn-outline-primary">
+                <i class="bi bi-funnel"></i>
+                تصفية
+            </button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+    <table class="table admin-table mb-0" data-admin-table>
+        <thead><tr><th>الاسم</th><th>الهاتف</th><th>العمر</th><th>النوع</th><th class="text-end">الإجراءات</th></tr></thead>
+        <tbody>
+        @foreach (var patient in Model)
+        {
+            <tr>
+                <td>@patient.Name</td>
+                <td>@patient.Phone</td>
+                <td>@patient.Age</td>
+                <td>@patient.Gender</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@patient.Id" class="btn btn-sm btn-soft">
+                        <i class="bi bi-pencil-square"></i>
+                        تعديل
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@patient.Id" method="post" class="d-inline" data-confirm="هل تريد حذف هذا المريض؟" data-success-message="تم حذف المريض بنجاح">
+                        <button class="btn btn-sm btn-danger-soft">
+                            <i class="bi bi-trash3"></i>
+                            حذف
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+    <div class="table-footer" data-table-pagination></div>
+</div>

@@ -1,0 +1,23 @@
+@model Patient
+@{
+    ViewData["Title"] = "إضافة مريض";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة المرضى</span>
+        <h1>إضافة مريض</h1>
+        <p>أدخل البيانات الأساسية للمريض الجديد.</p>
+    </div>
+</div>
+<div class="content-card form-card">
+    <form asp-action="Create" method="post" data-success-message="تم حفظ المريض بنجاح">
+        <partial name="_PatientForm" model="Model" />
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> حفظ</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
