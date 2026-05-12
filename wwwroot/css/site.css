@@ -1294,3 +1294,110 @@ a.stat-icon:hover {
     font-weight: 700;
     font-style: normal;
 }
+
+/* Phase 4.5: Queue Summary Styles */
+.queue-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+    direction: rtl;
+}
+
+.queue-tile {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+    .queue-tile:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .queue-tile.waiting {
+        border-color: #fcd34d;
+        background: rgba(252, 211, 77, .08);
+    }
+
+    .queue-tile.completed {
+        border-color: #86efac;
+        background: rgba(134, 239, 172, .08);
+    }
+
+    .queue-tile.cancelled {
+        border-color: #fca5a5;
+        background: rgba(252, 165, 165, .08);
+    }
+
+    .queue-tile.walkin {
+        border-color: #a78bfa;
+        background: rgba(167, 139, 250, .08);
+    }
+
+.queue-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+    .queue-tile.waiting .queue-icon {
+        background: #fef3c7;
+        color: #854d0e;
+    }
+
+    .queue-tile.completed .queue-icon {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .queue-tile.cancelled .queue-icon {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .queue-tile.walkin .queue-icon {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+.queue-tile > div {
+    display: flex;
+    flex-direction: column;
+}
+
+    .queue-tile span {
+        display: block;
+        color: var(--muted);
+        font-size: .84rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .queue-tile strong {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+@media (max-width: 1199.98px) {
+    .queue-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .queue-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
