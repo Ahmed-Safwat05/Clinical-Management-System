@@ -9,6 +9,7 @@ builder.Logging.AddDebug();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDataProtection()
@@ -43,6 +44,7 @@ builder.Services.AddScoped<IOperationalDataRepository, OperationalDataRepository
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IStockTransactionRepository, StockTransactionRepository>();
 builder.Services.AddScoped<IVisitProductConsumptionRepository, VisitProductConsumptionRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
@@ -57,6 +59,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IStockManagementService, StockManagementService>();
 builder.Services.AddScoped<IVisitConsumptionService, VisitConsumptionService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 // Add logging
 builder.Services.AddLogging(logging =>

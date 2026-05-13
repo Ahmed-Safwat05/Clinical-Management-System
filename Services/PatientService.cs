@@ -7,10 +7,12 @@ namespace ClinicManagementSystem.Services;
 public class PatientService : IPatientService
 {
     private readonly IPatientRepository _patients;
+    private readonly IAuditService _auditService;
 
-    public PatientService(IPatientRepository patients)
+    public PatientService(IPatientRepository patients, IAuditService auditService)
     {
         _patients = patients;
+        _auditService = auditService;
     }
 
     public Task<IReadOnlyList<Patient>> SearchAsync(string? searchTerm) => _patients.SearchAsync(searchTerm);
@@ -23,12 +25,24 @@ public class PatientService : IPatientService
     {
         await _patients.AddAsync(patient);
         await _patients.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Create,
+            nameof(Patient),
+            $"Created patient {patient.Name}",
+            patient.Id);
     }
 
     public async Task UpdateAsync(Patient patient)
     {
         _patients.Update(patient);
         await _patients.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Update,
+            nameof(Patient),
+            $"Updated patient {patient.Name}",
+            patient.Id);
     }
 
     public async Task DeleteAsync(int id)
@@ -42,6 +56,12 @@ public class PatientService : IPatientService
         patient.IsDeleted = true;
         _patients.Update(patient);
         await _patients.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Delete,
+            nameof(Patient),
+            $"Deleted patient {patient.Name}",
+            patient.Id);
     }
 
     public async Task RestoreAsync(int id)

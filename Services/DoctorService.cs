@@ -7,10 +7,12 @@ namespace ClinicManagementSystem.Services;
 public class DoctorService : IDoctorService
 {
     private readonly IDoctorRepository _doctors;
+    private readonly IAuditService _auditService;
 
-    public DoctorService(IDoctorRepository doctors)
+    public DoctorService(IDoctorRepository doctors, IAuditService auditService)
     {
         _doctors = doctors;
+        _auditService = auditService;
     }
 
     public Task<IReadOnlyList<Doctor>> GetAllAsync() => _doctors.GetWithSchedulesAsync();
@@ -23,12 +25,24 @@ public class DoctorService : IDoctorService
     {
         await _doctors.AddAsync(doctor);
         await _doctors.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Create,
+            nameof(Doctor),
+            $"Created doctor {doctor.Name}",
+            doctor.Id);
     }
 
     public async Task UpdateAsync(Doctor doctor)
     {
         _doctors.Update(doctor);
         await _doctors.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Update,
+            nameof(Doctor),
+            $"Updated doctor {doctor.Name}",
+            doctor.Id);
     }
 
     public async Task DeleteAsync(int id)
@@ -42,6 +56,12 @@ public class DoctorService : IDoctorService
         doctor.IsDeleted = true;
         _doctors.Update(doctor);
         await _doctors.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Delete,
+            nameof(Doctor),
+            $"Deleted doctor {doctor.Name}",
+            doctor.Id);
     }
 
     public async Task RestoreAsync(int id)

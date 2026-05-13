@@ -7,11 +7,16 @@ namespace ClinicManagementSystem.Controllers;
 public class UsersController : Controller
 {
     private readonly IAppUserRepository _appUserRepository;
+    private readonly IAuditService _auditService;
     private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IAppUserRepository appUserRepository, ILogger<UsersController> logger)
+    public UsersController(
+        IAppUserRepository appUserRepository,
+        IAuditService auditService,
+        ILogger<UsersController> logger)
     {
         _appUserRepository = appUserRepository;
+        _auditService = auditService;
         _logger = logger;
     }
 
@@ -95,6 +100,11 @@ public class UsersController : Controller
         try
         {
             await _appUserRepository.UpdateAsync(user);
+            await _auditService.LogAsync(
+                user.IsActive ? AuditActionType.Activate : AuditActionType.Deactivate,
+                nameof(AppUser),
+                $"{(user.IsActive ? "Activated" : "Deactivated")} user {user.Username}",
+                user.Id);
             var status = user.IsActive ? "تم تفعيل المستخدم" : "تم تعطيل المستخدم";
             TempData["SuccessMessage"] = status;
         }
@@ -182,6 +192,11 @@ public class UsersController : Controller
         try
         {
             await _appUserRepository.UpdateAsync(user);
+            await _auditService.LogAsync(
+                AuditActionType.PasswordChange,
+                nameof(AppUser),
+                $"Changed password for user {user.Username}",
+                user.Id);
             TempData["SuccessMessage"] = "تم تحديث كلمة المرور بنجاح.";
 
             // If user changed their own password, they need to log in again
@@ -246,6 +261,11 @@ public class UsersController : Controller
         {
             user.IsActive = false;
             await _appUserRepository.UpdateAsync(user);
+            await _auditService.LogAsync(
+                AuditActionType.Deactivate,
+                nameof(AppUser),
+                $"Deactivated user {user.Username}",
+                user.Id);
             _logger.LogInformation($"User {id} ({user.Username}) deactivated by admin {currentUserId}");
             TempData["SuccessMessage"] = $"تم تعطيل المستخدم '{user.DisplayName}' بنجاح.";
         }
@@ -285,6 +305,11 @@ public class UsersController : Controller
         {
             user.IsActive = true;
             await _appUserRepository.UpdateAsync(user);
+            await _auditService.LogAsync(
+                AuditActionType.Activate,
+                nameof(AppUser),
+                $"Activated user {user.Username}",
+                user.Id);
             _logger.LogInformation($"User {id} ({user.Username}) reactivated by admin {currentUserId}");
             TempData["SuccessMessage"] = $"تم تفعيل المستخدم '{user.DisplayName}' بنجاح.";
         }
@@ -337,6 +362,11 @@ public class UsersController : Controller
             // For safety, mark as inactive instead of hard delete
             user.IsActive = false;
             await _appUserRepository.UpdateAsync(user);
+            await _auditService.LogAsync(
+                AuditActionType.Deactivate,
+                nameof(AppUser),
+                $"Deactivated user {user.Username} through delete action",
+                user.Id);
             _logger.LogInformation($"User {id} ({user.Username}) deleted by admin {currentUserId}");
             TempData["SuccessMessage"] = $"تم حذف المستخدم '{user.DisplayName}' بنجاح.";
         }

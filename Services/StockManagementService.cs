@@ -4,11 +4,16 @@ public class StockManagementService : IStockManagementService
 {
     private readonly IStockTransactionRepository _transactionRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IAuditService _auditService;
 
-    public StockManagementService(IStockTransactionRepository transactionRepository, IProductRepository productRepository)
+    public StockManagementService(
+        IStockTransactionRepository transactionRepository,
+        IProductRepository productRepository,
+        IAuditService auditService)
     {
         _transactionRepository = transactionRepository;
         _productRepository = productRepository;
+        _auditService = auditService;
     }
 
     public async Task<bool> AddStockAsync(int productId, int quantity, string reason, int? visitId = null)
@@ -38,6 +43,13 @@ public class StockManagementService : IStockManagementService
             await _transactionRepository.AddAsync(transaction);
             _productRepository.Update(product);
             await _transactionRepository.SaveChangesAsync();
+
+            await _auditService.LogAsync(
+                AuditActionType.InventoryAdd,
+                nameof(Product),
+                $"Added {quantity} {product.Name} to stock",
+                product.Id);
+
             return true;
         }
         catch
@@ -79,6 +91,17 @@ public class StockManagementService : IStockManagementService
             await _transactionRepository.AddAsync(transaction);
             _productRepository.Update(product);
             await _transactionRepository.SaveChangesAsync();
+
+            var description = visitId.HasValue
+                ? $"Consumed {quantity} {product.Name} from stock for visit #{visitId.Value}"
+                : $"Removed {quantity} {product.Name} from stock";
+
+            await _auditService.LogAsync(
+                AuditActionType.InventoryConsume,
+                nameof(Product),
+                description,
+                product.Id);
+
             return true;
         }
         catch

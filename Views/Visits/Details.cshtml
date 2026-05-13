@@ -20,7 +20,7 @@
         <div class="detail-tile"><span>التاريخ</span><strong>@Model.Date.ToString("yyyy-MM-dd")</strong></div>
         <div class="detail-tile"><span>المريض</span><strong>@Model.Patient?.Name</strong></div>
         <div class="detail-tile"><span>الطبيب</span><strong>@Model.Doctor?.Name</strong></div>
-        <div class="detail-tile"><span>الدفع</span><strong>@Model.PaidAmount.ToString("C") / @Model.TotalPrice.ToString("C")</strong></div>
+        <div class="detail-tile"><span>الدفع</span><strong>@Model.PaidAmount.ToString("N2") ج.م / @Model.TotalPrice.ToString("C")</strong></div>
     </div>
     @if (!string.IsNullOrWhiteSpace(Model.Notes))
     {
@@ -37,23 +37,23 @@
     <div class="details-grid">
         <div class="detail-tile">
             <span>قيمة الكشف</span>
-            <strong>@Model.ExaminationPrice.ToString("C")</strong>
+            <strong>@Model.ExaminationPrice.ToString("N2")ج.م </strong>
         </div>
         <div class="detail-tile">
             <span>إجمالي الإجراءات</span>
-            <strong>@Model.ProceduresPrice.ToString("C")</strong>
+            <strong>@Model.ProceduresPrice.ToString("N2")ج.م </strong>
         </div>
         <div class="detail-tile">
             <span>الخصم</span>
-            <strong class="text-danger">@Model.Discount.ToString("C")</strong>
+            <strong class="text-danger">@Model.Discount.ToString("N2")ج.م </strong>
         </div>
         <div class="detail-tile">
             <span>الإجمالي النهائي</span>
-            <strong class="text-primary">@Model.TotalPrice.ToString("C")</strong>
+            <strong class="text-primary">@Model.TotalPrice.ToString("N2")ج.م </strong>
         </div>
         <div class="detail-tile">
             <span>المبلغ المدفوع</span>
-            <strong class="text-success">@Model.PaidAmount.ToString("C")</strong>
+            <strong class="text-success">@Model.PaidAmount.ToString("N2")ج.م </strong>
         </div>
         <div class="detail-tile">
             <span>حالة الدفع</span>
@@ -63,7 +63,7 @@
         </div>
     </div>
 </div>
-@*<div class="content-card">
+<div class="content-card">
     <div class="section-head">
         <div>
             <h2>الإجراءات الطبية</h2>
@@ -83,4 +83,4 @@
         }
         </tbody>
     </table>
-</div>*@
+</div>

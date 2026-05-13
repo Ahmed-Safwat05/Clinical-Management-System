@@ -3,10 +3,12 @@ namespace ClinicManagementSystem.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IAuditService _auditService;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, IAuditService auditService)
     {
         _productRepository = productRepository;
+        _auditService = auditService;
     }
 
     public async Task<IReadOnlyList<Product>> GetAllAsync()
@@ -25,6 +27,12 @@ public class ProductService : IProductService
         product.IsActive = true;
         await _productRepository.AddAsync(product);
         await _productRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Create,
+            nameof(Product),
+            $"Created product {product.Name}",
+            product.Id);
     }
 
     public async Task UpdateAsync(Product product)
@@ -42,6 +50,12 @@ public class ProductService : IProductService
 
         _productRepository.Update(existingProduct);
         await _productRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Update,
+            nameof(Product),
+            $"Updated product {existingProduct.Name}",
+            existingProduct.Id);
     }
 
     public async Task DeleteAsync(int id)
@@ -53,6 +67,12 @@ public class ProductService : IProductService
         product.IsActive = false;
         _productRepository.Update(product);
         await _productRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            AuditActionType.Deactivate,
+            nameof(Product),
+            $"Deactivated product {product.Name}",
+            product.Id);
     }
 
     public async Task<IReadOnlyList<Product>> GetLowStockProductsAsync()
