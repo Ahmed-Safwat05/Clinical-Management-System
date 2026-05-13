@@ -1,0 +1,269 @@
+@model AuditLogIndexViewModel
+@{
+    ViewData["Title"] = "سجل العمليات";
+    var startItem = Model.TotalCount == 0 ? 0 : ((Model.CurrentPage - 1) * Model.PageSize) + 1;
+    var endItem = Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalCount);
+}
+
+<style>
+    .audit-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(160px, 1fr));
+        gap: 14px;
+    }
+
+    .audit-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: var(--muted);
+        font-size: .9rem;
+    }
+
+    .audit-description {
+        max-width: 520px;
+        white-space: normal;
+        line-height: 1.8;
+    }
+
+    .audit-entity {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-weight: 700;
+        font-size: .82rem;
+    }
+
+    @@media (max-width: 1200px) {
+        .audit-filter-grid {
+            grid-template-columns: repeat(2, minmax(180px, 1fr));
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .audit-filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="dashboard-hero">
+    <div>
+        <span class="eyebrow">الإدارة والمراقبة</span>
+        <h1>سجل العمليات</h1>
+        <p>متابعة العمليات الإدارية المهمة داخل النظام مع تصفية دقيقة وسريعة.</p>
+    </div>
+</section>
+
+<section class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>التصفية والبحث</h2>
+            <p>اعرض السجلات حسب المستخدم، نوع العملية، التاريخ، أو كلمة مفتاحية.</p>
+        </div>
+    </div>
+
+    <form method="get" asp-controller="AuditLogs" asp-action="Index">
+        <div class="audit-filter-grid">
+            <div>
+                <label for="username" class="form-label">المستخدم</label>
+                <input id="username" name="username" value="@Model.UsernameFilter" class="form-control" placeholder="مثال: admin" />
+            </div>
+
+            <div>
+                <label for="actionType" class="form-label">نوع العملية</label>
+                <select id="actionType" name="actionType" class="form-select">
+                    <option value="">كل العمليات</option>
+                    @foreach (var actionType in Enum.GetValues<AuditActionType>())
+                    {
+                        if (Model.ActionTypeFilter == actionType)
+                        {
+                            <option value="@actionType" selected>@GetActionLabel(actionType)</option>
+                        }
+                        else
+                        {
+                            <option value="@actionType">@GetActionLabel(actionType)</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label for="startDate" class="form-label">من تاريخ</label>
+                <input id="startDate" name="startDate" type="date" value="@Model.StartDateFilter?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+
+            <div>
+                <label for="endDate" class="form-label">إلى تاريخ</label>
+                <input id="endDate" name="endDate" type="date" value="@Model.EndDateFilter?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+
+            <div>
+                <label for="keyword" class="form-label">كلمة مفتاحية</label>
+                <input id="keyword" name="keyword" value="@Model.KeywordFilter" class="form-control" placeholder="الوصف، الكيان، IP" />
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+                بحث
+            </button>
+            <a asp-controller="AuditLogs" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                إعادة تعيين
+            </a>
+        </div>
+    </form>
+</section>
+
+<section class="content-card">
+    <div class="section-head">
+        <div>
+            <h2>النتائج</h2>
+            <div class="audit-meta">
+                <span>إجمالي السجلات: <strong>@Model.TotalCount.ToString("N0")</strong></span>
+                <span>الصفحة: <strong>@Model.CurrentPage</strong> من <strong>@Math.Max(Model.TotalPages, 1)</strong></span>
+                <span>المعروض: <strong>@startItem</strong> - <strong>@endItem</strong></span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.AuditLogs.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>الوقت</th>
+                        <th>المستخدم</th>
+                        <th>العملية</th>
+                        <th>الكيان</th>
+                        <th>الوصف</th>
+                        <th>عنوان IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.AuditLogs)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@log.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd")</div>
+                                <small class="text-muted">@log.CreatedAt.ToLocalTime().ToString("hh:mm tt")</small>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@log.Username</span>
+                            </td>
+                            <td>
+                                <span class="badge @GetActionBadgeClass(log.ActionType)">
+                                    @GetActionLabel(log.ActionType)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="audit-entity">
+                                    @log.EntityName
+                                    @if (log.EntityId.HasValue)
+                                    {
+                                        <span>#@log.EntityId.Value</span>
+                                    }
+                                </span>
+                            </td>
+                            <td class="audit-description">@log.Description</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(log.IpAddress))
+                                {
+                                    <code>@log.IpAddress</code>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">غير متاح</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-4" aria-label="تصفح صفحات سجل العمليات">
+                <ul class="pagination justify-content-center flex-wrap gap-1 mb-0">
+                    <li class="page-item @(Model.CurrentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)"
+                           asp-route-username="@Model.UsernameFilter"
+                           asp-route-actionType="@Model.ActionTypeFilter"
+                           asp-route-startDate="@Model.StartDateFilter?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDateFilter?.ToString("yyyy-MM-dd")"
+                           asp-route-keyword="@Model.KeywordFilter">السابق</a>
+                    </li>
+
+                    @for (var pageNumber = Math.Max(1, Model.CurrentPage - 2); pageNumber <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); pageNumber++)
+                    {
+                        <li class="page-item @(pageNumber == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@pageNumber"
+                               asp-route-username="@Model.UsernameFilter"
+                               asp-route-actionType="@Model.ActionTypeFilter"
+                               asp-route-startDate="@Model.StartDateFilter?.ToString("yyyy-MM-dd")"
+                               asp-route-endDate="@Model.EndDateFilter?.ToString("yyyy-MM-dd")"
+                               asp-route-keyword="@Model.KeywordFilter">@pageNumber</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.CurrentPage >= Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)"
+                           asp-route-username="@Model.UsernameFilter"
+                           asp-route-actionType="@Model.ActionTypeFilter"
+                           asp-route-startDate="@Model.StartDateFilter?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDateFilter?.ToString("yyyy-MM-dd")"
+                           asp-route-keyword="@Model.KeywordFilter">التالي</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle-fill"></i>
+            لا توجد سجلات مطابقة لمعايير البحث الحالية.
+        </div>
+    }
+</section>
+
+@functions {
+    private static string GetActionBadgeClass(AuditActionType actionType) => actionType switch
+    {
+        AuditActionType.Create => "bg-success",
+        AuditActionType.Update => "bg-info text-dark",
+        AuditActionType.Delete => "bg-danger",
+        AuditActionType.Login => "bg-primary",
+        AuditActionType.Logout => "bg-secondary",
+        AuditActionType.InventoryConsume => "bg-warning text-dark",
+        AuditActionType.InventoryAdd => "bg-success",
+        AuditActionType.PasswordChange => "bg-warning text-dark",
+        AuditActionType.Activate => "bg-success",
+        AuditActionType.Deactivate => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private static string GetActionLabel(AuditActionType actionType) => actionType switch
+    {
+        AuditActionType.Create => "إنشاء",
+        AuditActionType.Update => "تعديل",
+        AuditActionType.Delete => "حذف",
+        AuditActionType.Login => "دخول",
+        AuditActionType.Logout => "خروج",
+        AuditActionType.InventoryConsume => "استهلاك مخزون",
+        AuditActionType.InventoryAdd => "إضافة مخزون",
+        AuditActionType.PasswordChange => "تغيير كلمة المرور",
+        AuditActionType.Activate => "تفعيل",
+        AuditActionType.Deactivate => "تعطيل",
+        _ => "غير محدد"
+    };
+}

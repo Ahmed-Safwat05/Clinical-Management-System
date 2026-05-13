@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Product> Products => Set<Product>();
     public DbSet<StockTransaction> StockTransactions => Set<StockTransaction>();
     public DbSet<VisitProductConsumption> VisitProductConsumptions => Set<VisitProductConsumption>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,6 +81,31 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Setting>()
             .HasIndex(x => x.Key)
             .IsUnique();
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.Property(x => x.Username)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(x => x.EntityName)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(x => x.Description)
+                .HasMaxLength(500)
+                .IsRequired();
+
+            entity.Property(x => x.IpAddress)
+                .HasMaxLength(45);
+
+            entity.Property(x => x.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(x => x.CreatedAt);
+            entity.HasIndex(x => x.Username);
+            entity.HasIndex(x => x.ActionType);
+        });
 
         modelBuilder.Entity<VisitProcedure>()
             .HasOne(x => x.Visit)

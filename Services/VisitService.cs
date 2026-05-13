@@ -11,6 +11,7 @@ public class VisitService : IVisitService
     private readonly IAppointmentService _appointments;
     private readonly IProcedureRepository _procedures;
     private readonly ISettingsService _settings;
+    private readonly IAuditService _auditService;
     private readonly ILogger<VisitService> _logger;
 
     public VisitService(
@@ -19,6 +20,7 @@ public class VisitService : IVisitService
         IAppointmentService appointments,
         IProcedureRepository procedures,
         ISettingsService settings,
+        IAuditService auditService,
         ILogger<VisitService> logger)
     {
         _context = context;
@@ -26,6 +28,7 @@ public class VisitService : IVisitService
         _appointments = appointments;
         _procedures = procedures;
         _settings = settings;
+        _auditService = auditService;
         _logger = logger;
     }
 
@@ -111,6 +114,22 @@ public class VisitService : IVisitService
             }
 
             await transaction.CommitAsync();
+
+            await _auditService.LogAsync(
+                AuditActionType.Create,
+                nameof(Visit),
+                $"Created visit #{visit.Id} for patient #{visit.PatientId} with total {visit.TotalPrice:N2}",
+                visit.Id);
+
+            if (visit.Paid || visit.PaidAmount > 0)
+            {
+                var paymentStatus = visit.Paid ? "paid in full" : "partially paid";
+                await _auditService.LogAsync(
+                    AuditActionType.Update,
+                    nameof(Visit),
+                    $"Visit #{visit.Id} payment status is {paymentStatus}; paid amount {visit.PaidAmount:N2}",
+                    visit.Id);
+            }
         }
         catch (ValidationException ex)
         {
