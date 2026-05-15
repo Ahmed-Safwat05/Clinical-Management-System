@@ -97,7 +97,7 @@ public class AppointmentsController : Controller
         var patients = await _patientService.SearchAsync(null);
         var doctors = await _doctorService.GetAllAsync();
 
-        model.Patients = patients.Select(x => new SelectListItem($"{x.Name} - {x.Phone}", x.Id.ToString()));
+        model.Patients = patients.Select(x => new SelectListItem($"{x.Name} - {x.Age}", x.Id.ToString()));
         model.Doctors = doctors.Select(x => new SelectListItem($"{x.Name} ({x.Specialty})", x.Id.ToString()));
         return model;
     }

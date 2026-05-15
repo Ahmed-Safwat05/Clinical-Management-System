@@ -17,7 +17,12 @@ public class PatientRepository : Repository<Patient>, IPatientRepository
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(x => x.Name.Contains(searchTerm) || x.Phone.Contains(searchTerm));
+            query = query.Where(x =>
+                x.Name.Contains(searchTerm) ||
+                x.Phone.Contains(searchTerm) ||
+                x.MedicalHistoryEntries.Any(entry =>
+                    entry.Title.Contains(searchTerm) ||
+                    entry.Description.Contains(searchTerm)));
         }
 
         return await query.OrderBy(x => x.Name).ToListAsync();

@@ -55,11 +55,12 @@ public class HomeService : IHomeService
     private async Task<List<AppointmentDto>> GetTodayAppointmentsAsync(DateTime date)
     {
         return await _context.Appointments
+            .Where(x=> x.Status == AppointmentStatus.Waiting)
             .Include(x => x.Doctor)
             .Where(x => x.Date.Date == date)
             .OrderBy(x => x.Date)
             .ThenBy(x => x.QueueNumber)
-            .Take(8)
+            .Take(5)
             .Select(x => new AppointmentDto
             {
                 Time = x.Date.ToString("hh:mm tt"),
@@ -74,6 +75,7 @@ public class HomeService : IHomeService
     private async Task<List<DoctorLoadDto>> GetDoctorLoadsAsync(DateTime date)
     {
         var groupedLoads = await _context.Appointments
+            .Where(x => x.Status != AppointmentStatus.Cancelled)
             .Include(x => x.Doctor)
             .Where(x => x.Date.Date == date)
             .GroupBy(x => new { x.DoctorId, x.Doctor!.Name })

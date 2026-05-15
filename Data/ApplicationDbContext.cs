@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<StockTransaction> StockTransactions => Set<StockTransaction>();
     public DbSet<VisitProductConsumption> VisitProductConsumptions => Set<VisitProductConsumption>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<PatientMedicalHistoryEntry> PatientMedicalHistoryEntries => Set<PatientMedicalHistoryEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +32,9 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Patient>()
             .HasQueryFilter(x => !x.IsDeleted);
+
+        modelBuilder.Entity<PatientMedicalHistoryEntry>()
+            .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted);
 
         modelBuilder.Entity<Doctor>()
             .HasQueryFilter(x => !x.IsDeleted);
@@ -105,6 +109,28 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(x => x.CreatedAt);
             entity.HasIndex(x => x.Username);
             entity.HasIndex(x => x.ActionType);
+        });
+
+        modelBuilder.Entity<PatientMedicalHistoryEntry>(entity =>
+        {
+            entity.Property(x => x.Title)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(x => x.Description)
+                .HasMaxLength(1000)
+                .IsRequired();
+
+            entity.Property(x => x.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(x => x.PatientId);
+            entity.HasIndex(x => x.CreatedAt);
+
+            entity.HasOne(x => x.Patient)
+                .WithMany(x => x.MedicalHistoryEntries)
+                .HasForeignKey(x => x.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<VisitProcedure>()

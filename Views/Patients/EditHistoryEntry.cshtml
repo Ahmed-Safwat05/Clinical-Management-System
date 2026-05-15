@@ -1,0 +1,27 @@
+@model PatientMedicalHistoryEntryFormViewModel
+@{
+    ViewData["Title"] = "تعديل سجل مرضي";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">السجل المرضي</span>
+        <h1>تعديل سجل مرضي</h1>
+        <p>تحديث ملاحظة طبية للمريض: <strong>@Model.PatientName</strong></p>
+    </div>
+</div>
+
+<div class="content-card form-card">
+    <form asp-action="EditHistoryEntry" asp-route-id="@Model.Id" method="post" data-success-message="تم تحديث السجل المرضي بنجاح">
+        <partial name="_MedicalHistoryEntryForm" model="Model" />
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check2-circle"></i>
+                حفظ التعديلات
+            </button>
+            <a asp-action="History" asp-route-id="@Model.PatientId" class="btn btn-outline-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
