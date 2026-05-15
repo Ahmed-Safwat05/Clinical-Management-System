@@ -83,28 +83,37 @@
                                     <tbody>
                                     @foreach (var item in doctorQueue.ScheduledQueue)
                                     {
-                                        <tr>
-                                            <td><span class="queue-pill">@item.FormattedQueueNumber</span></td>
-                                            <td>@item.PatientName</td>
-                                            <td>@item.Time</td>
-                                            <td><span class="status-badge @item.StatusBadgeClass">@item.StatusText</span></td>
-                                            <td class="text-end">
-                                                @if (item.CanCreateVisit)
-                                                {
-                                                    <a asp-controller="Visits" asp-action="Create" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success-soft">
-                                                        <i class="bi bi-clipboard2-plus"></i>
-                                                        إنشاء زيارة
-                                                    </a>
-                                                    <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل تريد إلغاء هذا الموعد؟" data-success-message="تم إلغاء الموعد">
-                                                        <input type="hidden" name="date" value="@item.Date.ToString("yyyy-MM-dd")" />
-                                                        <button class="btn btn-sm btn-danger-soft">
-                                                            <i class="bi bi-x-circle"></i>
-                                                            إلغاء
-                                                        </button>
-                                                    </form>
-                                                }
-                                            </td>
-                                        </tr>
+                                            <tr class="@(item.StatusBadgeClass == "cancelled" ? "row-cancelled" : "")">
+                                                <td>
+                                                    @if (item.StatusBadgeClass != "cancelled")
+                                                    {
+                                                        <span class="queue-pill">@item.FormattedQueueNumber</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted"><i class="bi bi-dash-lg"></i></span>
+                                                    }
+                                                </td>
+                                                <td>@item.PatientName</td>
+                                                <td>@item.Time</td>
+                                                <td><span class="status-badge @item.StatusBadgeClass">@item.StatusText</span></td>
+                                                <td class="text-end">
+                                                    @if (item.CanCreateVisit)
+                                                    {
+                                                        <a asp-controller="Visits" asp-action="Create" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success-soft">
+                                                            <i class="bi bi-clipboard2-plus"></i>
+                                                            إنشاء زيارة
+                                                        </a>
+                                                        <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل تريد إلغاء هذا الموعد؟" data-success-message="تم إلغاء الموعد">
+                                                            <input type="hidden" name="date" value="@item.Date.ToString("yyyy-MM-dd")" />
+                                                            <button class="btn btn-sm btn-danger-soft">
+                                                                <i class="bi bi-x-circle"></i>
+                                                                إلغاء
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </td>
+                                            </tr>
                                     }
                                     </tbody>
                                 </table>
@@ -135,28 +144,37 @@
                                     <tbody>
                                     @foreach (var item in doctorQueue.WalkInQueue)
                                     {
-                                        <tr>
-                                            <td><span class="queue-pill walk-in">@item.FormattedQueueNumber</span></td>
-                                            <td>@item.PatientName</td>
-                                            <td>@item.Time</td>
-                                            <td><span class="status-badge @item.StatusBadgeClass">@item.StatusText</span></td>
-                                            <td class="text-end">
-                                                @if (item.CanCreateVisit)
-                                                {
-                                                    <a asp-controller="Visits" asp-action="Create" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success-soft">
-                                                        <i class="bi bi-clipboard2-plus"></i>
-                                                        إنشاء زيارة
-                                                    </a>
-                                                    <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل تريد إلغاء هذا الموعد؟" data-success-message="تم إلغاء الموعد">
-                                                        <input type="hidden" name="date" value="@item.Date.ToString("yyyy-MM-dd")" />
-                                                        <button class="btn btn-sm btn-danger-soft">
-                                                            <i class="bi bi-x-circle"></i>
-                                                            إلغاء
-                                                        </button>
-                                                    </form>
-                                                }
-                                            </td>
-                                        </tr>
+                                            <tr class="@(item.StatusBadgeClass == "cancelled" ? "row-cancelled" : "")">
+                                                <td>
+                                                    @if (item.StatusBadgeClass != "cancelled")
+                                                    {
+                                                        <span class="queue-pill walk-in">@item.FormattedQueueNumber</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted"><i class="bi bi-dash-lg"></i></span>
+                                                    }
+                                                </td>
+                                                <td>@item.PatientName</td>
+                                                <td>@item.Time</td>
+                                                <td><span class="status-badge @item.StatusBadgeClass">@item.StatusText</span></td>
+                                                <td class="text-end">
+                                                    @if (item.CanCreateVisit)
+                                                    {
+                                                        <a asp-controller="Visits" asp-action="Create" asp-route-appointmentId="@item.Id" class="btn btn-sm btn-success-soft">
+                                                            <i class="bi bi-clipboard2-plus"></i>
+                                                            إنشاء زيارة
+                                                        </a>
+                                                        <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل تريد إلغاء هذا الموعد؟" data-success-message="تم إلغاء الموعد">
+                                                            <input type="hidden" name="date" value="@item.Date.ToString("yyyy-MM-dd")" />
+                                                            <button class="btn btn-sm btn-danger-soft">
+                                                                <i class="bi bi-x-circle"></i>
+                                                                إلغاء
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </td>
+                                            </tr>
                                     }
                                     </tbody>
                                 </table>

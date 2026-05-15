@@ -61,6 +61,12 @@ public class AppointmentService : IAppointmentService
         var doctorId = appointment.DoctorId;
         var appointmentDate = appointment.Date;
 
+        var nextNumber = await _appointments.GetNextQueueNumberAsync(
+        appointment.DoctorId,
+        appointment.Date.Date,
+        appointment.IsWalkIn);
+
+        appointment.QueueNumber = nextNumber + 80;
         // Mark as cancelled (don't delete from database)
         appointment.Status = AppointmentStatus.Cancelled;
         _appointments.Update(appointment);

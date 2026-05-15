@@ -59,8 +59,9 @@ public class AppointmentRepository : Repository<Appointment>, IAppointmentReposi
             .Include(x => x.Patient)
             .Include(x => x.Doctor)
             .AsNoTracking()
-            .Where(x => x.Date.Date == targetDate && x.Status != AppointmentStatus.Cancelled)
+            .Where(x => x.Date.Date == targetDate)
             .OrderBy(x => x.Doctor!.Name)
+            .ThenBy(x => x.Status == AppointmentStatus.Cancelled)
             .ThenBy(x => x.IsWalkIn)  // Scheduled first, then Walk-In
             .ThenBy(x => x.QueueNumber)
             .ToListAsync();

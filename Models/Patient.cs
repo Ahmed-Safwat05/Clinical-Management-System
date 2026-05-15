@@ -20,4 +20,5 @@ public class Patient
 
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public ICollection<Visit> Visits { get; set; } = new List<Visit>();
+    public ICollection<PatientMedicalHistoryEntry> MedicalHistoryEntries { get; set; } = new List<PatientMedicalHistoryEntry>();
 }

@@ -82,7 +82,7 @@
                                 <span class="badge bg-secondary">غير نشط</span>
                             }
                         </td>
-                        <td>@product.CostPrice.ToString("C")</td>
+                        <td>@product.CostPrice.ToString("N2") ج.م </td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-sm btn-soft">
                                 <i class="bi bi-eye"></i>

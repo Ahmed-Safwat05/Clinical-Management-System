@@ -1,0 +1,226 @@
+@model PatientMedicalHistoryViewModel
+@{
+    ViewData["Title"] = "السجل المرضي";
+}
+
+<style>
+    .patient-history-grid {
+        display: grid;
+        grid-template-columns: minmax(260px, 340px) 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .history-summary-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .history-summary-chip {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface-soft);
+    }
+
+    .history-summary-chip i {
+        color: var(--primary);
+        font-size: 1.1rem;
+        margin-top: 2px;
+    }
+
+    .history-timeline {
+        position: relative;
+        display: grid;
+        gap: 14px;
+    }
+
+    .history-entry-card {
+        position: relative;
+        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 10px 26px rgba(15, 23, 42, .05);
+    }
+
+    .history-entry-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: flex-start;
+    }
+
+    .history-entry-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .history-entry-title i {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: rgba(15, 118, 110, .1);
+        color: var(--primary);
+    }
+
+    .history-entry-description {
+        color: var(--muted);
+        line-height: 1.9;
+        white-space: pre-line;
+    }
+
+    @@media (max-width: 992px) {
+        .patient-history-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة المرضى</span>
+        <h1>السجل المرضي</h1>
+        <p>عرض الحالات والملاحظات الطبية المهمة للمريض بشكل مرتب وسريع القراءة.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="AddHistoryEntry" asp-route-patientId="@Model.Patient.Id" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            إضافة سجل مرضي
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i>
+            رجوع
+        </a>
+    </div>
+</div>
+
+<div class="patient-history-grid">
+    <aside class="content-card">
+        <div class="section-head">
+            <div>
+                <h2>بيانات المريض</h2>
+                <p>معلومات أساسية للرجوع السريع.</p>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-tile"><span>الاسم</span><strong>@Model.Patient.Name</strong></div>
+            <div class="detail-tile"><span>الهاتف</span><strong>@Model.Patient.Phone</strong></div>
+            <div class="detail-tile"><span>العمر</span><strong>@Model.Patient.Age</strong></div>
+            <div class="detail-tile"><span>النوع</span><strong>@GetGenderLabel(Model.Patient.Gender)</strong></div>
+        </div>
+
+        <hr />
+
+        <div class="section-head">
+            <div>
+                <h2>ملخص طبي سريع</h2>
+                <p>أحدث النقاط المهمة من السجل المرضي.</p>
+            </div>
+        </div>
+
+        @if (Model.SummaryEntries.Any())
+        {
+            <div class="history-summary-list">
+                @foreach (var entry in Model.SummaryEntries)
+                {
+                    <div class="history-summary-chip">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                        <div>
+                            <strong>@entry.Title</strong>
+                            <div class="text-muted small">@entry.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle-fill"></i>
+                لا توجد ملخصات طبية بعد.
+            </div>
+        }
+    </aside>
+
+    <section class="content-card">
+        <div class="section-head">
+            <div>
+                <h2>الخط الزمني للسجل المرضي</h2>
+                <p>السجلات مرتبة من الأحدث إلى الأقدم.</p>
+            </div>
+        </div>
+
+        @if (Model.Entries.Any())
+        {
+            <div class="history-timeline">
+                @foreach (var entry in Model.Entries)
+                {
+                    <article class="history-entry-card">
+                        <div class="history-entry-header">
+                            <div>
+                                <div class="history-entry-title">
+                                    <i class="bi bi-clipboard2-pulse"></i>
+                                    <div>
+                                        <h3 class="h5 mb-1">@entry.Title</h3>
+                                        <small class="text-muted">
+                                            @entry.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt")
+                                            @if (entry.UpdatedAt.HasValue)
+                                            {
+                                                <span> · آخر تحديث @entry.UpdatedAt.Value.ToLocalTime().ToString("yyyy/MM/dd")</span>
+                                            }
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="history-entry-description">@entry.Description</div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a asp-action="EditHistoryEntry" asp-route-id="@entry.Id" class="btn btn-sm btn-soft">
+                                    <i class="bi bi-pencil-square"></i>
+                                    تعديل
+                                </a>
+                                <form asp-action="DeleteHistoryEntry" asp-route-id="@entry.Id" method="post" class="d-inline"
+                                      data-confirm="هل تريد حذف هذا السجل المرضي؟" data-success-message="تم حذف السجل المرضي بنجاح">
+                                    <button type="submit" class="btn btn-sm btn-danger-soft">
+                                        <i class="bi bi-trash3"></i>
+                                        حذف
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state py-5">
+                <i class="bi bi-journal-medical d-block fs-1 mb-3 text-muted"></i>
+                لا يوجد سجل مرضي لهذا المريض حتى الآن.
+                <div class="mt-3">
+                    <a asp-action="AddHistoryEntry" asp-route-patientId="@Model.Patient.Id" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        إضافة أول سجل مرضي
+                    </a>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+
+@functions {
+    private static string GetGenderLabel(Gender gender) => gender switch
+    {
+        Gender.Male => "ذكر",
+        Gender.Female => "أنثى",
+        _ => "-"
+    };
+}

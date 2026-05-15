@@ -1401,3 +1401,19 @@ a.stat-icon:hover {
     }
 }
 
+/* الكلاس اللي ضفناه في الـ TR */
+.row-cancelled {
+    opacity: 0.5; /* يخليه باهت */
+    background-color: #f8f9fa !important; /* خلفية رمادية فاتحة */
+}
+
+    /* التشطيب على النصوص داخل السطر الملغي */
+    .row-cancelled td {
+        text-decoration: line-through; /* ده السطر المسؤول عن التشطيب */
+        color: #888; /* تغيير لون النص لرمادي */
+    }
+
+        /* استثناء الإجراءات (الزراير) عشان لو حبيت تسيبها واضحة */
+        .row-cancelled td.text-end {
+            text-decoration: none !important;
+        }
