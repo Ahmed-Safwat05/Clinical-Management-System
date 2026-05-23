@@ -63,11 +63,8 @@ ASP.NET MVC-based Clinical Management System designed to manage patients, doctor
 ### Login
 ![Login](Screenshots/login.png)
 
-### Dashboard
-![Dashboard](Screenshots/dashboard.png)
-
-### Queue Management
-![Queue](Screenshots/queue.png)
+### Home
+![Home](Screenshots/home.png)
 
 ### Patients
 ![Patients](Screenshots/patients.png)
@@ -75,8 +72,27 @@ ASP.NET MVC-based Clinical Management System designed to manage patients, doctor
 ### Doctors
 ![Doctors](Screenshots/doctors.png)
 
+### Queue Management
+![Queue](Screenshots/queue.png)
+
+
 ### Visits
 ![Visits](Screenshots/visits.png)
+
+### Procedures
+![Procedures](Screenshots/procedures.png)
+
+### Inventory
+![Inventory](Screenshots/inventory.png)
+
+### Dashboard
+![Dashboard](Screenshots/dashboard.png)
+
+### Restore Deleted 
+![Restore Deleted](Screenshots/restore_deleted.png)
+
+### User Management
+![User Management](Screenshots/user_management.png)
 
 ---
 
