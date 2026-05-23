@@ -60,11 +60,11 @@ ASP.NET MVC-based Clinical Management System designed to manage patients, doctor
 
 ## 📸 Screenshots
 
-### Dashboard
-![Dashboard](Screenshots/dashboard.png)
-
 ### Login
 ![Login](Screenshots/login.png)
+
+### Dashboard
+![Dashboard](Screenshots/dashboard.png)
 
 ### Queue Management
 ![Queue](Screenshots/queue.png)
