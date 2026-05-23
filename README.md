@@ -92,7 +92,7 @@ ASP.NET MVC-based Clinical Management System designed to manage patients, doctor
 ![Restore Deleted](Screenshots/restore_deleted.png)
 
 ### User Management
-![User Management](Screenshots/user_management.png)
+![User Management](Screenshots/users.png)
 
 ---
 
