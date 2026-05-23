@@ -9,6 +9,9 @@ obj/
 *.user
 *.suo
 *.log
+*.cache
 app.stdout.log
 app.stderr.log
 app.log
+appsettings.json
+appsettings.Development.json

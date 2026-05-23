@@ -1,51 +1,95 @@
-# Clinical Management System
+# 🏥 Clinical Management System
 
-ASP.NET MVC-based Clinical Management System designed to streamline clinic operations including appointment scheduling, patient management, queue handling, prescriptions, and visit tracking.
+ASP.NET MVC-based Clinical Management System designed to manage patients, doctors, appointments, queue system, visits, prescriptions, and clinic workflows using clean architecture principles.
+
+---
 
 ## 🚀 Features
+
 - Multi-role Authentication & Authorization
 - Patient & Doctor Management
-- Appointment & Queue Management
-- Visit & Prescription Tracking
-- Dashboard & Reporting
-- Soft Delete & Audit Logging
+- Appointment Scheduling System
+- Dynamic Queue Management per Doctor
+- Visit & Prescription Handling
+- Dashboard for Clinic Overview
+- Soft Delete System for safe data handling
 - Search, Filtering & Validation
+- Audit Logging for tracking changes
+
+---
 
 ## 🛠️ Tech Stack
+
 - ASP.NET MVC
 - C#
 - Entity Framework Core
 - LINQ
 - SQL Server
 - HTML5 / CSS3
+- JavaScript (Basic)
 - Git & GitHub
+
+---
 
 ## 🏗️ Architecture
 
-The system follows the MVC architectural pattern combined with the Repository Pattern and Service Layer to ensure maintainability, scalability, and clean separation of concerns.
+- MVC Architecture
+- Repository Pattern
+- Service Layer
+- Dependency Injection
+- Clean Separation of Concerns
+
+---
 
 ## 🗄️ Database Design
 
-- EF Core Code-First Approach
-- Relational Database Design
+- Code First Approach (EF Core)
 - One-to-Many Relationships
+- Normalized Schema Design
 - Data Integrity Constraints
-- Optimized Query Handling using LINQ
+
+---
 
 ## 🔐 Authentication & Authorization
 
 - Cookie-Based Authentication
-- Role-Based Authorization
-- Protected Administrative Operations
+- Role-Based Access Control (Admin / Receptionist)
+- Secure Route Protection
+
+---
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](Screenshots/dashboard.png)
+
+### Login
+![Login](Screenshots/login.png)
+
+### Queue Management
+![Queue](Screenshots/queue.png)
+
+### Patients
+![Patients](Screenshots/patients.png)
+
+### Doctors
+![Doctors](Screenshots/doctors.png)
+
+### Visits
+![Visits](Screenshots/visits.png)
+
+---
+
+## 📂 Documentation
+
+Detailed system documentation, architecture decisions, and refactoring logs are available inside the `Docs/` folder.
+
+---
 
 ## 🚧 Future Improvements
 
-- RESTful API Integration
+- RESTful API Integration (ASP.NET Core Web API)
 - JWT Authentication
-- Docker Support
-- Cloud Deployment
-- Real-time Notifications
-
-## 📂 Project Documentation
-
-Detailed architecture reports, refactoring guides, and implementation documents are available inside the `Docs/` directory.
+- Docker Deployment
+- Cloud Hosting (Azure)
+- Real-time Notifications System
