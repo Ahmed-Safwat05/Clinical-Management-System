@@ -1,16 +1,51 @@
-## 📂 Detailed Project Documentation
+# Clinical Management System
 
-This project is fully documented, tracking every phase, architecture design, and refactoring cycle. You can explore the detailed reports inside the `docs` folder:
+ASP.NET MVC-based Clinical Management System designed to streamline clinic operations including appointment scheduling, patient management, queue handling, prescriptions, and visit tracking.
 
-### 🏛️ Architecture & Phases
-- [Phase 2 Architecture](docs/PHASE_2_ARCHITECTURE.md) - Deep dive into system design.
-- [Phase 2 Completion Report](docs/PHASE_2_COMPLETION_REPORT.md) - Summary of deliverables.
-- [Phase 3 Implementation](docs/PHASE_3_STEP_1_IMPLEMENTATION_SUMMA...md) - Core system build logs.
+## 🚀 Features
+- Multi-role Authentication & Authorization
+- Patient & Doctor Management
+- Appointment & Queue Management
+- Visit & Prescription Tracking
+- Dashboard & Reporting
+- Soft Delete & Audit Logging
+- Search, Filtering & Validation
 
-### 🔄 Refactoring & Optimization
-- [Queue Refactoring Guide](docs/QUEUE_REFACTORING_GUIDE.md) - Explaining the patient queue optimizations.
-- [System Refactoring Document](docs/QUEUE_SYSTEM_REFACTORING.md) - Code quality and clean architecture updates.
+## 🛠️ Tech Stack
+- ASP.NET MVC
+- C#
+- Entity Framework Core
+- LINQ
+- SQL Server
+- HTML5 / CSS3
+- Git & GitHub
 
-### 🛡️ Quality Assurance & Bug Fixes
-- [Bugfix Summary](docs/BUGFIX_SUMMARY.md) - Resolved issues ledger.
-- [Runtime Exceptions Report](docs/RUNTIME_EXCEPTIONS_COMPLETE_REPORT.md) - Error handling documentation.
+## 🏗️ Architecture
+
+The system follows the MVC architectural pattern combined with the Repository Pattern and Service Layer to ensure maintainability, scalability, and clean separation of concerns.
+
+## 🗄️ Database Design
+
+- EF Core Code-First Approach
+- Relational Database Design
+- One-to-Many Relationships
+- Data Integrity Constraints
+- Optimized Query Handling using LINQ
+
+## 🔐 Authentication & Authorization
+
+- Cookie-Based Authentication
+- Role-Based Authorization
+- Protected Administrative Operations
+
+## 🚧 Future Improvements
+
+- RESTful API Integration
+- JWT Authentication
+- Docker Support
+- Cloud Deployment
+- Real-time Notifications
+
+## 📂 Project Documentation
+
+Detailed architecture reports, refactoring guides, and implementation documents are available inside the `Docs/` directory.
