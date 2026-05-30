@@ -1,7 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using ClinicManagementSystem.Data;
-using Microsoft.Extensions.Logging;
-
 namespace ClinicManagementSystem.Services;
 
 public class VisitService : IVisitService

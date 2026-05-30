@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
@@ -58,6 +55,7 @@ builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<IProcedureService, ProcedureService>();
 builder.Services.AddScoped<IHomeService, HomeService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IStockManagementService, StockManagementService>();
 builder.Services.AddScoped<IVisitConsumptionService, VisitConsumptionService>();

@@ -3,10 +3,12 @@ namespace ClinicManagementSystem.Services;
 public class DashboardService : IDashboardService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IFinancialReportService _financialReports;
 
-    public DashboardService(ApplicationDbContext context)
+    public DashboardService(ApplicationDbContext context, IFinancialReportService financialReports)
     {
         _context = context;
+        _financialReports = financialReports;
     }
 
     public async Task<DashboardAnalyticsViewModel> GetDashboardAsync(DateTime date)
@@ -18,17 +20,10 @@ public class DashboardService : IDashboardService
         var yearStart = new DateTime(targetDate.Year, 1, 1);
         var nextYearStart = yearStart.AddYears(1);
 
-        var monthlyRevenue = await _context.Visits
-            .Where(x => x.Date >= monthStart && x.Date < nextMonthStart)
-            .SumAsync(x => (decimal?)x.TotalPrice) ?? 0m;
-
-        var previousMonthRevenue = await _context.Visits
-            .Where(x => x.Date >= previousMonthStart && x.Date < monthStart)
-            .SumAsync(x => (decimal?)x.TotalPrice) ?? 0m;
-
-        var yearlyRevenue = await _context.Visits
-            .Where(x => x.Date >= yearStart && x.Date < nextYearStart)
-            .SumAsync(x => (decimal?)x.TotalPrice) ?? 0m;
+        var todayFinancials = await _financialReports.GetVisitPeriodSummaryAsync(targetDate, targetDate.AddDays(1));
+        var monthFinancials = await _financialReports.GetVisitPeriodSummaryAsync(monthStart, nextMonthStart);
+        var previousMonthFinancials = await _financialReports.GetVisitPeriodSummaryAsync(previousMonthStart, monthStart);
+        var yearFinancials = await _financialReports.GetVisitPeriodSummaryAsync(yearStart, nextYearStart);
 
         var monthlyVisitsCount = await _context.Visits
             .CountAsync(x => x.Date >= monthStart && x.Date < nextMonthStart);
@@ -56,80 +51,25 @@ public class DashboardService : IDashboardService
         return new DashboardAnalyticsViewModel
         {
             Date = targetDate,
-            MonthlyRevenue = monthlyRevenue,
-            PreviousMonthRevenue = previousMonthRevenue,
-            RevenueTrendPercentage = CalculateTrendPercentage(monthlyRevenue, previousMonthRevenue),
-            YearlyRevenue = yearlyRevenue,
+            TodayFinancials = todayFinancials,
+            MonthFinancials = monthFinancials,
+            YearFinancials = yearFinancials,
+            MonthlyRevenue = monthFinancials.CollectedRevenue,
+            PreviousMonthRevenue = previousMonthFinancials.CollectedRevenue,
+            RevenueTrendPercentage = CalculateTrendPercentage(monthFinancials.CollectedRevenue, previousMonthFinancials.CollectedRevenue),
+            YearlyRevenue = yearFinancials.CollectedRevenue,
             MonthlyVisitsCount = monthlyVisitsCount,
             YearlyVisitsCount = yearlyVisitsCount,
             TopDoctorName = topDoctor?.DoctorName,
             TopDoctorVisitsCount = topDoctor?.VisitsCount ?? 0,
-            MonthlyRevenueChart = await BuildMonthlyDailyRevenueAsync(monthStart, nextMonthStart.AddDays(-1)),
-            YearlyRevenueChart = await BuildYearlyMonthlyRevenueAsync(targetDate.Year),
+            MonthlyRevenueChart = await _financialReports.GetDailyCollectedRevenueAsync(monthStart, nextMonthStart.AddDays(-1)),
+            YearlyRevenueChart = await _financialReports.GetMonthlyCollectedRevenueAsync(targetDate.Year),
+            PaymentStatus = await _financialReports.GetPaymentStatusAnalyticsAsync(),
+            TopDebtors = await _financialReports.GetTopDebtorsAsync(5),
             LowStockProducts = lowStockProducts,
             MostConsumedProducts = mostConsumedProducts,
             QueueSummary = queueSummary
         };
-    }
-
-    private async Task<List<RevenuePointDto>> BuildMonthlyDailyRevenueAsync(DateTime startDate, DateTime endDate)
-    {
-        var visits = await _context.Visits
-            .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate)
-            .GroupBy(x => x.Date.Date)
-            .Select(group => new
-            {
-                Date = group.Key,
-                Revenue = group.Sum(x => x.TotalPrice),
-                VisitsCount = group.Count()
-            })
-            .ToListAsync();
-
-        var visitsByDate = visits.ToDictionary(x => x.Date);
-        var points = new List<RevenuePointDto>();
-
-        for (var day = startDate.Date; day <= endDate.Date; day = day.AddDays(1))
-        {
-            visitsByDate.TryGetValue(day, out var item);
-            points.Add(new RevenuePointDto
-            {
-                Label = day.ToString("dd"),
-                Revenue = item?.Revenue ?? 0m,
-                VisitsCount = item?.VisitsCount ?? 0
-            });
-        }
-
-        return points;
-    }
-
-    private async Task<List<RevenuePointDto>> BuildYearlyMonthlyRevenueAsync(int year)
-    {
-        var visits = await _context.Visits
-            .Where(x => x.Date.Year == year)
-            .GroupBy(x => x.Date.Month)
-            .Select(group => new
-            {
-                Month = group.Key,
-                Revenue = group.Sum(x => x.TotalPrice),
-                VisitsCount = group.Count()
-            })
-            .ToListAsync();
-
-        var visitsByMonth = visits.ToDictionary(x => x.Month);
-        var points = new List<RevenuePointDto>();
-
-        for (var month = 1; month <= 12; month++)
-        {
-            visitsByMonth.TryGetValue(month, out var item);
-            points.Add(new RevenuePointDto
-            {
-                Label = new DateTime(year, month, 1).ToString("MMM"),
-                Revenue = item?.Revenue ?? 0m,
-                VisitsCount = item?.VisitsCount ?? 0
-            });
-        }
-
-        return points;
     }
 
     private static decimal CalculateTrendPercentage(decimal current, decimal previous)
