@@ -18,4 +18,7 @@ global using System.Diagnostics;
 global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using System.Security.Claims;
+global using System.ComponentModel.DataAnnotations.Schema;
+
+
 

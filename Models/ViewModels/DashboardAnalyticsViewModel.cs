@@ -3,6 +3,9 @@ namespace ClinicManagementSystem.Models.ViewModels;
 public class DashboardAnalyticsViewModel
 {
     public DateTime Date { get; set; }
+    public FinancialSummaryDto TodayFinancials { get; set; } = new();
+    public FinancialSummaryDto MonthFinancials { get; set; } = new();
+    public FinancialSummaryDto YearFinancials { get; set; } = new();
     public decimal MonthlyRevenue { get; set; }
     public decimal YearlyRevenue { get; set; }
     public decimal PreviousMonthRevenue { get; set; }
@@ -13,6 +16,8 @@ public class DashboardAnalyticsViewModel
     public int TopDoctorVisitsCount { get; set; }
     public List<RevenuePointDto> MonthlyRevenueChart { get; set; } = new();
     public List<RevenuePointDto> YearlyRevenueChart { get; set; } = new();
+    public PaymentStatusAnalyticsDto PaymentStatus { get; set; } = new();
+    public List<TopDebtorDto> TopDebtors { get; set; } = new();
 
     // Phase 4.5: Operational Insights
     public List<LowStockProductDto> LowStockProducts { get; set; } = new();

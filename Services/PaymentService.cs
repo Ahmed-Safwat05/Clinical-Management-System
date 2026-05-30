@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ClinicManagementSystem.Services;
 
 public class PaymentService : IPaymentService
