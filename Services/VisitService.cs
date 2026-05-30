@@ -74,7 +74,7 @@ public class VisitService : IVisitService
             var procedureById = await LoadProceduresAsync(requestedProcedures);
             var examinationPrice = ResolveExaminationPrice(model.ExaminationPrice, defaultExamPrice);
             var discount = ResolveDiscount(model.Discount, allowDiscount, maxDiscount);
-            var proceduresPrice = model.ProceduresPrice;
+            var proceduresPrice = CalculateProceduresPrice(requestedProcedures, procedureById);
             var totalPrice = CalculateTotalPrice(examinationPrice, proceduresPrice, discount);
 
             ValidatePayment(model.PaidAmount, totalPrice);
@@ -91,17 +91,29 @@ public class VisitService : IVisitService
                 Discount = discount,
                 TotalPrice = totalPrice,
                 PaidAmount = model.PaidAmount,
-                Paid = model.Paid || (model.PaidAmount == totalPrice && totalPrice > 0)
+                Paid = totalPrice - model.PaidAmount <= 0m
             };
+
+            if (model.PaidAmount > 0)
+            {
+                visit.Payments.Add(new Payment
+                {
+                    Amount = model.PaidAmount,
+                    Notes = "Initial payment during visit creation",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
 
             foreach (var input in requestedProcedures)
             {
-                var procedure = procedureById[input.ProcedureId.Value];
+                var procedureId = input.ProcedureId.GetValueOrDefault();
+                var quantity = input.Quantity.GetValueOrDefault();
+                var procedure = procedureById[procedureId];
                 visit.VisitProcedures.Add(new VisitProcedure
                 {
                     ProcedureId = procedure.Id,
-                    Quantity = input.Quantity.Value,
-                    SubTotal = procedure.Price * input.Quantity.Value
+                    Quantity = quantity,
+                    SubTotal = procedure.Price * quantity
                 });
             }
 
@@ -171,7 +183,7 @@ public class VisitService : IVisitService
     {
         var procedureIds = requestedProcedures
             .Where(x => x.ProcedureId.HasValue)
-            .Select(x => x.ProcedureId.Value)
+            .Select(x => x.ProcedureId.GetValueOrDefault())
             .ToArray();
         var procedures = await _procedures.FindAsync(x => procedureIds.Contains(x.Id));
         var procedureById = procedures.ToDictionary(x => x.Id);
@@ -257,12 +269,17 @@ public class VisitService : IVisitService
         return submittedDiscount;
     }
 
-    //private static decimal CalculateProceduresPrice(
-    //    IEnumerable<VisitProcedureInput> requestedProcedures,
-    //    IReadOnlyDictionary<int, Procedure> procedureById)
-    //{
-    //    return requestedProcedures.Sum(input => procedureById[input.ProcedureId].Price * input.Quantity);
-    //}
+    private static decimal CalculateProceduresPrice(
+        IEnumerable<VisitProcedureInput> requestedProcedures,
+        IReadOnlyDictionary<int, Procedure> procedureById)
+    {
+        return requestedProcedures.Sum(input =>
+        {
+            var procedureId = input.ProcedureId.GetValueOrDefault();
+            var quantity = input.Quantity.GetValueOrDefault();
+            return procedureById[procedureId].Price * quantity;
+        });
+    }
 
     private static decimal CalculateTotalPrice(decimal examinationPrice, decimal proceduresPrice, decimal discount)
     {

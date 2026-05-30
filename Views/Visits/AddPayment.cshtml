@@ -1,0 +1,96 @@
+@model PaymentCreateViewModel
+@{
+    ViewData["Title"] = "إضافة دفعة";
+}
+
+<div class="module-header">
+    <div>
+        <span class="module-kicker">إدارة المدفوعات</span>
+        <h1>إضافة دفعة</h1>
+        <p>تسجيل دفعة جديدة على زيارة قائمة مع منع تجاوز الرصيد المتبقي.</p>
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.VisitId" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i>
+        رجوع
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="section-head">
+                <div>
+                    <h2>بيانات الدفعة</h2>
+                    <p>أدخل قيمة الدفعة والملاحظات الاختيارية.</p>
+                </div>
+            </div>
+
+            <form asp-action="AddPayment" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
+                <input asp-for="VisitId" type="hidden" />
+                <input asp-for="VisitTotalPrice" type="hidden" />
+                <input asp-for="TotalPaid" type="hidden" />
+                <input asp-for="RemainingBalance" type="hidden" />
+                <input asp-for="PatientName" type="hidden" />
+                <input asp-for="DoctorName" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="col-md-6">
+                    <label asp-for="Amount" class="form-label">قيمة الدفعة</label>
+                    <input asp-for="Amount" type="number" step="0.01" min="0.01" max="@Model.RemainingBalance" class="form-control" />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                    <div class="form-text">الحد الأقصى لهذه الدفعة: @Model.RemainingBalance.ToString("N2") ج.م</div>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label">ملاحظات</label>
+                    <textarea asp-for="Notes" rows="4" class="form-control" placeholder="مثال: دفعة نقدية، تحويل، جزء من الحساب..."></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2-circle"></i>
+                        حفظ الدفعة
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.VisitId" class="btn btn-outline-secondary">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="section-head">
+                <h2>ملخص الزيارة</h2>
+            </div>
+            <div class="details-grid">
+                <div class="detail-tile">
+                    <span>المريض</span>
+                    <strong>@Model.PatientName</strong>
+                </div>
+                <div class="detail-tile">
+                    <span>الطبيب</span>
+                    <strong>@Model.DoctorName</strong>
+                </div>
+                <div class="detail-tile">
+                    <span>إجمالي الزيارة</span>
+                    <strong class="text-primary">@Model.VisitTotalPrice.ToString("N2") ج.م</strong>
+                </div>
+                <div class="detail-tile">
+                    <span>المدفوع سابقا</span>
+                    <strong class="text-success">@Model.TotalPaid.ToString("N2") ج.م</strong>
+                </div>
+                <div class="detail-tile">
+                    <span>المتبقي</span>
+                    <strong class="text-warning">@Model.RemainingBalance.ToString("N2") ج.م</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

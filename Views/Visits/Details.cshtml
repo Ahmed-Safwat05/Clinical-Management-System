@@ -20,16 +20,17 @@
         <div class="detail-tile"><span>التاريخ</span><strong>@Model.Date.ToString("yyyy-MM-dd")</strong></div>
         <div class="detail-tile"><span>المريض</span><strong>@Model.Patient?.Name</strong></div>
         <div class="detail-tile"><span>الطبيب</span><strong>@Model.Doctor?.Name</strong></div>
-        <div class="detail-tile"><span>الدفع</span><strong>@Model.PaidAmount.ToString("N2") ج.م / @Model.TotalPrice.ToString("C")</strong></div>
+        <div class="detail-tile"><span>الدفع</span><strong>@Model.TotalPaid.ToString("N2") ج.م / @Model.TotalPrice.ToString("N2") ج.م</strong></div>
     </div>
     @if (!string.IsNullOrWhiteSpace(Model.Notes))
     {
         <div class="notes-box">
-        <strong>ملاحظات الطبيب</strong>
-        <p class="mb-0">@Model.Notes</p>
+            <strong>ملاحظات الطبيب</strong>
+            <p class="mb-0">@Model.Notes</p>
         </div>
     }
 </div>
+
 <div class="content-card mb-3">
     <div class="section-head">
         <h2>التفاصيل المالية</h2>
@@ -37,32 +38,88 @@
     <div class="details-grid">
         <div class="detail-tile">
             <span>قيمة الكشف</span>
-            <strong>@Model.ExaminationPrice.ToString("N2")ج.م </strong>
+            <strong>@Model.ExaminationPrice.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>إجمالي الإجراءات</span>
-            <strong>@Model.ProceduresPrice.ToString("N2")ج.م </strong>
+            <strong>@Model.ProceduresPrice.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>الخصم</span>
-            <strong class="text-danger">@Model.Discount.ToString("N2")ج.م </strong>
+            <strong class="text-danger">@Model.Discount.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>الإجمالي النهائي</span>
-            <strong class="text-primary">@Model.TotalPrice.ToString("N2")ج.م </strong>
+            <strong class="text-primary">@Model.TotalPrice.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>المبلغ المدفوع</span>
-            <strong class="text-success">@Model.PaidAmount.ToString("N2")ج.م </strong>
+            <strong class="text-success">@Model.TotalPaid.ToString("N2") ج.م</strong>
+        </div>
+        <div class="detail-tile">
+            <span>المتبقي</span>
+            <strong class="@(Model.RemainingBalance > 0 ? "text-warning" : "text-success")">@Model.RemainingBalance.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>حالة الدفع</span>
-            <span class="status-badge @(Model.Paid ? "confirmed" : "waiting") mt-2">
-                @(Model.Paid ? "مدفوع بالكامل" : "مستحق")
+            <span class="status-badge @(Model.IsPaidInFull ? "confirmed" : "waiting") mt-2">
+                @(Model.IsPaidInFull ? "مدفوع بالكامل" : "مستحق")
             </span>
         </div>
     </div>
 </div>
+
+<div class="content-card mb-3">
+    <div class="section-head">
+        <div>
+            <h2>المدفوعات</h2>
+            <p>سجل الدفعات المسجلة على هذه الزيارة.</p>
+        </div>
+        @if (Model.RemainingBalance > 0)
+        {
+            <a asp-action="AddPayment" asp-route-visitId="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-cash-coin"></i>
+                إضافة دفعة
+            </a>
+        }
+    </div>
+
+    @if (Model.Payments.Any())
+    {
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>تاريخ الدفع</th>
+                        <th>المبلغ</th>
+                        <th>الملاحظات</th>
+                        <th>المستخدم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var payment in Model.Payments.OrderByDescending(x => x.CreatedAt))
+                {
+                    <tr>
+                        <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                        <td class="fw-bold text-success">@payment.Amount.ToString("N2") ج.م</td>
+                        <td>@(string.IsNullOrWhiteSpace(payment.Notes) ? "-" : payment.Notes)</td>
+                        <td>@(string.IsNullOrWhiteSpace(payment.CreatedBy) ? "-" : payment.CreatedBy)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state py-4">
+            <i class="bi bi-cash-stack"></i>
+            <h3>لا توجد دفعات مسجلة</h3>
+            <p>يمكن إضافة دفعات جزئية حتى يتم سداد الزيارة بالكامل.</p>
+        </div>
+    }
+</div>
+
 <div class="content-card">
     <div class="section-head">
         <div>
@@ -71,14 +128,20 @@
         </div>
     </div>
     <table class="table admin-table mb-0">
-        <thead><tr><th>الإجراء</th><th>الكمية</th><th>الإجمالي الفرعي</th></tr></thead>
+        <thead>
+            <tr>
+                <th>الإجراء</th>
+                <th>الكمية</th>
+                <th>الإجمالي الفرعي</th>
+            </tr>
+        </thead>
         <tbody>
         @foreach (var item in Model.VisitProcedures)
         {
             <tr>
                 <td>@item.Procedure?.Name</td>
                 <td>@item.Quantity</td>
-                <td>@item.SubTotal.ToString("C")</td>
+                <td>@item.SubTotal.ToString("N2") ج.م</td>
             </tr>
         }
         </tbody>

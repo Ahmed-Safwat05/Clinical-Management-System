@@ -24,7 +24,17 @@
     </div>
     <div class="table-responsive">
     <table class="table admin-table mb-0" data-admin-table>
-        <thead><tr><th>التاريخ</th><th>المريض</th><th>الطبيب</th><th>الإجمالي</th><th>المدفوع</th><th class="text-end">الإجراءات</th></tr></thead>
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>المريض</th>
+                <th>الطبيب</th>
+                <th>الإجمالي</th>
+                <th>المدفوع</th>
+                <th>المتبقي</th>
+                <th class="text-end">الإجراءات</th>
+            </tr>
+        </thead>
         <tbody>
         @foreach (var visit in Model)
         {
@@ -32,23 +42,28 @@
                 <td>@visit.Date.ToString("yyyy-MM-dd")</td>
                 <td>@visit.Patient?.Name</td>
                 <td>@visit.Doctor?.Name</td>
-                <td>@visit.TotalPrice.ToString("N2") ج.م
-                </td>
+                <td>@visit.TotalPrice.ToString("N2") ج.م</td>
                 <td>
-                    @visit.PaidAmount.ToString("N2") ج.م
-                    <span class="status-badge @(visit.Paid ? "confirmed" : "waiting")">@(visit.Paid ? "مدفوع" : "مستحق")</span>
+                    @visit.TotalPaid.ToString("N2") ج.م
+                    <span class="status-badge @(visit.IsPaidInFull ? "confirmed" : "waiting")">@(visit.IsPaidInFull ? "مدفوع" : "مستحق")</span>
                 </td>
+                <td>@visit.RemainingBalance.ToString("N2") ج.م</td>
                 <td class="text-end">
                     <a asp-action="Details" asp-route-id="@visit.Id" class="btn btn-sm btn-soft">
                         <i class="bi bi-eye"></i>
                         التفاصيل
                     </a>
+                    @if (visit.RemainingBalance > 0)
+                    {
+                        <a asp-action="AddPayment" asp-route-visitId="@visit.Id" class="btn btn-sm btn-success">
+                            <i class="bi bi-cash-coin"></i>
+                            دفعة
+                        </a>
+                    }
                     <a asp-action="Delete" asp-route-id="@visit.Id" class="btn btn-sm btn-danger">
-                          حذف
+                        حذف
                     </a>
-
                 </td>
-
             </tr>
         }
         </tbody>

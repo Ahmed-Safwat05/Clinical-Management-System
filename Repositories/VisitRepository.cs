@@ -11,6 +11,7 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
         return await Context.Visits
             .Include(x => x.Patient)
             .Include(x => x.Doctor)
+            .Include(x => x.Payments)
             .AsNoTracking()
             .OrderByDescending(x => x.Date)
             .Take(count)
@@ -24,6 +25,7 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
             .Include(x => x.Doctor)
             .Include(x => x.VisitProcedures)
             .ThenInclude(x => x.Procedure)
+            .Include(x => x.Payments.OrderByDescending(payment => payment.CreatedAt))
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
