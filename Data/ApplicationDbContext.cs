@@ -1,7 +1,5 @@
 namespace ClinicManagementSystem.Data;
 
-using Microsoft.AspNetCore.Identity;
-
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
