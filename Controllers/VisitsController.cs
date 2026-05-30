@@ -10,6 +10,7 @@ public class VisitsController : Controller
     private readonly ISettingsService _settingsService;
     private readonly IVisitConsumptionService _consumptionService;
     private readonly IProductService _productService;
+    private readonly IPaymentService _paymentService;
 
     public VisitsController(
         IVisitService visitService,
@@ -18,7 +19,8 @@ public class VisitsController : Controller
         IProcedureService procedureService,
         ISettingsService settingsService,
         IVisitConsumptionService consumptionService,
-        IProductService productService)
+        IProductService productService,
+        IPaymentService paymentService)
     {
         _visitService = visitService;
         _patientService = patientService;
@@ -27,6 +29,7 @@ public class VisitsController : Controller
         _settingsService = settingsService;
         _consumptionService = consumptionService;
         _productService = productService;
+        _paymentService = paymentService;
     }
 
     public async Task<IActionResult> Index()
@@ -38,6 +41,50 @@ public class VisitsController : Controller
     {
         var visit = await _visitService.GetDetailsAsync(id);
         return visit is null ? NotFound() : View(visit);
+    }
+
+    public async Task<IActionResult> AddPayment(int visitId)
+    {
+        var model = await _paymentService.BuildCreateModelAsync(visitId);
+        return model is null ? NotFound() : View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddPayment(PaymentCreateViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var rebuiltModel = await _paymentService.BuildCreateModelAsync(model.VisitId);
+            if (rebuiltModel is null)
+            {
+                return NotFound();
+            }
+
+            rebuiltModel.Amount = model.Amount;
+            rebuiltModel.Notes = model.Notes;
+            return View(rebuiltModel);
+        }
+
+        try
+        {
+            await _paymentService.AddPaymentAsync(model);
+            TempData["SuccessMessage"] = "تمت إضافة الدفعة بنجاح";
+            return RedirectToAction(nameof(Details), new { id = model.VisitId });
+        }
+        catch (ValidationException ex)
+        {
+            var rebuiltModel = await _paymentService.BuildCreateModelAsync(model.VisitId);
+            if (rebuiltModel is null)
+            {
+                return NotFound();
+            }
+
+            rebuiltModel.Amount = model.Amount;
+            rebuiltModel.Notes = model.Notes;
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(rebuiltModel);
+        }
     }
 
     public async Task<IActionResult> Create(int? appointmentId)

@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<VisitProductConsumption> VisitProductConsumptions => Set<VisitProductConsumption>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<PatientMedicalHistoryEntry> PatientMedicalHistoryEntries => Set<PatientMedicalHistoryEntry>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,6 +45,9 @@ public class ApplicationDbContext : DbContext
             .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted && x.Doctor != null && !x.Doctor.IsDeleted);
 
         modelBuilder.Entity<VisitProcedure>()
+            .HasQueryFilter(x => x.Visit != null && x.Visit.Patient != null && !x.Visit.Patient.IsDeleted && x.Visit.Doctor != null && !x.Visit.Doctor.IsDeleted);
+
+        modelBuilder.Entity<Payment>()
             .HasQueryFilter(x => x.Visit != null && x.Visit.Patient != null && !x.Visit.Patient.IsDeleted && x.Visit.Doctor != null && !x.Visit.Doctor.IsDeleted);
 
         modelBuilder.Entity<DoctorSchedule>()
@@ -75,6 +79,29 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Visit>()
             .Property(x => x.PaidAmount)
             .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.Property(x => x.Amount)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(x => x.Notes)
+                .HasMaxLength(500);
+
+            entity.Property(x => x.CreatedBy)
+                .HasMaxLength(100);
+
+            entity.Property(x => x.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(x => x.VisitId);
+            entity.HasIndex(x => x.CreatedAt);
+
+            entity.HasOne(x => x.Visit)
+                .WithMany(x => x.Payments)
+                .HasForeignKey(x => x.VisitId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
 
         modelBuilder.Entity<VisitProcedure>()
             .Property(x => x.SubTotal)

@@ -46,6 +46,7 @@ builder.Services.AddScoped<IStockTransactionRepository, StockTransactionReposito
 builder.Services.AddScoped<IVisitProductConsumptionRepository, VisitProductConsumptionRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IPatientMedicalHistoryRepository, PatientMedicalHistoryRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
@@ -62,6 +63,7 @@ builder.Services.AddScoped<IStockManagementService, StockManagementService>();
 builder.Services.AddScoped<IVisitConsumptionService, VisitConsumptionService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IPatientMedicalHistoryService, PatientMedicalHistoryService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Add logging
 builder.Services.AddLogging(logging =>
@@ -77,9 +79,35 @@ var app = builder.Build();
 // Seed database with default users
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    // 1. عمل الـ Migrate أوتوماتيكياً لإنشاء الجداول (لـ SQLite)
+    await dbContext.Database.MigrateAsync();
+
+    // 2. تنظيف الـ Audit Logs القديمة (أقدم من 30 يوم)
+    var retentionDate = DateTime.UtcNow.AddDays(-30);
+    var oldLogs = dbContext.AuditLogs.Where(log => log.CreatedAt < retentionDate);
+
+    if (oldLogs.Any())
+    {
+        dbContext.AuditLogs.RemoveRange(oldLogs);
+        await dbContext.SaveChangesAsync();
+
+        // ضغط ملف الـ SQLite لتقليص المساحة على الهارد
+        await dbContext.Database.ExecuteSqlRawAsync("VACUUM;");
+    }
     await DatabaseInitializer.SeedUsersAsync(dbContext);
 }
+catch (Exception ex)
+    {
+    // تسجيل أي خطأ يحدث أثناء بداية التشغيل
+    Console.WriteLine($"An error occurred during startup/migration: {ex.Message}");
+}
+}
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
