@@ -13,6 +13,14 @@
     {
       "library": "Chart.js@4.5.0",
       "destination": "wwwroot/lib/Chart.js/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "htmx@2.0.7",
+      "destination": "wwwroot/lib/htmx/",
+      "files": [
+        "htmx.min.js"
+      ]
     }
   ]
 }

@@ -37,24 +37,21 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ClinicManagementSystem.styles.css" asp-append-version="true" />
 </head>
-<body hx-boost="true">
+<body>
     @if (User.Identity?.IsAuthenticated != true)
     {
-        <main class="auth-page" role="main">
+        <main hx-boost="true" class="auth-page" role="main">
             @RenderBody()
         </main>
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
         <script src="~/lib/chartjs/chart.umd.min.js"></script>
-
         <script src="~/js/site.js" asp-append-version="true"></script>
         @await RenderSectionAsync("Scripts", required: false)
         return;
     }
 
-    <div class="app-shell">
+    <div class="app-shell" hx-boost="true">
         <aside class="app-sidebar">
             <div class="sidebar-brand">
                 <div class="brand-mark">
@@ -127,7 +124,7 @@
                 }
             </nav>
 
-            <form asp-controller="Account" asp-action="Logout" method="post" class="sidebar-logout">
+            <form asp-controller="Account" asp-action="Logout" method="post" class="sidebar-logout" hx-boost="false">
                 <button type="submit" class="sidebar-link logout-link">
                     <i class="bi bi-box-arrow-left"></i>
                     <span>تسجيل الخروج</span>
@@ -143,60 +140,38 @@
                 </form>
 
                 <div class="topbar-actions">
-                    @*<div class="notification-container">
-                        <button class="notification-btn" id="notificationBtn" type="button" aria-label="الإشعارات">
-                            <i class="bi bi-bell-fill"></i>
-                            <span class="notification-badge"></span>
-                        </button>
+                    <div class="dropdown">
+                        <div class="user-profile " id="userDropdown" style="cursor: pointer;">
+                            <img src="~/images/receptionist-icon-svg-download-png-6973939.png" alt="صورة المستخدم" />
+                            <div class="user-info">
+                                <strong>@(User.Identity?.Name ?? "مستخدم")</strong>
+                                <span>@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "موظف")</span>
+                            </div>
+                        </div>
 
-                        <div class="notification-dropdown" id="notificationDropdown">
-                            <div class="dropdown-header">الإشعارات الجديدة</div>
-                            <div class="dropdown-body">
-                                <a href="#" class="notification-item-link">
-                                    <div class="notification-item">
-                                        <i class="bi bi-calendar-event"></i>
-                                        <div>
-                                            <strong>موعد جديد</strong>
-                                            <span>المريض أحمد طلب حجزاً</span>
-                                        </div>
-                                    </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 200px;">
+                            @{
+                                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
+                            }
+                            <li>
+                                <a asp-controller="Users" asp-action="ChangePassword" asp-route-id="@userId" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2">
+                                    <i class="bi bi-key text-muted"></i>
+                                    <span>تغيير كلمة المرور</span>
                                 </a>
-                            </div>
-                        </div>
-                    </div>*@
-
-                        <div class="dropdown">
-                            <div class="user-profile " id="userDropdown" style="cursor: pointer;">
-                                <img src="~/images/receptionist-icon-svg-download-png-6973939.png" alt="صورة المستخدم" />
-                                <div class="user-info">
-                                    <strong>@(User.Identity?.Name ?? "مستخدم")</strong>
-                                    <span>@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "موظف")</span>
-                                </div>
-                            </div>
-
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 200px;">
-                                @{
-                                    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
-                                }
-                                <li>
-                                    <a asp-controller="Users" asp-action="ChangePassword" asp-route-id="@userId" class="dropdown-item rounded-2 py-2 d-flex align-items-center gap-2">
-                                        <i class="bi bi-key text-muted"></i>
-                                        <span>تغيير كلمة المرور</span>
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                        <button type="submit" class="dropdown-item rounded-2 py-2 text-danger d-flex align-items-center gap-2">
-                                            <i class="bi bi-box-arrow-left"></i>
-                                            <span>تسجيل الخروج</span>
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0" hx-boost="false">
+                                    <button type="submit" class="dropdown-item rounded-2 py-2 text-danger d-flex align-items-center gap-2">
+                                        <i class="bi bi-box-arrow-left"></i>
+                                        <span>تسجيل الخروج</span>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
-                </header>
+                </div>
+            </header>
 
             <main class="app-content" role="main">
                 @RenderBody()
@@ -207,7 +182,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/Chart.js/chart.umd.js"></script>
-    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+    <script src="~/lib/htmx/htmx.min.js"></script>
+
     <script src="~/js/site.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
