@@ -21,6 +21,17 @@
         <div class="detail-tile"><span>التاريخ</span><strong>@visit.Date.ToString("yyyy-MM-dd")</strong></div>
         <div class="detail-tile"><span>المريض</span><strong>@visit.Patient?.Name</strong></div>
         <div class="detail-tile"><span>الطبيب</span><strong>@visit.Doctor?.Name</strong></div>
+        <div class="detail-tile">
+            <span>الحالة</span>
+            @if (visit.IsVoided)
+            {
+                <span class="status-badge danger mt-2">ملغاة</span>
+            }
+            else
+            {
+                <span class="status-badge success mt-2">نشطة</span>
+            }
+        </div>
         <div class="detail-tile"><span>الدفع</span><strong>@visit.TotalPaid.ToString("N2") ج.م / @visit.TotalPrice.ToString("N2") ج.م</strong></div>
     </div>
     @if (!string.IsNullOrWhiteSpace(visit.Notes))
@@ -28,6 +39,17 @@
         <div class="notes-box">
             <strong>ملاحظات الطبيب</strong>
             <p class="mb-0">@visit.Notes</p>
+        </div>
+    }
+    @if (visit.IsVoided && visit.VoidedAt.HasValue)
+    {
+        <div class="alert alert-warning" role="alert">
+            <h5 class="alert-heading">الزيارة ملغاة</h5>
+            <p class="mb-2"><strong>تاريخ الإلغاء:</strong> @visit.VoidedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+            @if (!string.IsNullOrWhiteSpace(visit.VoidReason))
+            {
+                <p class="mb-0"><strong>سبب الإلغاء:</strong> @visit.VoidReason</p>
+            }
         </div>
     }
 </div>

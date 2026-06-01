@@ -130,16 +130,59 @@ public class VisitsController : Controller
         }
     }
 
+    public async Task<IActionResult> VoidConfirm(int id)
+    {
+        var visit = await _visitService.GetDetailsAsync(id);
+        if (visit is null)
+        {
+            return NotFound();
+        }
+
+        if (visit.Status == VisitStatus.Voided)
+        {
+            TempData["ErrorMessage"] = "هذه الزيارة مُلغاة بالفعل";
+            return RedirectToAction(nameof(Index));
+        }
+
+        return PartialView("_VoidConfirmModal", visit);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VoidConfirm(int id, string? voidReason)
+    {
+        var visit = await _visitService.GetDetailsAsync(id);
+        if (visit is null)
+        {
+            return NotFound();
+        }
+
+        if (visit.Status == VisitStatus.Voided)
+        {
+            return Json(new { success = false, message = "هذه الزيارة مُلغاة بالفعل" });
+        }
+
+        try
+        {
+            await _visitService.VoidAsync(id, voidReason);
+            return Json(new { success = true, message = "تم إلغاء الزيارة بنجاح" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = $"حدث خطأ أثناء إلغاء الزيارة: {ex.Message}" });
+        }
+    }
+
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
             await _visitService.DeleteAsync(id);
-            TempData["SuccessMessage"] = "تم حذف الزيارة بنجاح";
+            TempData["SuccessMessage"] = "تم إلغاء الزيارة بنجاح";
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"حدث خطأ أثناء حذف الزيارة: {ex.Message}";
+            TempData["ErrorMessage"] = $"حدث خطأ أثناء إلغاء الزيارة: {ex.Message}";
         }
         return RedirectToAction(nameof(Index));
     }
@@ -151,11 +194,11 @@ public class VisitsController : Controller
         try
         {
             await _visitService.DeleteAsync(id);
-            TempData["SuccessMessage"] = "تم حذف الزيارة بنجاح";
+            TempData["SuccessMessage"] = "تم إلغاء الزيارة بنجاح";
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"حدث خطأ أثناء حذف الزيارة: {ex.Message}";
+            TempData["ErrorMessage"] = $"حدث خطأ أثناء إلغاء الزيارة: {ex.Message}";
         }
         return RedirectToAction(nameof(Index));
     }

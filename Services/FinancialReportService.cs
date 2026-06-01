@@ -16,7 +16,7 @@ public class FinancialReportService : IFinancialReportService
 
         var summary = await _context.Visits
             .AsNoTracking()
-            .Where(x => x.Date >= start && x.Date < end)
+            .Where(x => x.Date >= start && x.Date < end && x.Status != VisitStatus.Voided)
             .Select(x => new
             {
                 x.TotalPrice,
@@ -37,6 +37,7 @@ public class FinancialReportService : IFinancialReportService
     {
         var visits = _context.Visits
             .AsNoTracking()
+            .Where(x => x.Status != VisitStatus.Voided)
             .Select(x => new
             {
                 x.TotalPrice,
@@ -55,6 +56,7 @@ public class FinancialReportService : IFinancialReportService
     {
         var visitBalances = await _context.Visits
             .AsNoTracking()
+            .Where(x => x.Status != VisitStatus.Voided)
             .Select(x => new
             {
                 x.PatientId,
@@ -83,7 +85,7 @@ public class FinancialReportService : IFinancialReportService
 
         var payments = await _context.Payments
             .AsNoTracking()
-            .Where(x => x.CreatedAt >= start && x.CreatedAt < endExclusive)
+            .Where(x => x.CreatedAt >= start && x.CreatedAt < endExclusive && x.Visit!.Status != VisitStatus.Voided)
             .GroupBy(x => x.CreatedAt.Date)
             .Select(group => new
             {
@@ -117,7 +119,7 @@ public class FinancialReportService : IFinancialReportService
 
         var payments = await _context.Payments
             .AsNoTracking()
-            .Where(x => x.CreatedAt >= yearStart && x.CreatedAt < nextYearStart)
+            .Where(x => x.CreatedAt >= yearStart && x.CreatedAt < nextYearStart && x.Visit!.Status != VisitStatus.Voided)
             .GroupBy(x => x.CreatedAt.Month)
             .Select(group => new
             {

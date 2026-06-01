@@ -1,9 +1,3 @@
-using ClinicManagementSystem.Data;
-using ClinicManagementSystem.Interfaces.Services;
-using ClinicManagementSystem.Models;
-using ClinicManagementSystem.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-
 namespace ClinicManagementSystem.Services;
 
 public class HomeService : IHomeService
@@ -21,7 +15,7 @@ public class HomeService : IHomeService
         var targetDate = date.Date;
         var todayAppointments = await GetTodayAppointmentsAsync(targetDate);
         var doctorLoads = await GetDoctorLoadsAsync(targetDate);
-        var unpaidVisitsCount = await _context.Visits.CountAsync(x => !x.Paid);
+        var unpaidVisitsCount = await _context.Visits.CountAsync(x => !x.Paid && x.Status != VisitStatus.Voided);
         var upcomingAppointmentsCount = await CountUpcomingAppointmentsAsync(DateTime.Now);
         var heavyDoctors = doctorLoads.Where(x => x.AppointmentCount > HeavyDoctorLoadThreshold).ToList();
 
@@ -29,11 +23,13 @@ public class HomeService : IHomeService
         {
             TotalPatients = await _context.Patients.CountAsync(),
             TotalDoctors = await _context.Doctors.CountAsync(),
-            TodayVisitsCount = await _context.Visits.CountAsync(x => x.Date.Date == targetDate),
+            TodayVisitsCount = await _context.Visits.CountAsync(x => x.Date.Date == targetDate && x.Status != VisitStatus.Voided),
             TodayRevenue = await _context.Visits
-                .Where(x => x.Date.Date == targetDate)
+                .Where(x => x.Date.Date == targetDate && x.Status != VisitStatus.Voided)
                 .SumAsync(x => (decimal?)x.TotalPrice) ?? 0m,
-            TotalRevenue = await _context.Visits.SumAsync(x => (decimal?)x.TotalPrice) ?? 0m,
+            TotalRevenue = await _context.Visits
+                .Where(x => x.Status != VisitStatus.Voided)
+                .SumAsync(x => (decimal?)x.TotalPrice) ?? 0m,
             TodayAppointments = todayAppointments,
             DoctorLoads = doctorLoads,
             Notifications = BuildNotifications(upcomingAppointmentsCount, unpaidVisitsCount, heavyDoctors),
@@ -165,7 +161,7 @@ public class HomeService : IHomeService
     private async Task<List<RevenuePointDto>> BuildDailyRevenueAsync(DateTime startDate, DateTime endDate, string labelFormat)
     {
         var visits = await _context.Visits
-            .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate)
+            .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && x.Status != VisitStatus.Voided)
             .GroupBy(x => x.Date.Date)
             .Select(group => new
             {
@@ -195,7 +191,7 @@ public class HomeService : IHomeService
     private async Task<List<RevenuePointDto>> BuildMonthlyRevenueAsync(int year)
     {
         var visits = await _context.Visits
-            .Where(x => x.Date.Year == year)
+            .Where(x => x.Date.Year == year && x.Status != VisitStatus.Voided)
             .GroupBy(x => x.Date.Month)
             .Select(group => new
             {

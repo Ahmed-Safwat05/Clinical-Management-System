@@ -22,52 +22,163 @@
             <input type="search" class="form-control" data-table-search placeholder="بحث بالمريض أو الطبيب أو التاريخ..." />
         </div>
     </div>
+
     <div class="table-responsive">
-    <table class="table admin-table mb-0" data-admin-table>
-        <thead>
-            <tr>
-                <th>التاريخ</th>
-                <th>المريض</th>
-                <th>الطبيب</th>
-                <th>الإجمالي</th>
-                <th>المدفوع</th>
-                <th>المتبقي</th>
-                <th class="text-end">الإجراءات</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var visit in Model)
-        {
-            <tr>
-                <td>@visit.Date.ToString("yyyy-MM-dd")</td>
-                <td>@visit.Patient?.Name</td>
-                <td>@visit.Doctor?.Name</td>
-                <td>@visit.TotalPrice.ToString("N2") ج.م</td>
-                <td>
-                    @visit.TotalPaid.ToString("N2") ج.م
-                    <span class="status-badge @(visit.IsPaidInFull ? "confirmed" : "waiting")">@(visit.IsPaidInFull ? "مدفوع" : "مستحق")</span>
-                </td>
-                <td>@visit.RemainingBalance.ToString("N2") ج.م</td>
-                <td class="text-end">
-                    <a asp-action="Details" asp-route-id="@visit.Id" class="btn btn-sm btn-soft">
-                        <i class="bi bi-eye"></i>
-                        التفاصيل
-                    </a>
-                    @if (visit.RemainingBalance > 0)
-                    {
-                        <a asp-action="AddPayment" asp-route-visitId="@visit.Id" class="btn btn-sm btn-success">
-                            <i class="bi bi-cash-coin"></i>
-                            دفعة
-                        </a>
-                    }
-                    <a asp-action="Delete" asp-route-id="@visit.Id" class="btn btn-sm btn-danger">
-                        حذف
-                    </a>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+        <table class="table admin-table align-middle mb-0" data-admin-table style="table-layout: fixed; width: 100%; min-width: 950px;">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 10%;">التاريخ</th>
+                    <th style="width: 18%;">المريض</th>
+                    <th style="width: 15%;">الطبيب</th>
+                    <th style="width: 10%;">الحالة</th>
+                    <th style="width: 11%;">الإجمالي</th>
+                    <th style="width: 13%;">المدفوع</th>
+                    <th style="width: 11%;">المتبقي</th>
+                    <th style="width: 12%;" class="text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var visit in Model)
+                {
+                    <tr class="@(visit.IsVoided ? "table-light" : "")">
+                        <td class="text-nowrap">@visit.Date.ToString("yyyy-MM-dd")</td>
+
+                        <td class="text-truncate fw-bold text-dark" title="@visit.Patient?.Name">
+                            @visit.Patient?.Name
+                        </td>
+
+                        <td class="text-truncate text-dark" title="@visit.Doctor?.Name">
+                            @visit.Doctor?.Name
+                        </td>
+
+                        <td>
+                            @if (visit.IsVoided)
+                            {
+                                <span class="status-badge danger d-block text-center m-0">ملغاة</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge success d-block text-center m-0">نشطة</span>
+                            }
+                        </td>
+
+                        <td class="text-nowrap fw-semibold">@visit.TotalPrice.ToString("N0") ج.م</td>
+
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="fw-semibold text-nowrap">@visit.TotalPaid.ToString("N0") ج.م</span>
+                                <span class="status-badge @(visit.IsPaidInFull ? "confirmed" : "waiting") text-center m-0" style="font-size: 11px; padding: 2px 4px;">
+                                    @(visit.IsPaidInFull ? "مدفوع" : "مستحق")
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="text-nowrap fw-semibold @(visit.RemainingBalance > 0 ? "text-danger" : "text-success")">
+                            @visit.RemainingBalance.ToString("N0") ج.م
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                <a asp-action="Details" asp-route-id="@visit.Id" class="btn btn-sm btn-soft d-flex align-items-center justify-content-center gap-1 flex-grow-1" style="height: 30px; font-size: 12px; min-width: 65px;" title="التفاصيل">
+                                    <i class="bi bi-eye"></i>
+                                    تفاصيل
+                                </a>
+
+                                @if (!visit.IsVoided)
+                                {
+                                    @if (visit.RemainingBalance > 0)
+                                    {
+                                        <a asp-action="AddPayment" asp-route-visitId="@visit.Id" class="btn btn-sm btn-success d-flex align-items-center justify-content-center gap-1 flex-grow-1" style="height: 30px; font-size: 12px; min-width: 55px;" title="إضافة دفعة">
+                                            <i class="bi bi-cash-coin"></i>
+                                            دفعة
+                                        </a>
+                                    }
+                                    <button type="button" class="btn btn-sm btn-danger void-visit-btn d-flex align-items-center justify-content-center gap-1 flex-grow-1" data-visit-id="@visit.Id" data-bs-toggle="modal" data-bs-target="#voidConfirmModal" style="height: 30px; font-size: 12px; min-width: 55px;" title="إلغاء">
+                                        <i class="bi bi-x-circle"></i>
+                                        إلغاء
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
     <div class="table-footer" data-table-pagination></div>
 </div>
+
+<div class="modal fade" id="voidConfirmModal" tabindex="-1" aria-labelledby="voidConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voidConfirmModalLabel">إلغاء الزيارة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="voidConfirmForm" method="post" asp-action="VoidConfirm">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="voidVisitId" name="id" />
+
+                    <p class="mb-3">هل أنت متأكد من رغبتك في إلغاء هذه الزيارة؟ لا يمكن التراجع عن هذا الإجراء.</p>
+
+                    <div class="mb-3">
+                        <label for="voidReason" class="form-label">سبب الإلغاء <span class="text-muted">(اختياري)</span></label>
+                        <textarea id="voidReason" name="voidReason" class="form-control" rows="3" placeholder="أدخل سبب الإلغاء إن وجد..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-exclamation-circle"></i>
+                        تأكيد الإلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle void visit button clicks
+            document.querySelectorAll('.void-visit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const visitId = this.getAttribute('data-visit-id');
+                    document.getElementById('voidVisitId').value = visitId;
+                    document.getElementById('voidReason').value = '';
+                });
+            });
+
+            // Handle form submission
+            document.getElementById('voidConfirmForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const form = this;
+                const formData = new FormData(form);
+
+                fetch(`@Url.Action("VoidConfirm", "Visits")`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        alert('خطأ: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ في الاتصال');
+                });
+            });
+        });
+    </script>
+}

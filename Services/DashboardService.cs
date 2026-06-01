@@ -26,14 +26,14 @@ public class DashboardService : IDashboardService
         var yearFinancials = await _financialReports.GetVisitPeriodSummaryAsync(yearStart, nextYearStart);
 
         var monthlyVisitsCount = await _context.Visits
-            .CountAsync(x => x.Date >= monthStart && x.Date < nextMonthStart);
+            .CountAsync(x => x.Date >= monthStart && x.Date < nextMonthStart && x.Status != VisitStatus.Voided);
 
         var yearlyVisitsCount = await _context.Visits
-            .CountAsync(x => x.Date >= yearStart && x.Date < nextYearStart);
+            .CountAsync(x => x.Date >= yearStart && x.Date < nextYearStart && x.Status != VisitStatus.Voided);
 
         var topDoctor = await _context.Visits
             .Include(x => x.Doctor)
-            .Where(x => x.Date >= monthStart && x.Date < nextMonthStart)
+            .Where(x => x.Date >= monthStart && x.Date < nextMonthStart && x.Status != VisitStatus.Voided)
             .GroupBy(x => new { x.DoctorId, x.Doctor!.Name })
             .Select(group => new
             {
