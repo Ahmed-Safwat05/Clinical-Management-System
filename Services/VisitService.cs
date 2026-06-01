@@ -6,6 +6,7 @@ public class VisitService : IVisitService
     private readonly IVisitRepository _visits;
     private readonly IAppointmentService _appointments;
     private readonly IProcedureRepository _procedures;
+    private readonly IVisitConsumptionService _visitConsumptionService;
     private readonly ISettingsService _settings;
     private readonly IAuditService _auditService;
     private readonly ILogger<VisitService> _logger;
@@ -15,6 +16,7 @@ public class VisitService : IVisitService
         IVisitRepository visits,
         IAppointmentService appointments,
         IProcedureRepository procedures,
+        IVisitConsumptionService visitConsumptionService,
         ISettingsService settings,
         IAuditService auditService,
         ILogger<VisitService> logger)
@@ -23,6 +25,7 @@ public class VisitService : IVisitService
         _visits = visits;
         _appointments = appointments;
         _procedures = procedures;
+        _visitConsumptionService = visitConsumptionService;
         _settings = settings;
         _auditService = auditService;
         _logger = logger;
@@ -74,6 +77,7 @@ public class VisitService : IVisitService
             var totalPrice = CalculateTotalPrice(examinationPrice, proceduresPrice, discount);
 
             ValidatePayment(model.PaidAmount, totalPrice);
+            var requestedProducts = NormalizeRequestedProducts(model.ConsumedProducts);
 
             var visit = new Visit
             {
@@ -115,6 +119,14 @@ public class VisitService : IVisitService
 
             await _visits.AddAsync(visit);
             await _visits.SaveChangesAsync();
+
+            foreach (var input in requestedProducts)
+            {
+                await _visitConsumptionService.ConsumeProductAsync(
+                    visit.Id,
+                    input.ProductId.GetValueOrDefault(),
+                    input.Quantity.GetValueOrDefault());
+            }
 
             if (model.AppointmentId.HasValue)
             {
@@ -170,6 +182,19 @@ public class VisitService : IVisitService
             .Select(group => new VisitProcedureInput
             {
                 ProcedureId = group.Key,
+                Quantity = group.Sum(x => x.Quantity)
+            })
+            .ToList();
+    }
+
+    private static List<VisitProductConsumptionInput> NormalizeRequestedProducts(IEnumerable<VisitProductConsumptionInput> products)
+    {
+        return products
+            .Where(x => x.ProductId > 0 && x.Quantity > 0)
+            .GroupBy(x => x.ProductId)
+            .Select(group => new VisitProductConsumptionInput
+            {
+                ProductId = group.Key,
                 Quantity = group.Sum(x => x.Quantity)
             })
             .ToList();

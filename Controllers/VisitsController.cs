@@ -103,6 +103,9 @@ public class VisitsController : Controller
         model.Procedures = model.Procedures
             .Where(x => x.ProcedureId > 0 && x.Quantity > 0)
             .ToList() ?? new List<VisitProcedureInput>();
+        model.ConsumedProducts = model.ConsumedProducts
+            .Where(x => x.ProductId > 0 && x.Quantity > 0)
+            .ToList() ?? new List<VisitProductConsumptionInput>();
         
         ModelState.Clear();
         if (!TryValidateModel(model))
@@ -116,6 +119,11 @@ public class VisitsController : Controller
             return RedirectToAction(nameof(Index));
         }
         catch (ValidationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(await BuildCreateModelAsync(model));
+        }
+        catch (InvalidOperationException ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(await BuildCreateModelAsync(model));
@@ -190,6 +198,7 @@ public class VisitsController : Controller
         var patients = await _patientService.SearchAsync(null);
         var doctors = await _doctorService.GetAllAsync();
         var procedures = await _procedureService.GetAllAsync();
+        var products = await _productService.GetAllAsync();
         var defaultExamPrice = await _settingsService.GetDecimal(SettingKeys.DefaultExamPrice);
         var maxDiscount = await _settingsService.GetDecimal(SettingKeys.MaxDiscount);
         var allowDiscount = await _settingsService.GetBool(SettingKeys.AllowDiscount);
@@ -208,6 +217,18 @@ public class VisitsController : Controller
             Name = x.Name,
             Price = x.Price
         }).ToList();
+        model.AvailableProductOptions = products
+            .Where(x => x.QuantityInStock > 0)
+            .OrderBy(x => x.Name)
+            .Select(x => new ProductOptionViewModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Unit = x.Unit,
+                QuantityInStock = x.QuantityInStock,
+                CostPrice = x.CostPrice
+            })
+            .ToList();
 
         ViewData["MaxDiscount"] = maxDiscount;
         ViewData["AllowDiscount"] = allowDiscount.ToString().ToLowerInvariant();

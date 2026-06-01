@@ -26,10 +26,12 @@ public class VisitCreateViewModel
     public decimal TotalPrice { get; set; }
 
     public List<VisitProcedureInput> Procedures { get; set; } = new();
+    public List<VisitProductConsumptionInput> ConsumedProducts { get; set; } = new();
     public IEnumerable<SelectListItem> Patients { get; set; } = Enumerable.Empty<SelectListItem>();
     public IEnumerable<SelectListItem> Doctors { get; set; } = Enumerable.Empty<SelectListItem>();
     public IEnumerable<SelectListItem> AvailableProcedures { get; set; } = Enumerable.Empty<SelectListItem>();
     public IReadOnlyList<ProcedureOptionViewModel> AvailableProcedureOptions { get; set; } = Array.Empty<ProcedureOptionViewModel>();
+    public IReadOnlyList<ProductOptionViewModel> AvailableProductOptions { get; set; } = Array.Empty<ProductOptionViewModel>();
 }
 
 public class VisitProcedureInput
@@ -43,4 +45,19 @@ public class ProcedureOptionViewModel
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public decimal Price { get; set; }
+}
+
+public class VisitProductConsumptionInput
+{
+    public int? ProductId { get; set; }
+    public int? Quantity { get; set; } = 1;
+}
+
+public class ProductOptionViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Unit { get; set; } = string.Empty;
+    public int QuantityInStock { get; set; }
+    public decimal CostPrice { get; set; }
 }

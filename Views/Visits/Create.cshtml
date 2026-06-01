@@ -89,6 +89,84 @@
                 </button>
             </div>
         </div>
+
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-box-seam"></i>
+                المنتجات المستهلكة
+            </div>
+            <p class="text-muted mb-3">يمكن تسجيل المنتجات المستهلكة أثناء إنشاء الزيارة. هذا الجزء اختياري.</p>
+
+            <div class="row g-2 align-items-end mb-3">
+                <div class="col-md-7">
+                    <label class="form-label" for="consumed-product-select">المنتج</label>
+                    <select id="consumed-product-select" class="form-select">
+                        <option value="">اختر المنتج</option>
+                        @foreach (var product in Model.AvailableProductOptions)
+                        {
+                            <option value="@product.Id"
+                                    data-name="@product.Name"
+                                    data-unit="@product.Unit"
+                                    data-stock="@product.QuantityInStock">
+                                @product.Name - المتاح: @product.QuantityInStock @product.Unit
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="consumed-product-quantity">الكمية</label>
+                    <input id="consumed-product-quantity" type="number" min="1" value="1" class="form-control" />
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="button" id="add-consumed-product-button" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-lg"></i>
+                        إضافة
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th class="text-end">الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="consumed-products-table-body">
+                    @for (var i = 0; i < Model.ConsumedProducts.Count; i++)
+                    {
+                        var item = Model.ConsumedProducts[i];
+                        var product = Model.AvailableProductOptions.FirstOrDefault(x => x.Id == item.ProductId);
+                        if (product is null)
+                        {
+                            continue;
+                        }
+
+                        <tr data-consumed-product-row>
+                            <td>
+                                @product.Name
+                                <input type="hidden" name="ConsumedProducts.Index" value="@i" />
+                                <input type="hidden" name="ConsumedProducts[@i].ProductId" value="@item.ProductId" data-consumed-product-id />
+                            </td>
+                            <td>
+                                @(item.Quantity ?? 1) @product.Unit
+                                <input type="hidden" name="ConsumedProducts[@i].Quantity" value="@(item.Quantity ?? 1)" data-consumed-product-quantity />
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-danger" data-remove-consumed-product>
+                                    <i class="bi bi-trash"></i>
+                                    حذف
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="form-section">
             <div class="form-section-title">
                 <i class="bi bi-cash"></i>
@@ -194,5 +272,77 @@
                 alert("حدث خطأ أثناء الاتصال بالسيرفر");
             });
         });
+
+        (function () {
+            const productSelect = document.getElementById('consumed-product-select');
+            const quantityInput = document.getElementById('consumed-product-quantity');
+            const addButton = document.getElementById('add-consumed-product-button');
+            const tableBody = document.getElementById('consumed-products-table-body');
+
+            if (!productSelect || !quantityInput || !addButton || !tableBody) {
+                return;
+            }
+
+            const reindexRows = () => {
+                tableBody.querySelectorAll('[data-consumed-product-row]').forEach((row, index) => {
+                    row.querySelector('input[name="ConsumedProducts.Index"]').value = index;
+                    row.querySelector('[data-consumed-product-id]').name = `ConsumedProducts[${index}].ProductId`;
+                    row.querySelector('[data-consumed-product-quantity]').name = `ConsumedProducts[${index}].Quantity`;
+                });
+            };
+
+            addButton.addEventListener('click', () => {
+                const selectedOption = productSelect.selectedOptions[0];
+                const productId = productSelect.value;
+                const quantity = Number.parseInt(quantityInput.value || '0', 10);
+
+                if (!productId || quantity <= 0) {
+                    alert('اختر المنتج وأدخل كمية صحيحة.');
+                    return;
+                }
+
+                const stock = Number.parseInt(selectedOption.dataset.stock || '0', 10);
+                if (stock > 0 && quantity > stock) {
+                    alert(`الكمية المطلوبة أكبر من المتاح (${stock}).`);
+                    return;
+                }
+
+                const index = tableBody.querySelectorAll('[data-consumed-product-row]').length;
+                const productName = selectedOption.dataset.name || selectedOption.textContent;
+                const unit = selectedOption.dataset.unit || '';
+
+                tableBody.insertAdjacentHTML('beforeend', `
+                    <tr data-consumed-product-row>
+                        <td>
+                            ${productName}
+                            <input type="hidden" name="ConsumedProducts.Index" value="${index}" />
+                            <input type="hidden" name="ConsumedProducts[${index}].ProductId" value="${productId}" data-consumed-product-id />
+                        </td>
+                        <td>
+                            ${quantity} ${unit}
+                            <input type="hidden" name="ConsumedProducts[${index}].Quantity" value="${quantity}" data-consumed-product-quantity />
+                        </td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-danger" data-remove-consumed-product>
+                                <i class="bi bi-trash"></i>
+                                حذف
+                            </button>
+                        </td>
+                    </tr>`);
+
+                productSelect.value = '';
+                quantityInput.value = '1';
+            });
+
+            tableBody.addEventListener('click', (event) => {
+                const removeButton = event.target.closest('[data-remove-consumed-product]');
+                if (!removeButton) {
+                    return;
+                }
+
+                removeButton.closest('[data-consumed-product-row]')?.remove();
+                reindexRows();
+            });
+        })();
     </script>
 }
