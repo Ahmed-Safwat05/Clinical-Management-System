@@ -80,6 +80,14 @@ public class ApplicationDbContext : DbContext
             .Property(x => x.PaidAmount)
             .HasColumnType("decimal(18,2)");
 
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.Status)
+            .HasDefaultValue(VisitStatus.Active);
+
+        modelBuilder.Entity<Visit>()
+            .Property(x => x.VoidReason)
+            .HasMaxLength(500);
+
         modelBuilder.Entity<Payment>(entity =>
         {
             entity.Property(x => x.Amount)

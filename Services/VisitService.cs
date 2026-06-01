@@ -167,11 +167,35 @@ public class VisitService : IVisitService
 
     public async Task DeleteAsync(int id)
     {
+        await VoidAsync(id, "Voided through legacy delete workflow.");
+    }
+
+    public async Task VoidAsync(int id, string? reason = null)
+    {
         var visit = await _visits.GetByIdAsync(id);
         if (visit == null) return;
 
-        _visits.Remove(visit);
+        if (visit.Status == VisitStatus.Voided)
+        {
+            return;
+        }
+
+        visit.Status = VisitStatus.Voided;
+        visit.VoidedAt = DateTime.UtcNow;
+        visit.VoidReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+
+        _visits.Update(visit);
         await _visits.SaveChangesAsync();
+
+        var description = string.IsNullOrWhiteSpace(visit.VoidReason)
+            ? $"Voided Visit #{visit.Id}"
+            : $"Voided Visit #{visit.Id}. Reason: {visit.VoidReason}";
+
+        await _auditService.LogAsync(
+            AuditActionType.Delete,
+            nameof(Visit),
+            description,
+            visit.Id);
     }
 
     private static List<VisitProcedureInput> NormalizeRequestedProcedures(IEnumerable<VisitProcedureInput> procedures)

@@ -27,9 +27,17 @@ public class Visit
 
     public decimal PaidAmount { get; set; }
 
+    public VisitStatus Status { get; set; } = VisitStatus.Active;
+
+    public DateTime? VoidedAt { get; set; }
+
+    [StringLength(500)]
+    public string? VoidReason { get; set; }
+
     public List<VisitProcedure> VisitProcedures { get; set; } = new List<VisitProcedure>();
     public List<Payment> Payments { get; set; } = new List<Payment>();
 
+    public bool IsVoided => Status == VisitStatus.Voided;
     public decimal TotalPaid => PaidAmount;
     public decimal RemainingBalance => Math.Max(0m, TotalPrice - TotalPaid);
     public bool IsPaidInFull => RemainingBalance <= 0m;
