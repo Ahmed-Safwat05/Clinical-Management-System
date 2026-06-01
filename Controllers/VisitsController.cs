@@ -40,7 +40,7 @@ public class VisitsController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var visit = await _visitService.GetDetailsAsync(id);
-        return visit is null ? NotFound() : View(visit);
+        return visit is null ? NotFound() : View(await BuildDetailsModelAsync(visit));
     }
 
     public async Task<IActionResult> AddPayment(int visitId)
@@ -213,5 +213,26 @@ public class VisitsController : Controller
         ViewData["AllowDiscount"] = allowDiscount.ToString().ToLowerInvariant();
 
         return model;
+    }
+
+    private async Task<VisitDetailsViewModel> BuildDetailsModelAsync(Visit visit)
+    {
+        var products = await _productService.GetAllAsync();
+        var consumptions = await _consumptionService.GetVisitConsumptionsAsync(visit.Id);
+        var totalConsumptionCost = await _consumptionService.GetTotalConsumptionCostAsync(visit.Id);
+
+        return new VisitDetailsViewModel
+        {
+            Visit = visit,
+            ProductConsumptions = consumptions,
+            TotalConsumptionCost = totalConsumptionCost,
+            AvailableProducts = products
+                .Where(x => x.QuantityInStock > 0)
+                .OrderBy(x => x.Name)
+                .Select(x => new SelectListItem(
+                    $"{x.Name} - المتاح: {x.QuantityInStock} {x.Unit} - التكلفة: {x.CostPrice:N2} ج.م",
+                    x.Id.ToString()))
+                .ToList()
+        };
     }
 }

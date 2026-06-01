@@ -1,5 +1,6 @@
-@model Visit
+@model VisitDetailsViewModel
 @{
+    var visit = Model.Visit;
     ViewData["Title"] = "تفاصيل الزيارة";
 }
 
@@ -7,7 +8,7 @@
     <div>
         <span class="module-kicker">الاستشارات الطبية</span>
         <h1>تفاصيل الزيارة</h1>
-        <p>ملخص الزيارة، الطبيب، المريض، الإجراءات، والمدفوعات.</p>
+        <p>ملخص الزيارة، الطبيب، المريض، الإجراءات، المدفوعات، والمنتجات المستهلكة.</p>
     </div>
     <a asp-action="Index" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-right"></i>
@@ -17,16 +18,16 @@
 
 <div class="content-card mb-3">
     <div class="details-grid">
-        <div class="detail-tile"><span>التاريخ</span><strong>@Model.Date.ToString("yyyy-MM-dd")</strong></div>
-        <div class="detail-tile"><span>المريض</span><strong>@Model.Patient?.Name</strong></div>
-        <div class="detail-tile"><span>الطبيب</span><strong>@Model.Doctor?.Name</strong></div>
-        <div class="detail-tile"><span>الدفع</span><strong>@Model.TotalPaid.ToString("N2") ج.م / @Model.TotalPrice.ToString("N2") ج.م</strong></div>
+        <div class="detail-tile"><span>التاريخ</span><strong>@visit.Date.ToString("yyyy-MM-dd")</strong></div>
+        <div class="detail-tile"><span>المريض</span><strong>@visit.Patient?.Name</strong></div>
+        <div class="detail-tile"><span>الطبيب</span><strong>@visit.Doctor?.Name</strong></div>
+        <div class="detail-tile"><span>الدفع</span><strong>@visit.TotalPaid.ToString("N2") ج.م / @visit.TotalPrice.ToString("N2") ج.م</strong></div>
     </div>
-    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    @if (!string.IsNullOrWhiteSpace(visit.Notes))
     {
         <div class="notes-box">
             <strong>ملاحظات الطبيب</strong>
-            <p class="mb-0">@Model.Notes</p>
+            <p class="mb-0">@visit.Notes</p>
         </div>
     }
 </div>
@@ -38,32 +39,32 @@
     <div class="details-grid">
         <div class="detail-tile">
             <span>قيمة الكشف</span>
-            <strong>@Model.ExaminationPrice.ToString("N2") ج.م</strong>
+            <strong>@visit.ExaminationPrice.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>إجمالي الإجراءات</span>
-            <strong>@Model.ProceduresPrice.ToString("N2") ج.م</strong>
+            <strong>@visit.ProceduresPrice.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>الخصم</span>
-            <strong class="text-danger">@Model.Discount.ToString("N2") ج.م</strong>
+            <strong class="text-danger">@visit.Discount.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>الإجمالي النهائي</span>
-            <strong class="text-primary">@Model.TotalPrice.ToString("N2") ج.م</strong>
+            <strong class="text-primary">@visit.TotalPrice.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>المبلغ المدفوع</span>
-            <strong class="text-success">@Model.TotalPaid.ToString("N2") ج.م</strong>
+            <strong class="text-success">@visit.TotalPaid.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>المتبقي</span>
-            <strong class="@(Model.RemainingBalance > 0 ? "text-warning" : "text-success")">@Model.RemainingBalance.ToString("N2") ج.م</strong>
+            <strong class="@(visit.RemainingBalance > 0 ? "text-warning" : "text-success")">@visit.RemainingBalance.ToString("N2") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>حالة الدفع</span>
-            <span class="status-badge @(Model.IsPaidInFull ? "confirmed" : "waiting") mt-2">
-                @(Model.IsPaidInFull ? "مدفوع بالكامل" : "مستحق")
+            <span class="status-badge @(visit.IsPaidInFull ? "confirmed" : "waiting") mt-2">
+                @(visit.IsPaidInFull ? "مدفوع بالكامل" : "مستحق")
             </span>
         </div>
     </div>
@@ -75,16 +76,16 @@
             <h2>المدفوعات</h2>
             <p>سجل الدفعات المسجلة على هذه الزيارة.</p>
         </div>
-        @if (Model.RemainingBalance > 0)
+        @if (visit.RemainingBalance > 0)
         {
-            <a asp-action="AddPayment" asp-route-visitId="@Model.Id" class="btn btn-primary">
+            <a asp-action="AddPayment" asp-route-visitId="@visit.Id" class="btn btn-primary">
                 <i class="bi bi-cash-coin"></i>
                 إضافة دفعة
             </a>
         }
     </div>
 
-    @if (Model.Payments.Any())
+    @if (visit.Payments.Any())
     {
         <div class="table-responsive">
             <table class="table admin-table mb-0">
@@ -97,7 +98,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach (var payment in Model.Payments.OrderByDescending(x => x.CreatedAt))
+                @foreach (var payment in visit.Payments.OrderByDescending(x => x.CreatedAt))
                 {
                     <tr>
                         <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
@@ -120,6 +121,79 @@
     }
 </div>
 
+<div class="content-card mb-3">
+    <div class="section-head">
+        <div>
+            <h2>المنتجات المستهلكة</h2>
+            <p>تسجيل وعرض المنتجات التي تم استهلاكها أثناء الزيارة.</p>
+        </div>
+        <span class="badge bg-light text-dark">إجمالي التكلفة: @Model.TotalConsumptionCost.ToString("N2") ج.م</span>
+    </div>
+
+    <form asp-action="ConsumeProduct" method="post" class="row g-2 align-items-end mb-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="visitId" value="@visit.Id" />
+
+        <div class="col-lg-7">
+            <label class="form-label" for="productId">المنتج</label>
+            <select id="productId" name="productId" class="form-select" asp-items="Model.AvailableProducts" required>
+                <option value="">اختر المنتج</option>
+            </select>
+        </div>
+
+        <div class="col-lg-3">
+            <label class="form-label" for="quantity">الكمية</label>
+            <input id="quantity" name="quantity" type="number" min="1" value="1" class="form-control" required />
+        </div>
+
+        <div class="col-lg-2 d-grid">
+            <button type="submit" class="btn btn-primary" @(Model.AvailableProducts.Any() ? null : "disabled")>
+                <i class="bi bi-plus-circle"></i>
+                إضافة استهلاك
+            </button>
+        </div>
+    </form>
+
+    @if (Model.ProductConsumptions.Any())
+    {
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>تكلفة الوحدة</th>
+                        <th>إجمالي التكلفة</th>
+                        <th>تاريخ الاستهلاك</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.ProductConsumptions.OrderByDescending(x => x.CreatedAt))
+                {
+                    var unitCost = item.Product?.CostPrice ?? 0m;
+                    var totalCost = unitCost * item.QuantityConsumed;
+                    <tr>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.QuantityConsumed @(item.Product?.Unit ?? "")</td>
+                        <td>@unitCost.ToString("N2") ج.م</td>
+                        <td class="fw-bold">@totalCost.ToString("N2") ج.م</td>
+                        <td>@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state py-4">
+            <i class="bi bi-box-seam"></i>
+            <h3>لا توجد منتجات مستهلكة</h3>
+            <p>يمكن تسجيل استهلاك المنتجات الطبية المرتبطة بهذه الزيارة من النموذج أعلاه.</p>
+        </div>
+    }
+</div>
+
 <div class="content-card">
     <div class="section-head">
         <div>
@@ -136,7 +210,7 @@
             </tr>
         </thead>
         <tbody>
-        @foreach (var item in Model.VisitProcedures)
+        @foreach (var item in visit.VisitProcedures)
         {
             <tr>
                 <td>@item.Procedure?.Name</td>

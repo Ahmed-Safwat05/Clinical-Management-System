@@ -115,25 +115,50 @@ public class ProductsController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var product = await _productService.GetByIdAsync(id);
-        return product is null ? NotFound() : View(product);
+        if (product is null)
+        {
+            return NotFound();
+        }
+
+        var model = new ProductEditViewModel
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Unit = product.Unit,
+            CostPrice = product.CostPrice,
+            MinimumQuantity = product.MinimumQuantity,
+            IsActive = product.IsActive
+        };
+
+        return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Product product)
+    public async Task<IActionResult> Edit(int id, ProductEditViewModel model)
     {
-        if (id != product.Id)
+        if (id != model.Id)
         {
             return BadRequest();
         }
 
         if (!ModelState.IsValid)
         {
-            return View(product);
+            return View(model);
         }
 
         try
         {
+            var product = new Product
+            {
+                Id = model.Id,
+                Name = model.Name,
+                Unit = model.Unit,
+                CostPrice = model.CostPrice,
+                MinimumQuantity = model.MinimumQuantity,
+                IsActive = model.IsActive
+            };
+
             await _productService.UpdateAsync(product);
             TempData["SuccessMessage"] = "تم تحديث المنتج بنجاح";
             return RedirectToAction(nameof(Index));

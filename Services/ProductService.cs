@@ -42,7 +42,6 @@ public class ProductService : IProductService
             throw new InvalidOperationException("Product not found");
 
         existingProduct.Name = product.Name;
-        existingProduct.QuantityInStock = product.QuantityInStock;
         existingProduct.Unit = product.Unit;
         existingProduct.CostPrice = product.CostPrice;
         existingProduct.MinimumQuantity = product.MinimumQuantity;

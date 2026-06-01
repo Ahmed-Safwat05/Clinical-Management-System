@@ -42,9 +42,8 @@ public class VisitConsumptionService : IVisitConsumptionService
                 throw new InvalidOperationException("Failed to remove stock");
             }
 
-            // Get the transaction that was just created
-            var transactions = await _transactionRepository.GetByProductAsync(productId);
-            var latestTransaction = transactions.FirstOrDefault();
+            // Get the stock transaction created for this visit/product consumption.
+            var latestTransaction = await _transactionRepository.GetLatestForVisitProductAsync(visitId, productId);
 
             if (latestTransaction == null)
             {

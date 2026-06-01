@@ -24,6 +24,15 @@ public class StockTransactionRepository : Repository<StockTransaction>, IStockTr
             .ToListAsync();
     }
 
+    public async Task<StockTransaction?> GetLatestForVisitProductAsync(int visitId, int productId)
+    {
+        return await DbSet
+            .Where(x => x.VisitId == visitId && x.ProductId == productId && x.Type == StockTransactionType.Out)
+            .OrderByDescending(x => x.CreatedAt)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<IReadOnlyList<StockTransaction>> GetRecentAsync(int count = 10)
     {
         return await DbSet
