@@ -243,3 +243,80 @@
         </tbody>
     </table>
 </div>
+
+<!-- Previous Visits Section -->
+@if (Model.PreviousVisits?.Any() ?? false)
+{
+    <div class="content-card">
+        <div class="section-head">
+            <div>
+                <h2>الزيارات السابقة للمريض</h2>
+                <p>آخر @Model.PreviousVisits.Count زيارات لنفس المريض.</p>
+            </div>
+        </div>
+        <style>
+            .previous-visits-table {
+                overflow-x: auto;
+            }
+            .previous-visit-row {
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+            .previous-visit-row:hover {
+                background-color: #f5f5f5;
+            }
+            .visit-status-badge {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+            .visit-status-badge.active {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .visit-status-badge.voided {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+        </style>
+        <table class="table admin-table mb-0 previous-visits-table">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>الطبيب</th>
+                    <th>السعر الإجمالي</th>
+                    <th>الحالة</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var prevVisit in Model.PreviousVisits.OrderByDescending(v => v.Date))
+                {
+                    <tr class="previous-visit-row" onclick="window.location.href='@Url.Action("Details", new { id = prevVisit.Id })'">
+                        <td>@prevVisit.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@prevVisit.DoctorName</td>
+                        <td>@prevVisit.TotalPrice.ToString("N2") ج.م</td>
+                        <td>
+                            @if (prevVisit.IsVoided)
+                            {
+                                <span class="visit-status-badge voided">ملغاة</span>
+                            }
+                            else
+                            {
+                                <span class="visit-status-badge active">نشطة</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Details", new { id = prevVisit.Id })" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

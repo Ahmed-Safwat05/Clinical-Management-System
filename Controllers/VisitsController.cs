@@ -11,6 +11,7 @@ public class VisitsController : Controller
     private readonly IVisitConsumptionService _consumptionService;
     private readonly IProductService _productService;
     private readonly IPaymentService _paymentService;
+    private readonly IPatientHistoryService _patientHistoryService;
 
     public VisitsController(
         IVisitService visitService,
@@ -20,7 +21,8 @@ public class VisitsController : Controller
         ISettingsService settingsService,
         IVisitConsumptionService consumptionService,
         IProductService productService,
-        IPaymentService paymentService)
+        IPaymentService paymentService,
+        IPatientHistoryService patientHistoryService)
     {
         _visitService = visitService;
         _patientService = patientService;
@@ -30,6 +32,7 @@ public class VisitsController : Controller
         _consumptionService = consumptionService;
         _productService = productService;
         _paymentService = paymentService;
+        _patientHistoryService = patientHistoryService;
     }
 
     public async Task<IActionResult> Index()
@@ -284,12 +287,14 @@ public class VisitsController : Controller
         var products = await _productService.GetAllAsync();
         var consumptions = await _consumptionService.GetVisitConsumptionsAsync(visit.Id);
         var totalConsumptionCost = await _consumptionService.GetTotalConsumptionCostAsync(visit.Id);
+        var previousVisits = await _patientHistoryService.GetPreviousVisitsAsync(visit.PatientId, visit.Id, take: 5);
 
         return new VisitDetailsViewModel
         {
             Visit = visit,
             ProductConsumptions = consumptions,
             TotalConsumptionCost = totalConsumptionCost,
+            PreviousVisits = previousVisits,
             AvailableProducts = products
                 .Where(x => x.QuantityInStock > 0)
                 .OrderBy(x => x.Name)

@@ -5,13 +5,16 @@ public class PatientsController : Controller
 {
     private readonly IPatientService _patientService;
     private readonly IPatientMedicalHistoryService _medicalHistoryService;
+    private readonly IPatientHistoryService _patientHistoryService;
 
     public PatientsController(
         IPatientService patientService,
-        IPatientMedicalHistoryService medicalHistoryService)
+        IPatientMedicalHistoryService medicalHistoryService,
+        IPatientHistoryService patientHistoryService)
     {
         _patientService = patientService;
         _medicalHistoryService = medicalHistoryService;
+        _patientHistoryService = patientHistoryService;
     }
 
     public async Task<IActionResult> Index(string? searchTerm)
@@ -39,6 +42,28 @@ public class PatientsController : Controller
     {
         var patient = await _patientService.GetByIdAsync(id);
         return patient is null ? NotFound() : View(patient);
+    }
+
+    public async Task<IActionResult> Details(int id)
+    {
+        var patient = await _patientService.GetByIdAsync(id);
+        if (patient is null)
+            return NotFound();
+
+        var viewModel = new PatientDetailsViewModel
+        {
+            Patient = patient,
+            HistorySummary = await _patientHistoryService.GetPatientSummaryAsync(id),
+            VisitTimeline = await _patientHistoryService.GetPatientVisitsTimelineAsync(id)
+        };
+
+        return View(viewModel);
+    }
+
+    public async Task<IActionResult> GetHistorySnapshot(int patientId)
+    {
+        var summary = await _patientHistoryService.GetPatientSummaryAsync(patientId);
+        return PartialView("_PatientHistorySnapshot", summary);
     }
 
     public async Task<IActionResult> History(int id)

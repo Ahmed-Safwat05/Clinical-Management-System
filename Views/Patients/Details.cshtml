@@ -1,0 +1,359 @@
+@model PatientDetailsViewModel
+@{
+    ViewData["Title"] = "تفاصيل المريض";
+}
+
+<style>
+    .patient-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .patient-info-card {
+        padding: 16px;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: var(--surface-soft);
+    }
+
+    .patient-info-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+
+    .patient-info-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .summary-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        margin-bottom: 24px;
+    }
+
+    .summary-stat {
+        text-align: center;
+        padding: 12px;
+    }
+
+    .summary-stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+
+    .summary-stat-value {
+        font-size: 1.5rem;
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .timeline-container {
+        display: grid;
+        gap: 16px;
+    }
+
+    .timeline-item {
+        padding: 16px;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: #fff;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        align-items: start;
+    }
+
+    .timeline-marker {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .timeline-marker.voided {
+        background: #dc3545;
+    }
+
+    .timeline-content {
+        display: grid;
+        gap: 8px;
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .timeline-date {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .timeline-doctor {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .timeline-price {
+        display: flex;
+        gap: 12px;
+        font-size: 0.875rem;
+    }
+
+    .timeline-price-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .timeline-notes {
+        padding: 8px 12px;
+        background: var(--surface-soft);
+        border-radius: 8px;
+        font-size: 0.875rem;
+        border-right: 3px solid var(--primary);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.voided {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-badge.partial {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-badge.paid {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 32px 16px;
+        color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.5;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .patient-name-header {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="text-secondary mb-2">إدارة المرضى</div>
+        <div class="patient-name-header">@Model?.Patient?.Name</div>
+    </div>
+    <div class="action-buttons">
+        <a asp-action="Edit" asp-route-id="@Model?.Patient?.Id" class="btn btn-outline-primary">
+            <i class="bi bi-pencil"></i> تعديل
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> رجوع
+        </a>
+    </div>
+</div>
+
+<!-- Patient Info Card -->
+<div class="content-card" style="margin-bottom: 24px;">
+    <h5 class="mb-3"><i class="bi bi-person-badge"></i> المعلومات الأساسية</h5>
+    <div class="patient-info-grid">
+        <div class="patient-info-card">
+            <div class="patient-info-label">الهاتف</div>
+            <div class="patient-info-value">@Model?.Patient?.Phone</div>
+        </div>
+        <div class="patient-info-card">
+            <div class="patient-info-label">العمر</div>
+            <div class="patient-info-value">@Model?.Patient?.Age سنة</div>
+        </div>
+        <div class="patient-info-card">
+            <div class="patient-info-label">النوع</div>
+            <div class="patient-info-value">
+                @if (Model?.Patient?.Gender == Gender.Male)
+                {
+                    <span>ذكر</span>
+                }
+                else
+                {
+                    <span>أنثى</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History Summary Section -->
+@if (Model?.HistorySummary?.HasHistory ?? false)
+{
+    <div class="content-card" style="margin-bottom: 24px;">
+        <h5 class="mb-3"><i class="bi bi-graph-up"></i> ملخص السجل الطبي</h5>
+        <div class="summary-section">
+            <div class="summary-stat">
+                <div class="summary-stat-label">إجمالي الزيارات</div>
+                <div class="summary-stat-value">@Model.HistorySummary.TotalVisits</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-label">آخر زيارة</div>
+                <div class="summary-stat-value">@Model.HistorySummary.LastVisitDate?.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-label">آخر طبيب</div>
+                <div class="summary-stat-value" style="font-size: 0.9rem;">@Model.HistorySummary.LastDoctorName</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-label">إجمالي المبلغ</div>
+                <div class="summary-stat-value">@Model.HistorySummary.TotalAmountSpent.ToString("N0") ر.س</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-label">المدفوع</div>
+                <div class="summary-stat-value">@Model.HistorySummary.TotalAmountPaid.ToString("N0") ر.س</div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Clinical Timeline Section -->
+<div class="content-card">
+    <h5 class="mb-3"><i class="bi bi-clock-history"></i> السجل الطبي الكامل</h5>
+
+    @if (Model?.VisitTimeline?.Visits?.Any() ?? false)
+    {
+        <div class="timeline-container">
+            @foreach (var visit in Model.VisitTimeline.Visits)
+            {
+                <a href="@Url.Action("Details", "Visits", new { id = visit.Id })" style="text-decoration: none;">
+                    <div class="timeline-item">
+                        <div class="timeline-marker @(visit.IsVoided ? "voided" : "")">
+                            <i class="bi @(visit.IsVoided ? "bi-x-circle" : "bi-calendar-check")"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <div>
+                                    <div class="timeline-date">
+                                        @visit.Date.ToString("dddd، dd MMMM yyyy", new System.Globalization.CultureInfo("ar-SA"))
+                                    </div>
+                                    <div class="timeline-doctor">@visit.DoctorName</div>
+                                </div>
+                                <span class="status-badge @(visit.IsVoided ? "voided" : (visit.IsPaidInFull ? "paid" : "partial"))">
+                                    @if (visit.IsVoided)
+                                    {
+                                        <span>ملغاة</span>
+                                    }
+                                    else if (visit.IsPaidInFull)
+                                    {
+                                        <span>مدفوعة</span>
+                                    }
+                                    else
+                                    {
+                                        <span>جزئية</span>
+                                    }
+                                </span>
+                            </div>
+
+                            <div class="timeline-price">
+                                <div class="timeline-price-item">
+                                    <span>السعر:</span>
+                                    <strong>@visit.TotalPrice.ToString("N0") ر.س</strong>
+                                </div>
+                                <div class="timeline-price-item">
+                                    <span>المدفوع:</span>
+                                    <strong>@visit.TotalPaid.ToString("N0") ر.س</strong>
+                                </div>
+                                @if (!visit.IsPaidInFull)
+                                {
+                                    <div class="timeline-price-item">
+                                        <span>المتبقي:</span>
+                                        <strong>@visit.RemainingBalance.ToString("N0") ر.س</strong>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(visit.Notes))
+                            {
+                                <div class="timeline-notes">
+                                    <strong>الملاحظات:</strong> @visit.Notes
+                                </div>
+                            }
+
+                            @if (visit.IsVoided && !string.IsNullOrEmpty(visit.VoidReason))
+                            {
+                                <div style="padding: 8px 12px; background: #f8d7da; border-radius: 8px; font-size: 0.875rem; color: #721c24; border-right: 3px solid #dc3545;">
+                                    <strong>سبب الإلغاء:</strong> @visit.VoidReason
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <p>لا توجد زيارات للمريض حتى الآن</p>
+        </div>
+    }
+</div>

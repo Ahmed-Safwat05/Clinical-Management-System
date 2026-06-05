@@ -26,7 +26,7 @@
             </div>
             <div class="col-md-4">
                 <label asp-for="PatientId" class="form-label">المريض</label>
-                <select asp-for="PatientId" asp-items="Model.Patients" class="form-select"></select>
+                <select asp-for="PatientId" asp-items="Model.Patients" class="form-select" id="patientSelect"></select>
                 <span asp-validation-for="PatientId" class="text-danger"></span>
             </div>
             <div class="col-md-4">
@@ -34,6 +34,7 @@
                 <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
                 <span asp-validation-for="DoctorId" class="text-danger"></span>
             </div>
+            <div class="col-12" id="patientHistorySnapshot"></div>
             <div class="col-12">
                 <label asp-for="Notes" class="form-label">ملاحظات الطبيب</label>
                 <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
@@ -344,5 +345,29 @@
                 reindexRows();
             });
         })();
+
+        // Patient History Snapshot
+        document.getElementById('patientSelect')?.addEventListener('change', async function() {
+            const patientId = this.value;
+            const snapshotContainer = document.getElementById('patientHistorySnapshot');
+
+            if (!patientId) {
+                snapshotContainer.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Patients/GetHistorySnapshot?patientId=${patientId}`);
+                if (response.ok) {
+                    const html = await response.text();
+                    snapshotContainer.innerHTML = html;
+                } else {
+                    snapshotContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('Error loading patient history:', error);
+                snapshotContainer.innerHTML = '';
+            }
+        });
     </script>
 }

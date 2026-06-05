@@ -1,0 +1,93 @@
+@model PatientHistorySummaryDto
+@{
+    ViewData["Title"] = "Patient History Snapshot";
+}
+
+<style>
+    .snapshot-card {
+        padding: 16px;
+        border: 1px solid var(--border-light);
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        margin-top: 16px;
+    }
+
+    .snapshot-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .snapshot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .snapshot-item {
+        text-align: center;
+        padding: 8px;
+    }
+
+    .snapshot-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+
+    .snapshot-value {
+        font-size: 1.1rem;
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .first-visit-message {
+        text-align: center;
+        padding: 24px 16px;
+        background: #e7f3ff;
+        border-radius: 12px;
+        color: #0066cc;
+        font-weight: 600;
+        border: 1px solid #0066cc;
+    }
+</style>
+
+@if (Model?.HasHistory ?? false)
+{
+    <div class="snapshot-card">
+        <div class="snapshot-header">
+            <i class="bi bi-clock-history"></i>
+            السجل الطبي
+        </div>
+        <div class="snapshot-grid">
+            <div class="snapshot-item">
+                <div class="snapshot-label">الزيارات</div>
+                <div class="snapshot-value">@Model.TotalVisits</div>
+            </div>
+            <div class="snapshot-item">
+                <div class="snapshot-label">آخر زيارة</div>
+                <div class="snapshot-value" style="font-size: 0.9rem;">@Model.LastVisitDate?.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="snapshot-item">
+                <div class="snapshot-label">آخر طبيب</div>
+                <div class="snapshot-value" style="font-size: 0.85rem;">@Model.LastDoctorName</div>
+            </div>
+            <div class="snapshot-item">
+                <div class="snapshot-label">المبلغ المدفوع</div>
+                <div class="snapshot-value" style="font-size: 0.85rem;">@Model.TotalAmountPaid.ToString("N0") ر.س</div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="first-visit-message">
+        <i class="bi bi-star"></i> هذه أول زيارة للمريض
+    </div>
+}

@@ -62,6 +62,7 @@ builder.Services.AddScoped<IVisitConsumptionService, VisitConsumptionService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IPatientMedicalHistoryService, PatientMedicalHistoryService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
 
 // Add logging
 builder.Services.AddLogging(logging =>
