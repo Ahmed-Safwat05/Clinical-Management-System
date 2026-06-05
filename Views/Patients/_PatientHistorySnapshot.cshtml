@@ -1,4 +1,4 @@
-@model PatientHistorySummaryDto
+@model PatientHistorySnapshotViewModel
 @{
     ViewData["Title"] = "Patient History Snapshot";
 }
@@ -22,29 +22,59 @@
         font-size: 0.95rem;
     }
 
-    .snapshot-grid {
+    .snapshot-summary {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .snapshot-item {
         text-align: center;
-        padding: 8px;
+        padding: 6px;
     }
 
     .snapshot-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: var(--text-secondary);
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
         font-weight: 500;
     }
 
     .snapshot-value {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         color: var(--primary);
         font-weight: 700;
+    }
+
+    .medical-highlights {
+        display: grid;
+        gap: 8px;
+    }
+
+    .highlight-item {
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.8);
+        border-left: 3px solid var(--primary);
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .highlight-icon {
+        font-size: 1rem;
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    .highlight-text {
+        flex: 1;
     }
 
     .first-visit-message {
@@ -56,32 +86,83 @@
         font-weight: 600;
         border: 1px solid #0066cc;
     }
+
+    .highlights-title {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-top: 6px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
 </style>
 
-@if (Model?.HasHistory ?? false)
+@if (Model?.Summary?.HasHistory ?? false)
 {
     <div class="snapshot-card">
         <div class="snapshot-header">
-            <i class="bi bi-clock-history"></i>
+            <i class="bi bi-heart-pulse"></i>
             السجل الطبي
         </div>
-        <div class="snapshot-grid">
+
+        <!-- Summary Stats -->
+        <div class="snapshot-summary">
             <div class="snapshot-item">
                 <div class="snapshot-label">الزيارات</div>
-                <div class="snapshot-value">@Model.TotalVisits</div>
+                <div class="snapshot-value">@Model.Summary.TotalVisits</div>
             </div>
             <div class="snapshot-item">
                 <div class="snapshot-label">آخر زيارة</div>
-                <div class="snapshot-value" style="font-size: 0.9rem;">@Model.LastVisitDate?.ToString("dd/MM/yyyy")</div>
+                <div class="snapshot-value" style="font-size: 0.8rem;">@Model.Summary.LastVisitDate?.ToString("dd/MM")</div>
             </div>
             <div class="snapshot-item">
-                <div class="snapshot-label">آخر طبيب</div>
-                <div class="snapshot-value" style="font-size: 0.85rem;">@Model.LastDoctorName</div>
+                <div class="snapshot-label">المدفوع</div>
+                <div class="snapshot-value" style="font-size: 0.8rem;">@Model.Summary.TotalAmountPaid.ToString("N0")</div>
             </div>
-            <div class="snapshot-item">
-                <div class="snapshot-label">المبلغ المدفوع</div>
-                <div class="snapshot-value" style="font-size: 0.85rem;">@Model.TotalAmountPaid.ToString("N0") ر.س</div>
+        </div>
+
+        <!-- Medical History Highlights -->
+        @if (Model.MedicalHistoryEntries?.Any() ?? false)
+        {
+            <div class="highlights-title">
+                <i class="bi bi-bookmark-star"></i> ملخص السجل الطبي
             </div>
+            <div class="medical-highlights">
+                @foreach (var entry in Model.MedicalHistoryEntries.Take(4))
+                {
+                    <div class="highlight-item">
+                        <span class="highlight-icon">
+                            <i class="bi bi-dot"></i>
+                        </span>
+                        <span class="highlight-text">@entry.Title</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+else if (Model?.MedicalHistoryEntries?.Any() ?? false)
+{
+    <!-- First visit but has medical notes -->
+    <div class="snapshot-card">
+        <div class="snapshot-header">
+            <i class="bi bi-heart-pulse"></i>
+            السجل الطبي
+        </div>
+
+        <div class="highlights-title">
+            <i class="bi bi-bookmark-star"></i> ملخص السجل الطبي
+        </div>
+        <div class="medical-highlights">
+            @foreach (var entry in Model.MedicalHistoryEntries.Take(4))
+            {
+                <div class="highlight-item">
+                    <span class="highlight-icon">
+                        <i class="bi bi-dot"></i>
+                    </span>
+                    <span class="highlight-text">@entry.Title</span>
+                </div>
+            }
         </div>
     </div>
 }
@@ -91,3 +172,4 @@ else
         <i class="bi bi-star"></i> هذه أول زيارة للمريض
     </div>
 }
+

@@ -12,6 +12,7 @@ public class VisitsController : Controller
     private readonly IProductService _productService;
     private readonly IPaymentService _paymentService;
     private readonly IPatientHistoryService _patientHistoryService;
+    private readonly IPatientMedicalHistoryService _medicalHistoryService;
 
     public VisitsController(
         IVisitService visitService,
@@ -22,7 +23,8 @@ public class VisitsController : Controller
         IVisitConsumptionService consumptionService,
         IProductService productService,
         IPaymentService paymentService,
-        IPatientHistoryService patientHistoryService)
+        IPatientHistoryService patientHistoryService,
+        IPatientMedicalHistoryService medicalHistoryService)
     {
         _visitService = visitService;
         _patientService = patientService;
@@ -33,6 +35,7 @@ public class VisitsController : Controller
         _productService = productService;
         _paymentService = paymentService;
         _patientHistoryService = patientHistoryService;
+        _medicalHistoryService = medicalHistoryService;
     }
 
     public async Task<IActionResult> Index()
@@ -287,14 +290,17 @@ public class VisitsController : Controller
         var products = await _productService.GetAllAsync();
         var consumptions = await _consumptionService.GetVisitConsumptionsAsync(visit.Id);
         var totalConsumptionCost = await _consumptionService.GetTotalConsumptionCostAsync(visit.Id);
-        var previousVisits = await _patientHistoryService.GetPreviousVisitsAsync(visit.PatientId, visit.Id, take: 5);
+
+        // Load patient medical history entries
+        var medicalHistoryViewModel = await _medicalHistoryService.GetPatientHistoryAsync(visit.PatientId);
+        var patientMedicalHistory = medicalHistoryViewModel?.Entries ?? Array.Empty<PatientMedicalHistoryEntry>();
 
         return new VisitDetailsViewModel
         {
             Visit = visit,
             ProductConsumptions = consumptions,
             TotalConsumptionCost = totalConsumptionCost,
-            PreviousVisits = previousVisits,
+            PatientMedicalHistory = patientMedicalHistory,
             AvailableProducts = products
                 .Where(x => x.QuantityInStock > 0)
                 .OrderBy(x => x.Name)

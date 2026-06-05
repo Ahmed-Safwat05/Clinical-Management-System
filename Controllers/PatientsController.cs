@@ -62,8 +62,13 @@ public class PatientsController : Controller
 
     public async Task<IActionResult> GetHistorySnapshot(int patientId)
     {
-        var summary = await _patientHistoryService.GetPatientSummaryAsync(patientId);
-        return PartialView("_PatientHistorySnapshot", summary);
+        var medicalHistory = await _medicalHistoryService.GetPatientHistoryAsync(patientId);
+        var model = new PatientHistorySnapshotViewModel
+        {
+            Summary = await _patientHistoryService.GetPatientSummaryAsync(patientId),
+            MedicalHistoryEntries = medicalHistory?.SummaryEntries ?? Array.Empty<PatientMedicalHistoryEntry>()
+        };
+        return PartialView("_PatientHistorySnapshot", model);
     }
 
     public async Task<IActionResult> History(int id)
