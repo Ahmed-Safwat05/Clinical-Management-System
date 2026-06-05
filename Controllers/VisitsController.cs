@@ -112,7 +112,7 @@ public class VisitsController : Controller
         model.ConsumedProducts = model.ConsumedProducts
             .Where(x => x.ProductId > 0 && x.Quantity > 0)
             .ToList() ?? new List<VisitProductConsumptionInput>();
-        
+
         ModelState.Clear();
         if (!TryValidateModel(model))
         {
@@ -291,9 +291,17 @@ public class VisitsController : Controller
         var consumptions = await _consumptionService.GetVisitConsumptionsAsync(visit.Id);
         var totalConsumptionCost = await _consumptionService.GetTotalConsumptionCostAsync(visit.Id);
 
-        // Load patient medical history entries
+        // 1. جلب السجل المرضي المزمن
         var medicalHistoryViewModel = await _medicalHistoryService.GetPatientHistoryAsync(visit.PatientId);
         var patientMedicalHistory = medicalHistoryViewModel?.Entries ?? Array.Empty<PatientMedicalHistoryEntry>();
+
+        // 2. السحر هنا: جلب كل الزيارات السابقة للمريض (ترتيب من الأحدث للأقدم) باستثناء الحالية
+        var allPatientVisits = await _visitService.GetRecentAsync(); // أو أي ميثود في الخدمة تجيب بالـ PatientId
+                                                                     // لو الـ visitService مفيهاش ميثود فلترة، تقدر تكلم الـ DbContext مباشرة أو الفلترة هنا:
+        var pastVisits = (await _visitService.GetRecentAsync())
+            .Where(v => v.PatientId == visit.PatientId && v.Id != visit.Id)
+            .OrderByDescending(v => v.Date)
+            .ToList();
 
         return new VisitDetailsViewModel
         {
@@ -301,6 +309,7 @@ public class VisitsController : Controller
             ProductConsumptions = consumptions,
             TotalConsumptionCost = totalConsumptionCost,
             PatientMedicalHistory = patientMedicalHistory,
+            PastVisits = pastVisits, // تمرير الزيارات السابقة للـ View
             AvailableProducts = products
                 .Where(x => x.QuantityInStock > 0)
                 .OrderBy(x => x.Name)
@@ -309,5 +318,31 @@ public class VisitsController : Controller
                     x.Id.ToString()))
                 .ToList()
         };
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetPatientSummaryJson(int patientId)
+    {
+        // جلب الزيارات وترتيبها وأخذ أول 3 فقط قبل الـ Select لتحسين الأداء
+        var rawVisits = await _visitService.GetRecentAsync();
+
+        var visits = rawVisits
+            .Where(v => v.PatientId == patientId)
+            .OrderByDescending(v => v.Date)
+            .Take(3) // 🚀 مكانها هنا أفضل عشان الـ Select يتنفذ على 3 عناصر فقط مش الكل
+            .Select(v => new
+            {
+                id = v.Id, // 🎯 الـ Id اللي الجافا سكريبت محتاجه عشان زرار التفاصيل
+                date = v.Date.ToString("yyyy-MM-dd"),
+                doctor = v.Doctor?.Name ?? "غير محدد",
+                notes = v.Notes ?? "لا توجد ملاحظات",
+                price = v.TotalPrice
+            });
+
+        // جلب التاريخ المرضي والأمراض المزمنة
+        var historyViewModel = await _medicalHistoryService.GetPatientHistoryAsync(patientId);
+        var conditions = historyViewModel?.Entries?.Select(e => e.Title) ?? Array.Empty<string>();
+
+        // إرجاع البيانات في الـ JSON
+        return Json(new { visits, conditions });
     }
 }

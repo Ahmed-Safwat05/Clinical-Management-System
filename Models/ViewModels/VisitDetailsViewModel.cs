@@ -7,4 +7,5 @@ public class VisitDetailsViewModel
     public IEnumerable<SelectListItem> AvailableProducts { get; set; } = Enumerable.Empty<SelectListItem>();
     public decimal TotalConsumptionCost { get; set; }
     public IReadOnlyList<PatientMedicalHistoryEntry> PatientMedicalHistory { get; set; } = Array.Empty<PatientMedicalHistoryEntry>();
+    public IEnumerable<Visit> PastVisits { get; set; } = Enumerable.Empty<Visit>();
 }

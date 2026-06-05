@@ -313,3 +313,113 @@
     }
 </div>
 
+<div class="content-card mt-3">
+    <div class="section-head">
+        <div>
+            <h2><i class="bi bi-clock-history text-primary"></i> شريط الزيارات السابقة للمريض</h2>
+            <p>تسلسل تاريخي لكافة الكشوفات والاستشارات السابقة المسجلة للمريض.</p>
+        </div>
+    </div>
+
+    @if (Model.PastVisits != null && Model.PastVisits.Any())
+    {
+        <style>
+                .timeline-container {
+                    position: relative;
+                    padding-right: 30px;
+                    margin-top: 15px;
+                }
+
+                    .timeline-container::before {
+                        content: '';
+                        position: absolute;
+                        top: 5px;
+                        right: 9px;
+                        height: 90%;
+                        width: 2px;
+                        background: #dee2e6;
+                    }
+
+                .timeline-item {
+                    position: relative;
+                    margin-bottom: 25px;
+                }
+
+                .timeline-badge {
+                    position: absolute;
+                    right: -27px;
+                    top: 4px;
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 50%;
+                    background: var(--primary);
+                    border: 3px solid #fff;
+                    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+                }
+
+                .timeline-item.voided .timeline-badge {
+                    background: var(--bs-danger);
+                    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+                }
+
+                .timeline-card {
+                    background: var(--surface-soft, #f8f9fa);
+                    border-radius: 10px;
+                    padding: 16px;
+                    border: 1px solid rgba(0,0,0,0.03);
+                    transition: all 0.2s ease;
+                }
+
+                    .timeline-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    }
+        </style>
+
+        <div class="timeline-container">
+            @foreach (var pastVisit in Model.PastVisits)
+            {
+                <div class="timeline-item @(pastVisit.IsVoided ? "voided" : "")">
+                    <div class="timeline-badge"></div>
+                    <div class="timeline-card">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <span class="fw-bold text-dark mb-1 d-block" style="font-size: 1rem;">
+                                    زيارة مع الطبيب: @pastVisit.Doctor?.Name
+                                </span>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3"></i> @pastVisit.Date.ToString("yyyy-MM-dd")
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-wallet2"></i> الإجمالي: @pastVisit.TotalPrice.ToString("N0") ج.م
+                                </small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                @if (pastVisit.IsVoided)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger align-self-center">ملغاة</span>
+                                }
+                                <a asp-action="Details" asp-route-id="@pastVisit.Id" class="btn btn-sm btn-light border">
+                                    <i class="bi bi-box-arrow-in-left"></i> عرض الزيارة
+                                </a>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(pastVisit.Notes))
+                        {
+                            <div class="mt-2 p-2 bg-white rounded border-start border-3 border-primary" style="font-size: 0.9rem; color: #555;">
+                                <strong>التشخيص/الملاحظات:</strong> @pastVisit.Notes
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state py-4 text-center">
+            <i class="bi bi-folder-x" style="font-size: 2.5rem; color: #ccc;"></i>
+            <h4 class="mt-2 text-muted">لا توجد زيارات سابقة</h4>
+            <p class="text-muted" style="font-size: 0.85rem;">هذه هي الزيارة الأولى المسجلة لهذا المريض في النظام.</p>
+        </div>
+    }
+</div>
