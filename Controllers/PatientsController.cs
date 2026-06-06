@@ -6,15 +6,18 @@ public class PatientsController : Controller
     private readonly IPatientService _patientService;
     private readonly IPatientMedicalHistoryService _medicalHistoryService;
     private readonly IPatientHistoryService _patientHistoryService;
+    private readonly IAuditService _auditService; 
 
     public PatientsController(
         IPatientService patientService,
         IPatientMedicalHistoryService medicalHistoryService,
-        IPatientHistoryService patientHistoryService)
+        IPatientHistoryService patientHistoryService,
+        IAuditService auditService)
     {
         _patientService = patientService;
         _medicalHistoryService = medicalHistoryService;
         _patientHistoryService = patientHistoryService;
+        _auditService = auditService;
     }
 
     public async Task<IActionResult> Index(string? searchTerm)
@@ -99,6 +102,15 @@ public class PatientsController : Controller
         {
             return NotFound();
         }
+        var patientData = await _patientService.GetByIdAsync(patientId.Value);
+        string actualPatientName = patientData?.Name ?? "مجهول";
+
+        await _auditService.LogAsync(
+            AuditActionType.Create,
+            "MedicalHistory",
+            $"تمت إضافة سجل مرضي جديد للمريض: {actualPatientName}",
+            model.Id
+        );
 
         TempData["SuccessMessage"] = "تمت إضافة السجل المرضي بنجاح";
         return RedirectToAction(nameof(History), new { id = patientId.Value });
@@ -132,6 +144,17 @@ public class PatientsController : Controller
             return NotFound();
         }
 
+        var patientData = await _patientService.GetByIdAsync(patientId.Value);
+        string actualPatientName = patientData?.Name ?? "مجهول";
+
+        // 🔥 الـ Audit Log: تعديل السجل باسم المريض
+        await _auditService.LogAsync(
+            AuditActionType.Update,
+            "MedicalHistory",
+            $"تم تحديث السجل المرضي للمريض: {actualPatientName}",
+            id
+                );
+
         TempData["SuccessMessage"] = "تم تحديث السجل المرضي بنجاح";
         return RedirectToAction(nameof(History), new { id = patientId.Value });
     }
@@ -140,11 +163,22 @@ public class PatientsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteHistoryEntry(int id)
     {
+        var currentEntry = await _medicalHistoryService.BuildEditFormAsync(id);
+        string deletedPatientName = currentEntry?.PatientName ?? "مجهول";
+
         var patientId = await _medicalHistoryService.DeleteAsync(id);
         if (!patientId.HasValue)
         {
             return NotFound();
         }
+
+        // 🔥 الـ Audit Log: حذف السجل باسم المريض
+        await _auditService.LogAsync(
+            AuditActionType.Delete,
+            "MedicalHistory",
+            $"تم حذف السجل المرضي للمريض: {deletedPatientName}",
+            id
+                );
 
         TempData["SuccessMessage"] = "تم حذف السجل المرضي بنجاح";
         return RedirectToAction(nameof(History), new { id = patientId.Value });
