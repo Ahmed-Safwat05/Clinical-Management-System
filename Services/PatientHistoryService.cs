@@ -1,9 +1,3 @@
-using ClinicManagementSystem.Data;
-using ClinicManagementSystem.Interfaces.Services;
-using ClinicManagementSystem.Models;
-using ClinicManagementSystem.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-
 namespace ClinicManagementSystem.Services;
 
 public class PatientHistoryService : IPatientHistoryService
@@ -30,7 +24,7 @@ public class PatientHistoryService : IPatientHistoryService
                 LastVisitDate = v.Date,
                 LastDoctorName = v.Doctor!.Name,
                 TotalPrice = v.TotalPrice,
-                TotalPaid = v.TotalPaid
+                TotalPaid = v.PaidAmount
             })
             .GroupBy(_ => 1)
             .Select(g => new PatientHistorySummaryDto

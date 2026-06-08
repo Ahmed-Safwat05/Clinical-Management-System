@@ -31,36 +31,40 @@
     </div>
 
     <div class="table-responsive">
-    <table class="table admin-table mb-0" data-admin-table>
-        <thead><tr><th>الاسم</th><th>الهاتف</th><th>العمر</th><th>النوع</th><th class="text-end">الإجراءات</th></tr></thead>
-        <tbody>
-        @foreach (var patient in Model)
-        {
-            <tr>
-                <td>@patient.Name</td>
-                <td>@patient.Phone</td>
-                <td>@patient.Age</td>
-                <td>@patient.Gender</td>
-                <td class="text-end">
-                    <a asp-action="Edit" asp-route-id="@patient.Id" class="btn btn-sm btn-soft">
-                        <i class="bi bi-pencil-square"></i>
-                        تعديل
-                    </a>
-                    <a asp-action="History" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-clipboard2-pulse"></i>
-                        السجل المرضي
-                    </a>
-                    <form asp-action="Delete" asp-route-id="@patient.Id" method="post" class="d-inline" data-confirm="هل تريد حذف هذا المريض؟" data-success-message="تم حذف المريض بنجاح">
-                        <button class="btn btn-sm btn-danger-soft">
-                            <i class="bi bi-trash3"></i>
-                            حذف
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+        <table class="table admin-table mb-0" data-admin-table>
+            <thead><tr><th>الاسم</th><th>الهاتف</th><th>العمر</th><th>النوع</th><th class="text-end">الإجراءات</th></tr></thead>
+            <tbody>
+                @foreach (var patient in Model)
+                {
+                    <tr>
+                        <td>@patient.Name</td>
+                        <td>@patient.Phone</td>
+                        <td>@patient.Age</td>
+                        <td>@patient.Gender</td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-person-vcard"></i>
+                                ملف المريض
+                            </a>
+                            <a asp-action="History" asp-route-id="@patient.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-clipboard2-pulse"></i>
+                                السجل المرضي
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@patient.Id" class="btn btn-sm btn-soft">
+                                <i class="bi bi-pencil-square"></i>
+                                تعديل
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@patient.Id" method="post" class="d-inline" data-confirm="هل تريد حذف هذا المريض؟" data-success-message="تم حذف المريض بنجاح">
+                                <button class="btn btn-sm btn-danger-soft">
+                                    <i class="bi bi-trash3"></i>
+                                    حذف
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
     <div class="table-footer" data-table-pagination></div>
 </div>

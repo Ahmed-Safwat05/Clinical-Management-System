@@ -10,9 +10,11 @@ public class DashboardController : Controller
         _dashboardService = dashboardService;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(DateTime? selectedDate)
     {
-        var model = await _dashboardService.GetDashboardAsync(DateTime.Today);
+        var targetDate = selectedDate ?? DateTime.Today;
+        var model = await _dashboardService.GetDashboardAsync(targetDate);
+        ViewData["SelectedMonth"] = targetDate.ToString("yyyy-MM");
         return View(model);
     }
 }

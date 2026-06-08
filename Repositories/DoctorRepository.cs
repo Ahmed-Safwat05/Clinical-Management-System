@@ -1,8 +1,3 @@
-using ClinicManagementSystem.Data;
-using ClinicManagementSystem.Interfaces.Repositories;
-using ClinicManagementSystem.Models;
-using Microsoft.EntityFrameworkCore;
-
 namespace ClinicManagementSystem.Repositories;
 
 public class DoctorRepository : Repository<Doctor>, IDoctorRepository

@@ -1,7 +1,3 @@
-using ClinicManagementSystem.Data;
-using ClinicManagementSystem.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
-
 namespace ClinicManagementSystem.Repositories;
 
 public class OperationalDataRepository : IOperationalDataRepository

@@ -1,200 +1,348 @@
+@using ClinicManagementSystem.Models.ViewModels
 @model HomeViewModel
+
 @{
-    ViewData["Title"] = "الرئيسية";
+    ViewData["Title"] = "الرئيسية - غرفة التحكم";
+
+    // إرجاع متغيرات الشارت كما كانت
     var labelsJson = System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(x => x.Label));
     var revenueJson = System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(x => x.Revenue));
     var visitsJson = System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(x => x.VisitsCount));
+
+    // استخراج أسماء الأطباء اللي ليهم حجوزات اليوم عشان نملى بيهم الـ Dropdown بدون تكرار
+    var activeDoctors = Model.TodayAppointments.Select(a => a.DoctorName).Distinct().ToList();
 }
 
-<section class="dashboard-hero">
+<section class="dashboard-hero mb-4">
     <div>
-        <span class="eyebrow">نظرة سريعة</span>
-        <h1>مرحباً بك في نظام إدارة العيادة</h1>
-        <p>ملخص تشغيلي سريع لليوم: زيارات، مواعيد، إيرادات، وتنبيهات تحتاج متابعة.</p>
+        <span class="eyebrow text-uppercase fw-bold">غرفة التحكم اليومية</span>
+        <h1>مرحباً بك في إدارة العيادة</h1>
+        <p>متابعة حركة الطابور، الأطباء، وتسجيل الإجراءات لليوم @DateTime.Today.ToString("dd MMMM yyyy")</p>
     </div>
-    <a asp-controller="Appointments" asp-action="Create" class="btn btn-primary hero-action">
-        <i class="bi bi-plus-circle"></i>
-        موعد جديد
-    </a>
 </section>
 
-<section class="stats-grid" aria-label="إحصائيات سريعة">
-    
-    <div class="dashboard-card stat-summary p-3">
-        <div class="d-flex align-items-center mb-3">
-            <a asp-controller="Patients" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3">
-                <div class="stat-icon bg-blue"><i class="bi bi-people-fill"></i></div>
-                <div class="ms-3">
-                    <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي المرضى</small>
-                    <strong style="font-size: 1.5rem;">@Model.TotalPatients.ToString("N0")</strong>
-                </div>
-            </a>
-        </div>
-        <a asp-controller="Patients" asp-action="Create" class="btn btn-sm btn-outline-primary w-100">
-            <i class="bi bi-person-plus-fill"></i> إضافة
-        </a>
-    </div>
-
-    <div class="dashboard-card stat-summary p-3">
-        <div class="d-flex align-items-center mb-3">
-            <a asp-controller="Doctors" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3">
-                <div class="stat-icon bg-green"><i class="bi bi-person-badge-fill"></i></div>
-                <div class="ms-3">
-                    <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي الأطباء</small>
-                    <strong style="font-size: 1.5rem;">@Model.TotalDoctors.ToString("N0")</strong>
-                </div>
-            </a>
-        </div>
-        <a asp-controller="Doctors" asp-action="Create" class="btn btn-sm btn-outline-success w-100">
-            <i class="bi bi-person-plus-fill"></i> إضافة
-        </a>
-    </div>
-
-    <div class="dashboard-card stat-summary p-3">
-        <div class="d-flex align-items-center mb-3">
-            <a asp-controller="Visits" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3"> 
-            <div class="stat-icon bg-amber"><i class="bi bi-clipboard2-pulse-fill"></i></div>
-            <div class="ms-3">
-                <small class="text-muted d-block" style="font-size: 0.8rem;">زيارات اليوم</small>
-                <strong style="font-size: 1.5rem;">@Model.TodayVisitsCount.ToString("N0")</strong>
-            </div>
-            </a>
-        </div>
-        <div class="bg-light p-2 rounded text-center">
-            <small class="text-primary fw-bold" style="font-size: 0.85rem;">الإيراد: @Model.TodayRevenue.ToString("N2") ج.م</small>
-        </div>
-    </div>
-
-    <div class="dashboard-card stat-summary p-3">
-        <div class="d-flex align-items-center mb-3">
-            <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-dark d-flex align-items-center mb-3">
-                <div class="stat-icon bg-purple"><i class="bi bi-cash-stack"></i></div>
-                <div class="ms-3">
-                    <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي الإيرادات</small>
-                    <strong style="font-size: 1.5rem;">@Model.TotalRevenue.ToString("C")</strong>
-                </div>
-            </a>
-        </div>
-    </div>
-
-</section>
-
-<section class="dashboard-grid">
-    <div class="dashboard-card appointments-panel">
-        <div class="section-head">
+<section class="row g-3 mb-4" aria-label="إجراءات سريعة">
+    <div class="col-md-4">
+        <a asp-controller="Patients" asp-action="Create" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between" style="background-color: #e3f2fd; color: #0d47a1; border-radius: 12px;">
             <div>
-                <h2> قائمة الانتظار الحالية </h2>
-                <p>أقرب المواعيد المسجلة حسب الوقت والدور</p>
+                <h5 class="fw-bold mb-1"><i class="bi bi-person-plus-fill me-2"></i> مريض جديد</h5>
+                <small class="text-muted">تسجيل ملف طبي لمريض لأول مرة</small>
             </div>
-            <a asp-controller="Appointments" asp-action="Index" class="btn btn-light btn-sm">عرض الكل</a>
+            <i class="bi bi-arrow-left-circle-fill fs-3 opacity-50"></i>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-controller="Appointments" asp-action="Create" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between" style="background-color: #e8f5e9; color: #1b5e20; border-radius: 12px;">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-calendar-plus-fill me-2"></i> حجز موعد</h5>
+                <small class="text-muted">إدراج مريض في طابور الانتظار اليوم</small>
+            </div>
+            <i class="bi bi-arrow-left-circle-fill fs-3 opacity-50"></i>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-controller="Doctors" asp-action="Index" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between" style="background-color: #f3e5f5; color: #4a148c; border-radius: 12px;">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-person-badge-fill me-2"></i> الأطباء</h5>
+                <small class="text-muted">متابعة حضور وضغط عيادات الدكاترة</small>
+            </div>
+            <i class="bi bi-arrow-left-circle-fill fs-3 opacity-50"></i>
+        </a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4" aria-label="إحصائيات تشغيلية">
+    <div class="col-md-3">
+        <a asp-controller="Patients" asp-action="Index" class="text-decoration-none text-dark d-block">
+            <div class="dashboard-card stat-summary p-3 shadow-sm transition-hover">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-blue text-white rounded p-2"><i class="bi bi-people-fill fs-4"></i></div>
+                    <div class="ms-3">
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">إجمالي المرضى</small>
+                        <strong style="font-size: 1.5rem;">@Model.TotalPatients.ToString("0.##")</strong>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="Doctors" asp-action="Index" class="text-decoration-none text-dark d-block">
+            <div class="dashboard-card stat-summary p-3 shadow-sm transition-hover">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-green text-white rounded p-2"><i class="bi bi-person-heart fs-4"></i></div>
+                    <div class="ms-3">
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">الأطباء بالخدمة</small>
+                        <strong style="font-size: 1.5rem;">@Model.TotalDoctors.ToString("0.##")</strong>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="Appointments" asp-action="Index" class="text-decoration-none text-dark d-block">
+            <div class="dashboard-card stat-summary p-3 shadow-sm transition-hover">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-amber text-white rounded p-2"><i class="bi bi-clipboard2-pulse-fill fs-4"></i></div>
+                    <div class="ms-3">
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">زيارات اليوم</small>
+                        <strong style="font-size: 1.5rem;">@Model.TodayVisitsCount.ToString("0.##")</strong>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="Reports" asp-action="Index" class="text-decoration-none text-dark d-block">
+            <div class="dashboard-card stat-summary p-3 shadow-sm transition-hover">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success text-white rounded p-2" style="background-color: #198754 !important;"><i class="bi bi-cash-stack fs-4"></i></div>
+                    <div class="ms-3">
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">إيرادات اليوم</small>
+                        <strong style="font-size: 1.5rem;">@Model.TodayRevenue.ToString("C")</strong>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="dashboard-grid mb-4">
+    <div class="dashboard-card appointments-panel">
+        <div class="section-head mb-3 d-flex flex-wrap align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div>
+                    <h2 class="mb-0"><span class="spinner-grow spinner-grow-sm text-success me-1" role="status"></span> طابور الانتظار الحالي</h2>
+                    <p class="mb-0 text-muted" style="font-size: 0.85rem;">الحجوزات المسجلة لليوم</p>
+                </div>
+                <select id="doctorFilterSelect" class="form-select form-select-sm shadow-sm" style="width: auto; min-width: 150px; border-radius: 8px;">
+                    <option value="all">كل الأطباء (مجمع)</option>
+                    @foreach (var doc in activeDoctors)
+                    {
+                        <option value="@doc">د. @doc</option>
+                    }
+                </select>
+            </div>
+            <a asp-controller="Appointments" asp-action="Index" class="btn btn-light btn-sm border">عرض الكل</a>
         </div>
 
         <div class="table-responsive">
             <table class="table modern-table align-middle mb-0">
                 <thead>
                     <tr>
+                        <th style="width: 60px;">#</th>
                         <th>الوقت</th>
+                        <th>المريض</th>
                         <th>الطبيب</th>
-                        <th>التخصص</th>
-                        <th>الحالة</th>
+                        <th class="text-center">الحالة</th>
                     </tr>
                 </thead>
-                <tbody>
-                @if (Model.TodayAppointments.Any())
-                {
-                    foreach (var appointment in Model.TodayAppointments)
+                <tbody id="appointmentsTableBody">
+                    @if (Model.TodayAppointments.Any())
                     {
-                        <tr>
-                            <td>@appointment.Time</td>
-                            <td>@appointment.DoctorName</td>
-                            <td>@appointment.Specialty</td>
-                            <td><span class="status-badge @appointment.StatusBadgeClass">@appointment.StatusText</span></td>
+                        int counter = 1;
+                        var activeFound = false;
+
+                        foreach (var app in Model.TodayAppointments)
+                        {
+                            bool isCurrent = false;
+                            if (!activeFound && (app.StatusText.Contains("منتظر") || app.StatusText.Contains("Waiting")))
+                            {
+                                isCurrent = true;
+                                activeFound = true;
+                            }
+
+                            <tr class="appointment-row @(isCurrent ? "table-success fw-bold" : "")"
+                                data-doctor-name="@app.DoctorName"
+                                style="@(isCurrent ? "border-right: 4px solid #198754;" : "")">
+                                <td>
+                                    @if (isCurrent)
+                                    {
+                                        <span class="badge bg-success">الآن</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">@counter</span>
+                                    }
+                                </td>
+                                <td class="text-muted">@app.Time</td>
+                                <td>
+                                    <span class="d-block text-dark">@app.PatientName</span>
+                                </td>
+                                <td>
+                                    <strong class="d-block text-muted" style="font-size:0.85rem">@app.DoctorName</strong>
+                                    <small class="text-primary" style="font-size:0.75rem">@app.Specialty</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge @app.StatusBadgeClass">@app.StatusText</span>
+                                </td>
+                            </tr>
+                            counter++;
+                        }
+                    }
+                    else
+                    {
+                        <tr id="emptyStateRow">
+                            <td colspan="5" class="empty-state py-5 text-center">لا توجد مواعيد اليوم</td>
                         </tr>
+                    }
+                </tbody>
+            </table>
+            <div id="noDoctorPatientsMsg" class="d-none text-center text-muted py-4">
+                لا يوجد مرضى في الانتظار لهذا الطبيب.
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column gap-4">
+        <div class="dashboard-card p-3" style="background-color: #fffde7; border-left: 5px solid #fbc02d; border-radius:12px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0 text-warning-emphasis"><i class="bi bi-sticky-fill me-2"></i> نوتة الاستقبال اليومية</h5>
+            </div>
+            <textarea id="stickyNoteArea" class="form-control border-0 bg-transparent" rows="4"
+                      placeholder="اكتب هنا الملاحظات السريعة لليوم... (تُحفظ تلقائياً)"
+                      style="resize: none; font-size: 0.9rem; color: #555;"></textarea>
+        </div>
+
+        <div class="dashboard-card notifications-panel flex-grow-1">
+            <div class="section-head mb-2">
+                <div>
+                    <h2>التنبيهات</h2>
+                </div>
+            </div>
+            <div class="notifications-list compact">
+                @if (Model.Notifications.Any())
+                {
+                    foreach (var notification in Model.Notifications)
+                    {
+                        <div class="notification-item @notification.CssClass p-2 rounded mb-2 d-flex align-items-start gap-2">
+                            <i class="bi @notification.Icon fs-5"></i>
+                            <div>
+                                <strong class="d-block" style="font-size:0.85rem">@notification.Title</strong>
+                                <span class="text-muted" style="font-size:0.75rem">@notification.Message</span>
+                            </div>
+                        </div>
                     }
                 }
                 else
                 {
-                    <tr>
-                        <td colspan="4" class="empty-state">لا توجد مواعيد اليوم</td>
-                    </tr>
+                    <div class="text-center text-muted py-3" style="font-size:0.85rem">لا توجد تنبيهات حالياً.</div>
                 }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="dashboard-card chart-panel" style="height: 300px; width: 100%;">
-        <div class="section-head">
-            <div>
-                <h2>الإيرادات</h2>
-                <p>تحديث الرسم يتم بدون إعادة تحميل الصفحة</p>
             </div>
-            <select class="form-select form-select-sm chart-period-select" data-home-chart-period>
-                <option value="weekly">أسبوعي</option>
-                <option value="monthly">شهري</option>
-                <option value="yearly">سنوي</option>
-            </select>
         </div>
-        <canvas id="homeRevenueChart"
-                height="260"
-                data-url="@Url.Action("RevenueChart", "Home")"
-                data-labels='@labelsJson'
-                data-revenue='@revenueJson'
-                data-visits='@visitsJson'></canvas>
     </div>
 </section>
 
-<section class="dashboard-grid">
-    <div class="dashboard-card">
-        <div class="section-head">
-            <div>
-                <h2>ضغط الأطباء اليوم</h2>
-                <p>عدد المواعيد لكل طبيب كنسبة من أعلى ضغط اليوم</p>
-            </div>
-        </div>
-
-        <div class="doctor-load-list">
-        @if (Model.DoctorLoads.Any())
-        {
-            foreach (var load in Model.DoctorLoads)
-            {
-                <div class="doctor-load-item">
-                    <div>
-                        <strong>@load.DoctorName</strong>
-                        <span>@load.AppointmentCount مواعيد</span>
-                    </div>
-                    <div class="progress">
-                        <div class="progress-bar" style="width:@load.LoadPercentage%"></div>
-                    </div>
+<section class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="dashboard-card chart-panel h-100 p-3">
+            <div class="section-head mb-3">
+                <div>
+                    <h2>الإيرادات</h2>
+                    <p class="text-muted" style="font-size: 0.85rem;">تحديث الرسم يتم بدون إعادة تحميل الصفحة</p>
                 </div>
-            }
-        }
-        else
-        {
-            <div class="empty-state">لا يوجد ضغط مواعيد اليوم</div>
-        }
+                <select class="form-select form-select-sm chart-period-select" data-home-chart-period style="width: auto;">
+                    <option value="weekly">أسبوعي</option>
+                    <option value="monthly">شهري</option>
+                    <option value="yearly">سنوي</option>
+                </select>
+            </div>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="homeRevenueChart"
+                        data-url="@Url.Action("RevenueChart", "Home")"
+                        data-labels='@labelsJson'
+                        data-revenue='@revenueJson'
+                        data-visits='@visitsJson'></canvas>
+            </div>
         </div>
     </div>
 
-    <div class="dashboard-card notifications-panel">
-        <div class="section-head">
-            <div>
-                <h2>التنبيهات</h2>
-                <p>تنبيهات مولدة من بيانات النظام الحالية</p>
-            </div>
-        </div>
-
-        <div class="notifications-list compact">
-            @foreach (var notification in Model.Notifications)
-            {
-                <div class="notification-item @notification.CssClass">
-                    <i class="bi @notification.Icon"></i>
-                    <div>
-                        <strong>@notification.Title</strong>
-                        <span>@notification.Message</span>
-                    </div>
+    <div class="col-lg-5">
+        <div class="dashboard-card h-100 p-3">
+            <div class="section-head mb-4">
+                <div>
+                    <h2>ضغط الأطباء اليوم</h2>
                 </div>
-            }
+            </div>
+            <div class="d-flex flex-column gap-3">
+                @if (Model.DoctorLoads.Any())
+                {
+                    foreach (var load in Model.DoctorLoads)
+                    {
+                        <div class="p-3 border rounded bg-light-subtle">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>@load.DoctorName</strong>
+                                <span class="badge bg-primary rounded-pill">@load.AppointmentCount.ToString("0.##") مواعيد</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-info" style="width:@load.LoadPercentage%"></div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5">لا يوجد ضغط مواعيد اليوم</div>
+                }
+            </div>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <style>
+        .transition-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .transition-hover:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+                cursor: pointer;
+            }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. كود النوتة
+            const noteArea = document.getElementById("stickyNoteArea");
+            if (localStorage.getItem("clinic_daily_note")) {
+                noteArea.value = localStorage.getItem("clinic_daily_note");
+            }
+            noteArea.addEventListener("input", function () {
+                localStorage.setItem("clinic_daily_note", this.value);
+            });
+
+            // 2. كود فلترة الأطباء (Live Filter)
+            const doctorFilter = document.getElementById("doctorFilterSelect");
+            const appointmentRows = document.querySelectorAll(".appointment-row");
+            const noDataMsg = document.getElementById("noDoctorPatientsMsg");
+
+            if(doctorFilter) {
+                doctorFilter.addEventListener("change", function () {
+                    const selectedDoctor = this.value;
+                    let visibleCount = 0;
+
+                    appointmentRows.forEach(row => {
+                        const rowDoctor = row.getAttribute("data-doctor-name");
+
+                        if (selectedDoctor === "all" || rowDoctor === selectedDoctor) {
+                            row.style.display = ""; // إظهار
+                            visibleCount++;
+                        } else {
+                            row.style.display = "none"; // إخفاء
+                        }
+                    });
+
+                    // إظهار رسالة إذا كان الدكتور المختار ملوش مرضى
+                    if (visibleCount === 0 && selectedDoctor !== "all") {
+                        noDataMsg.classList.remove("d-none");
+                    } else {
+                        noDataMsg.classList.add("d-none");
+                    }
+                });
+            }
+        });
+    </script>
+}

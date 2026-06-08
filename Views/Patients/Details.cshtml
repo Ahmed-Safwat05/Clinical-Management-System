@@ -262,11 +262,11 @@
             </div>
             <div class="summary-stat">
                 <div class="summary-stat-label">إجمالي المبلغ</div>
-                <div class="summary-stat-value">@Model.HistorySummary.TotalAmountSpent.ToString("N0") ر.س</div>
+                <div class="summary-stat-value">@Model.HistorySummary.TotalAmountSpent.ToString("0.##") ج.م</div>
             </div>
             <div class="summary-stat">
                 <div class="summary-stat-label">المدفوع</div>
-                <div class="summary-stat-value">@Model.HistorySummary.TotalAmountPaid.ToString("N0") ر.س</div>
+                <div class="summary-stat-value">@Model.HistorySummary.TotalAmountPaid.ToString("0.##") ج.م</div>
             </div>
         </div>
     </div>
@@ -313,17 +313,17 @@
                             <div class="timeline-price">
                                 <div class="timeline-price-item">
                                     <span>السعر:</span>
-                                    <strong>@visit.TotalPrice.ToString("N0") ر.س</strong>
+                                    <strong>@visit.TotalPrice.ToString("0.##") ج.م</strong>
                                 </div>
                                 <div class="timeline-price-item">
                                     <span>المدفوع:</span>
-                                    <strong>@visit.TotalPaid.ToString("N0") ر.س</strong>
+                                    <strong>@visit.TotalPaid.ToString("0.##") ج.م</strong>
                                 </div>
                                 @if (!visit.IsPaidInFull)
                                 {
                                     <div class="timeline-price-item">
                                         <span>المتبقي:</span>
-                                        <strong>@visit.RemainingBalance.ToString("N0") ر.س</strong>
+                                        <strong>@visit.RemainingBalance.ToString("0.##") ج.م</strong>
                                     </div>
                                 }
                             </div>

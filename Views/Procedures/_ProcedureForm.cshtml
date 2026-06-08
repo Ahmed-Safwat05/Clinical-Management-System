@@ -9,7 +9,8 @@
     </div>
     <div class="col-md-5">
         <label asp-for="Price" class="form-label">السعر</label>
-        <input asp-for="Price" class="form-control" />
+        <input asp-for="Price" class="form-control" 
+        value="@(Model.Price.ToString("0.##"))" />
         <span asp-validation-for="Price" class="text-danger"></span>
     </div>
 </div>

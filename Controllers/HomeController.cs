@@ -9,7 +9,7 @@ public class HomeController : Controller
     {
         _homeService = homeService;
     }
-
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var model = await _homeService.GetHomeAsync(DateTime.Today);

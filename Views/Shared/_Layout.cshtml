@@ -125,7 +125,7 @@
             </nav>
 
             <form asp-controller="Account" asp-action="Logout" method="post" class="sidebar-logout" hx-boost="false">
-                <button type="submit" class="sidebar-link logout-link">
+                <button type="submit" class="sidebar-link logout-link border-0 w-100 text-start bg-transparent">
                     <i class="bi bi-box-arrow-left"></i>
                     <span>تسجيل الخروج</span>
                 </button>
@@ -134,14 +134,17 @@
 
         <div class="app-main">
             <header class="app-topbar">
-                <form class="topbar-search" role="search">
-                    <i class="bi bi-search"></i>
-                    <input class="form-control" type="search" placeholder="ابحث عن مريض، موعد..." aria-label="بحث" />
+                <form class="topbar-search position-relative d-flex align-items-center" role="search" asp-controller="Home" asp-action="GlobalSearch" method="get" style="width: 100%; max-width: 400px;">
+                    <button type="submit" class="btn border-0 position-absolute text-muted" style="right: 10px; z-index: 10; padding: 0; background: transparent;">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <!-- تم زيادة padding-right لـ 40px لإبعاد النص عن الأيقونة -->
+                    <input class="form-control rounded-pill w-100" name="searchTerm" type="search" placeholder="ابحث عن مريض أو موعد..." aria-label="بحث" style="padding-right: 40px !important; padding-left: 15px;" required />
                 </form>
 
                 <div class="topbar-actions">
                     <div class="dropdown">
-                        <div class="user-profile " id="userDropdown" style="cursor: pointer;">
+                        <div class="user-profile dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                             <img src="~/images/receptionist-icon-svg-download-png-6973939.png" alt="صورة المستخدم" />
                             <div class="user-info">
                                 <strong>@(User.Identity?.Name ?? "مستخدم")</strong>
@@ -162,7 +165,7 @@
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="m-0" hx-boost="false">
-                                    <button type="submit" class="dropdown-item rounded-2 py-2 text-danger d-flex align-items-center gap-2">
+                                    <button type="submit" class="dropdown-item rounded-2 py-2 text-danger d-flex align-items-center gap-2 w-100 border-0 bg-transparent text-start">
                                         <i class="bi bi-box-arrow-left"></i>
                                         <span>تسجيل الخروج</span>
                                     </button>

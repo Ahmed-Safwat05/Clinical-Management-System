@@ -25,6 +25,7 @@ public class DashboardService : IDashboardService
         var previousMonthFinancials = await _financialReports.GetVisitPeriodSummaryAsync(previousMonthStart, monthStart);
         var yearFinancials = await _financialReports.GetVisitPeriodSummaryAsync(yearStart, nextYearStart);
 
+        // ممتاز جداً استبعاد الـ Voided من العد
         var monthlyVisitsCount = await _context.Visits
             .CountAsync(x => x.Date >= monthStart && x.Date < nextMonthStart && x.Status != VisitStatus.Voided);
 
@@ -46,7 +47,8 @@ public class DashboardService : IDashboardService
         // Phase 4.5: Operational Insights
         var lowStockProducts = await GetLowStockProductsAsync();
         var mostConsumedProducts = await GetMostConsumedProductsThisMonthAsync(monthStart, nextMonthStart);
-        var queueSummary = await GetTodayQueueSummaryAsync(targetDate);
+
+        // ❌ تم إزالة حساب QueueSummary من هنا لتوفير الموارد لأنه نُقل للصفحة الرئيسية
 
         return new DashboardAnalyticsViewModel
         {
@@ -68,9 +70,9 @@ public class DashboardService : IDashboardService
             TopDebtors = await _financialReports.GetTopDebtorsAsync(5),
             LowStockProducts = lowStockProducts,
             MostConsumedProducts = mostConsumedProducts,
-            QueueSummary = queueSummary
+            QueueSummary = null // نمرر Null عشان ميديناش إيرور في الـ ViewModel
         };
-    }
+    }   
 
     private static decimal CalculateTrendPercentage(decimal current, decimal previous)
     {

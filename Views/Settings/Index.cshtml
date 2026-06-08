@@ -41,12 +41,14 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label asp-for="DefaultExamPrice" class="form-label">سعر الكشف الافتراضي</label>
-                <input asp-for="DefaultExamPrice" class="form-control" />
+                <input asp-for="DefaultExamPrice" class="form-control" 
+                value="@(Model.DefaultExamPrice.ToString("0.##"))" />
                 <span asp-validation-for="DefaultExamPrice" class="text-danger"></span>
             </div>
             <div class="col-md-4">
                 <label asp-for="MaxDiscount" class="form-label">أقصى خصم</label>
-                <input asp-for="MaxDiscount" class="form-control" />
+                <input asp-for="MaxDiscount" class="form-control" 
+                value="@(Model.MaxDiscount.ToString("0.##"))" />
                 <span asp-validation-for="MaxDiscount" class="text-danger"></span>
             </div>
             <div class="col-md-4 d-flex align-items-end">

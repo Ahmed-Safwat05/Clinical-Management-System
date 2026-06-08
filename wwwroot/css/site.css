@@ -471,8 +471,9 @@ a {
 }
 
 .stat-summary {
+    padding: 20px !important;
     display: flex;
-    align-items: center;
+    align-items: flex-start!important;
     gap: 16px;
 }
 
@@ -576,9 +577,9 @@ a {
 .stat-summary strong,
 .stat-card strong {
     display: block;
-    margin: 3px 0;
+    margin: 4px 0 !important;
     color: var(--text);
-    font-size: clamp(1.45rem, 2vw, 2rem);
+    font-size: 1.3rem !important;
     font-weight: 800;
 }
 
@@ -586,7 +587,7 @@ a {
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    font-size: .78rem;
+    font-size: .75rem !important;
     font-weight: 800;
 }
 

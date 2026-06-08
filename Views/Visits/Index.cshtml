@@ -62,11 +62,11 @@
                             }
                         </td>
 
-                        <td class="text-nowrap fw-semibold">@visit.TotalPrice.ToString("N0") ج.م</td>
+                        <td class="text-nowrap fw-semibold">@visit.TotalPrice.ToString("0.##") ج.م</td>
 
                         <td>
                             <div class="d-flex flex-column gap-1">
-                                <span class="fw-semibold text-nowrap">@visit.TotalPaid.ToString("N0") ج.م</span>
+                                <span class="fw-semibold text-nowrap">@visit.TotalPaid.ToString("0.##") ج.م</span>
                                 <span class="status-badge @(visit.IsPaidInFull ? "confirmed" : "waiting") text-center m-0" style="font-size: 11px; padding: 2px 4px;">
                                     @(visit.IsPaidInFull ? "مدفوع" : "مستحق")
                                 </span>
@@ -74,7 +74,7 @@
                         </td>
 
                         <td class="text-nowrap fw-semibold @(visit.RemainingBalance > 0 ? "text-danger" : "text-success")">
-                            @visit.RemainingBalance.ToString("N0") ج.م
+                            @visit.RemainingBalance.ToString("0.##") ج.م
                         </td>
 
                         <td>

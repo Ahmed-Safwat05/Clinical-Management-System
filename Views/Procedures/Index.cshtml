@@ -30,7 +30,7 @@
         {
             <tr>
                 <td>@procedure.Name</td>
-                <td>@procedure.Price.ToString("N2") ج.م</td>
+                <td>@procedure.Price.ToString("0.##") ج.م</td>
                 <td class="text-end">
                     <a asp-action="Edit" asp-route-id="@procedure.Id" class="btn btn-sm btn-soft">
                         <i class="bi bi-pencil-square"></i>

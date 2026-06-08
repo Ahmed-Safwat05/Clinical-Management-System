@@ -47,7 +47,7 @@
                 <i class="bi bi-capsule-pill"></i>  الإجراءات الطبية
             </div>
             <div id="procedures-container">
-                @for (var i = 0; i < 3; i++)
+                @for (var i = 0; i < 1; i++)
                 {
                     var current = Model.Procedures.ElementAtOrDefault(i) ?? new VisitProcedureInput();
                     <div class="row g-2 mb-2 procedure-row">
@@ -58,7 +58,7 @@
                                 @foreach (var procedure in Model.AvailableProcedureOptions)
                                 {
                                     <option value="@procedure.Id" data-price="@procedure.Price" selected="@(procedure.Id == current.ProcedureId)">
-                                        @procedure.Name - @procedure.Price.ToString("C")
+                                        @procedure.Name - @procedure.Price.ToString("0.##") ج.م
                                     </option>
                                 }
                             </select>
@@ -176,19 +176,23 @@
             <div class="row g-3">
                 <div class="col-md-3">
                     <label asp-for="ExaminationPrice" class="form-label">قيمة الكشف</label>
-                    <input asp-for="ExaminationPrice" class="form-control" data-exam-price />
+                    <input asp-for="ExaminationPrice" class="form-control" data-exam-price 
+                    value= "@(Model.ExaminationPrice == 0 ? "" : Model.ExaminationPrice.ToString("0.##"))" />
                 </div>
                 <div class="col-md-3">
                     <label asp-for="ProceduresPrice" class="form-label">قيمة الإجراءات</label>
-                    <input asp-for="ProceduresPrice" type="number" class="form-control" data-procedures-price readonly />
+                    <input asp-for="ProceduresPrice" type="number" class="form-control" data-procedures-price readonly 
+                    value="@(Model.ProceduresPrice == 0 ? "" : Model.ProceduresPrice.ToString("0.##"))" />
                 </div>
                 <div class="col-md-3">
                     <label asp-for="Discount" class="form-label">الخصم</label>
-                    <input asp-for="Discount" type="number" class="form-control" data-discount />
+                    <input asp-for="Discount" type="number" class="form-control" data-discount 
+                    value="@(Model.Discount == 0 ? "" : Model.Discount.ToString("0.##"))" />
                 </div>
                 <div class="col-md-3">
                     <label asp-for="TotalPrice" class="form-label">الإجمالي (ج.م)</label>
-                    <input asp-for="TotalPrice" type="number" class="form-control" readonly data-total-price />
+                    <input asp-for="TotalPrice" type="number" class="form-control" readonly data-total-price 
+                    value="@(Model.TotalPrice == 0 ? "" : Model.TotalPrice.ToString("0.##"))" />
                 </div>
             </div>
         </div>
@@ -201,7 +205,8 @@
             <div class="row g-3">
                 <div class="col-md-4">
                     <label asp-for="PaidAmount" class="form-label">المبلغ المدفوع</label>
-                    <input asp-for="PaidAmount" class="form-control" data-paid-amount />
+                    <input asp-for="PaidAmount" class="form-control" data-paid-amount 
+                    value="@(Model.PaidAmount == 0 ? "" : Model.PaidAmount.ToString("0.##"))" />
                     <span asp-validation-for="PaidAmount" class="text-danger"></span>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">

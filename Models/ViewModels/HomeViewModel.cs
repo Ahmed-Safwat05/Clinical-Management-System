@@ -15,6 +15,7 @@ public class HomeViewModel
 
 public class AppointmentDto
 {
+    public string PatientName { get; set; } = string.Empty;
     public string Time { get; set; } = string.Empty;
     public string DoctorName { get; set; } = string.Empty;
     public string Specialty { get; set; } = string.Empty;

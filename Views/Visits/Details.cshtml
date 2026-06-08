@@ -32,7 +32,7 @@
                 <span class="status-badge success mt-2">نشطة</span>
             }
         </div>
-        <div class="detail-tile"><span>الدفع</span><strong>@visit.TotalPaid.ToString("N2") ج.م / @visit.TotalPrice.ToString("N2") ج.م</strong></div>
+        <div class="detail-tile"><span>الدفع</span><strong>@visit.TotalPaid.ToString("0.##") ج.م / @visit.TotalPrice.ToString("0.##") ج.م</strong></div>
     </div>
     @if (!string.IsNullOrWhiteSpace(visit.Notes))
     {
@@ -61,27 +61,27 @@
     <div class="details-grid">
         <div class="detail-tile">
             <span>قيمة الكشف</span>
-            <strong>@visit.ExaminationPrice.ToString("N2") ج.م</strong>
+            <strong>@visit.ExaminationPrice.ToString("0.##") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>إجمالي الإجراءات</span>
-            <strong>@visit.ProceduresPrice.ToString("N2") ج.م</strong>
+            <strong>@visit.ProceduresPrice.ToString("0.##") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>الخصم</span>
-            <strong class="text-danger">@visit.Discount.ToString("N2") ج.م</strong>
+            <strong class="text-danger">@visit.Discount.ToString("0.##") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>الإجمالي النهائي</span>
-            <strong class="text-primary">@visit.TotalPrice.ToString("N2") ج.م</strong>
+            <strong class="text-primary">@visit.TotalPrice.ToString("0.##") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>المبلغ المدفوع</span>
-            <strong class="text-success">@visit.TotalPaid.ToString("N2") ج.م</strong>
+            <strong class="text-success">@visit.TotalPaid.ToString("0.##") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>المتبقي</span>
-            <strong class="@(visit.RemainingBalance > 0 ? "text-warning" : "text-success")">@visit.RemainingBalance.ToString("N2") ج.م</strong>
+            <strong class="@(visit.RemainingBalance > 0 ? "text-warning" : "text-success")">@visit.RemainingBalance.ToString("0.##") ج.م</strong>
         </div>
         <div class="detail-tile">
             <span>حالة الدفع</span>
@@ -124,7 +124,7 @@
                 {
                     <tr>
                         <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                        <td class="fw-bold text-success">@payment.Amount.ToString("N2") ج.م</td>
+                        <td class="fw-bold text-success">@payment.Amount.ToString("0.##") ج.م</td>
                         <td>@(string.IsNullOrWhiteSpace(payment.Notes) ? "-" : payment.Notes)</td>
                         <td>@(string.IsNullOrWhiteSpace(payment.CreatedBy) ? "-" : payment.CreatedBy)</td>
                     </tr>
@@ -149,7 +149,7 @@
             <h2>المنتجات المستهلكة</h2>
             <p>تسجيل وعرض المنتجات التي تم استهلاكها أثناء الزيارة.</p>
         </div>
-        <span class="badge bg-light text-dark">إجمالي التكلفة: @Model.TotalConsumptionCost.ToString("N2") ج.م</span>
+        <span class="badge bg-light text-dark">إجمالي التكلفة: @Model.TotalConsumptionCost.ToString("0.##") ج.م</span>
     </div>
 
     <form asp-action="ConsumeProduct" method="post" class="row g-2 align-items-end mb-3">
@@ -197,8 +197,8 @@
                     <tr>
                         <td>@item.Product?.Name</td>
                         <td>@item.QuantityConsumed @(item.Product?.Unit ?? "")</td>
-                        <td>@unitCost.ToString("N2") ج.م</td>
-                        <td class="fw-bold">@totalCost.ToString("N2") ج.م</td>
+                        <td>@unitCost.ToString("0.##") ج.م</td>
+                        <td class="fw-bold">@totalCost.ToString("0.##") ج.م</td>
                         <td>@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
                     </tr>
                 }
@@ -237,7 +237,7 @@
             <tr>
                 <td>@item.Procedure?.Name</td>
                 <td>@item.Quantity</td>
-                <td>@item.SubTotal.ToString("N2") ج.م</td>
+                <td>@item.SubTotal.ToString("0.##") ج.م</td>
             </tr>
         }
         </tbody>
@@ -390,7 +390,7 @@
                                 <small class="text-muted">
                                     <i class="bi bi-calendar3"></i> @pastVisit.Date.ToString("yyyy-MM-dd")
                                     <span class="mx-2">|</span>
-                                    <i class="bi bi-wallet2"></i> الإجمالي: @pastVisit.TotalPrice.ToString("N0") ج.م
+                                    <i class="bi bi-wallet2"></i> الإجمالي: @pastVisit.TotalPrice.ToString("0.##") ج.م
                                 </small>
                             </div>
                             <div class="d-flex gap-2">
