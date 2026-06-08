@@ -14,6 +14,28 @@
     --red: #dc2626;
     --purple: #7c3aed;
     --shadow: 0 14px 34px rgba(15, 23, 42, .08);
+    /* متغيرات إضافية مرنة عشان الوضع الليلي */
+    --header-bg: rgba(243, 246, 251, 0.86);
+    --input-bg: #f8fafc;
+    --table-hover: #f8fafc;
+    --row-cancelled-bg: #f8f9fa;
+}
+
+/* ألوان الوضع الليلي */
+[data-bs-theme="dark"] {
+    --bg: #0f172a; /* خلفية الصفحة ككل */
+    --surface: #1e293b; /* خلفية الكروت والبانيلز */
+    --surface-soft: #334155; /* خلفية الهيدر في الجداول والعناصر الفرعية */
+    --border: #475569; /* لون الحدود */
+    --text: #f8fafc; /* لون النص الأساسي */
+    --muted: #94a3b8; /* لون النص الباهت */
+    --primary: #14b8a6; /* لون أساسي أفتح شوية عشان يبان في الغامق */
+    --primary-dark: #0f766e;
+    --shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+    --header-bg: rgba(30, 41, 59, 0.86);
+    --input-bg: #0f172a;
+    --table-hover: #334155;
+    --row-cancelled-bg: #1e293b;
 }
 
 * {
@@ -28,10 +50,12 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, rgba(15, 118, 110, .08), transparent 28%), linear-gradient(315deg, rgba(37, 99, 235, .07), transparent 24%), var(--bg);
+    /* عدلت الجراديانت عشان يقرا الألوان المتغيرة */
+    background: linear-gradient(135deg, rgba(15, 118, 110, .05), transparent 28%), linear-gradient(315deg, rgba(37, 99, 235, .05), transparent 24%), var(--bg);
     color: var(--text);
     font-family: "Cairo", "Tahoma", sans-serif;
     letter-spacing: 0;
+    transition: background-color 0.3s ease, color 0.3s ease; /* تأثير ناعم عند التبديل */
 }
 
 a {
@@ -44,6 +68,7 @@ a {
     flex-direction: row-reverse;
 }
 
+/* السايدبار (هيفضل غامق في الحالتين لأن شكله أشيك) */
 .app-sidebar {
     position: fixed;
     inset-block: 0;
@@ -75,7 +100,7 @@ a {
     }
 
         .app-sidebar::-webkit-scrollbar-thumb:hover {
-            background: #22c55e; /* يقلب أخضر لما تقف عليه زي لون البراند بتاعك */
+            background: #22c55e;
         }
 
 .sidebar-brand {
@@ -98,6 +123,7 @@ a {
     background: linear-gradient(135deg, #0f766e, #22c55e);
     box-shadow: 0 14px 28px rgba(15, 118, 110, .3);
     font-size: 1.45rem;
+    color: #fff;
 }
 
 .sidebar-brand span {
@@ -178,13 +204,14 @@ a {
     z-index: 1020;
     min-height: 82px;
     padding: 18px 32px;
-    background: rgba(243, 246, 251, .86);
+    background: var(--header-bg);
     backdrop-filter: blur(14px);
-    border-bottom: 1px solid rgba(229, 234, 242, .78);
+    border-bottom: 1px solid var(--border) !important;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
+    transition: background-color 0.3s ease;
 }
 
 .topbar-search {
@@ -205,22 +232,27 @@ a {
         min-height: 50px;
         border: 1px solid var(--border);
         padding-inline: 48px 18px;
-        box-shadow: 0 10px 26px rgba(15, 23, 42, .04);
+        box-shadow: 0 10px 26px rgba(0, 0, 0, .04);
         padding-right: 40px;
         border-radius: 50px;
-        background: #f8fafc;
+        background: var(--input-bg);
+        color: var(--text);
     }
-/* فتح القائمة عند مرور الماوس */
-@media (min-width: 992px) { /* يفضل تشغيلها على الشاشات الكبيرة فقط عشان الموبايل */
+
+        .topbar-search .form-control:focus {
+            background: var(--surface);
+            color: var(--text);
+        }
+
+@media (min-width: 992px) {
     .topbar-actions .dropdown:hover > .dropdown-menu {
         display: block;
         opacity: 1;
         visibility: visible;
-        margin-top: 0; /* بيخليها تظهر لازقة في التوب بار */
+        margin-top: 0;
         transition: all 0.3s ease;
     }
 
-    /* دي عشان تمنع القائمة إنها تقفل لو الماوس اتحرك في المسافة الفاضية بين الزرار والقائمة */
     .topbar-actions .dropdown > .dropdown-menu {
         display: block;
         opacity: 0;
@@ -243,23 +275,33 @@ a {
 
     .user-info strong {
         font-size: 0.95rem;
-        color: #1e293b;
+        color: var(--text); /* متمشية مع الدارك مود */
     }
 
     .user-info span {
         font-size: 0.8rem;
-        color: #64748b;
+        color: var(--muted);
     }
 
-/* إجبار القائمة تفتح لتحت */
 .dropdown-toggle::after {
-    display: none; /* إخفاء سهم بوتستراب الافتراضي لو مش عاوزه */
+    display: none;
 }
 
 .dropdown-menu {
-    margin-top: 15px !important; /* مسافة من التوب بار */
+    margin-top: 15px !important;
     text-align: right;
+    background-color: var(--surface);
+    border: 1px solid var(--border) !important;
 }
+
+.dropdown-item {
+    color: var(--text);
+}
+
+    .dropdown-item:hover {
+        background-color: var(--surface-soft);
+        color: var(--primary);
+    }
 
 .topbar-actions {
     display: flex;
@@ -275,7 +317,7 @@ a {
     border-radius: 16px;
     color: var(--primary);
     background: var(--surface);
-    box-shadow: 0 10px 22px rgba(15, 23, 42, .05);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .05);
 }
 
 .notification-badge {
@@ -294,7 +336,6 @@ a {
     border: 2px solid var(--surface);
 }
 
-
 .user-profile {
     display: flex;
     align-items: center;
@@ -304,7 +345,7 @@ a {
     border: 1px solid var(--border);
     border-radius: 18px;
     background: var(--surface);
-    box-shadow: 0 10px 22px rgba(15, 23, 42, .05);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .05);
 }
 
     .user-profile img {
@@ -346,6 +387,7 @@ a {
         margin: 3px 0 6px;
         font-size: clamp(1.45rem, 2vw, 2rem);
         font-weight: 800;
+        color: var(--text);
     }
 
     .module-header p {
@@ -424,7 +466,7 @@ a {
 .stat-card,
 .content-card {
     background: var(--surface);
-    border: 1px solid rgba(229, 234, 242, .86);
+    border: 1px solid var(--border);
     border-radius: 22px;
     box-shadow: var(--shadow);
 }
@@ -462,6 +504,9 @@ a {
 
     .table-search .form-control {
         padding-inline-start: 44px;
+        background-color: var(--input-bg);
+        border-color: var(--border);
+        color: var(--text);
     }
 
 .server-filter {
@@ -473,7 +518,7 @@ a {
 .stat-summary {
     padding: 20px !important;
     display: flex;
-    align-items: flex-start!important;
+    align-items: flex-start !important;
     gap: 16px;
 }
 
@@ -486,7 +531,7 @@ a {
     .stat-link:hover {
         color: inherit;
         transform: translateY(-2px);
-        box-shadow: 0 18px 40px rgba(15, 23, 42, .12);
+        box-shadow: var(--shadow);
     }
 
 .quick-actions-grid {
@@ -499,9 +544,9 @@ a {
 .quick-action-card {
     min-height: 130px;
     padding: 22px;
-    border: 1px solid rgba(229, 234, 242, .86);
+    border: 1px solid var(--border);
     border-radius: 22px;
-    background: #fff;
+    background: var(--surface);
     color: var(--text);
     box-shadow: var(--shadow);
     display: flex;
@@ -514,7 +559,7 @@ a {
     .quick-action-card:hover {
         color: var(--text);
         transform: translateY(-2px);
-        box-shadow: 0 18px 40px rgba(15, 23, 42, .12);
+        box-shadow: var(--shadow);
     }
 
     .quick-action-card i {
@@ -618,6 +663,7 @@ a {
         margin: 0 0 4px;
         font-size: 1.12rem;
         font-weight: 800;
+        color: var(--text);
     }
 
     .section-head p {
@@ -629,13 +675,19 @@ a {
 .chart-total {
     border-radius: 999px;
     padding: 7px 12px;
-    background: #ecfdf5;
-    color: var(--primary-dark);
+    background: rgba(34, 197, 94, 0.15); /* لون متغير ليتناسب مع النمطين */
+    color: var(--green);
     font-weight: 800;
     white-space: nowrap;
 }
 
-.modern-table thead th {
+/* تنسيق الجداول ليدعم الدارك مود */
+.table {
+    color: var(--text);
+}
+
+.modern-table thead th,
+.admin-table thead th {
     color: var(--muted);
     background: var(--surface-soft);
     border-bottom: 0;
@@ -645,26 +697,22 @@ a {
 
 .admin-table thead th {
     padding: 14px 16px;
-    color: var(--muted);
-    background: var(--surface-soft);
-    border-bottom: 0;
-    font-size: .84rem;
-    font-weight: 800;
 }
 
 .admin-table tbody td {
     padding: 15px 16px;
-    border-color: #eef2f7;
+    border-color: var(--border);
     font-weight: 700;
 }
 
-.admin-table tbody tr:hover {
-    background: #f8fafc;
+.admin-table tbody tr:hover,
+.modern-table tbody tr:hover {
+    background-color: var(--table-hover) !important;
 }
 
 .modern-table tbody td {
     padding: 15px 12px;
-    border-color: #eef2f7;
+    border-color: var(--border);
     font-weight: 700;
 }
 
@@ -804,6 +852,7 @@ a {
     border: 1px solid var(--border);
     border-radius: 18px;
     background: var(--surface-soft);
+    color: var(--text);
 }
 
 .form-section-title {
@@ -817,7 +866,8 @@ a {
 .procedure-row {
     padding: 8px;
     border-radius: 14px;
-    background: #fff;
+    background: var(--surface);
+    border: 1px solid var(--border);
 }
 
 .details-grid {
@@ -848,14 +898,16 @@ a {
         margin-top: 4px;
         font-size: 1.02rem;
         font-weight: 800;
+        color: var(--text);
     }
 
 .notes-box {
     margin-top: 16px;
     padding: 16px;
     border-radius: 18px;
-    background: #f8fafc;
+    background: var(--surface-soft);
     border: 1px solid var(--border);
+    color: var(--text);
 }
 
     .notes-box strong {
@@ -902,6 +954,7 @@ a {
         margin-bottom: 3px;
         font-size: .92rem;
         font-weight: 800;
+        color: var(--text);
     }
 
     .notification-item span {
@@ -931,6 +984,7 @@ a {
 
     .doctor-load-item strong {
         font-weight: 800;
+        color: var(--text);
     }
 
     .doctor-load-item span {
@@ -942,7 +996,7 @@ a {
     .doctor-load-item .progress {
         height: 10px;
         border-radius: 999px;
-        background: #e5e7eb;
+        background: var(--border);
     }
 
     .doctor-load-item .progress-bar {
@@ -965,7 +1019,7 @@ a {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow);
     display: none;
     z-index: 1050;
     overflow: hidden;
@@ -981,16 +1035,17 @@ a {
     font-weight: 800;
     border-bottom: 1px solid var(--border);
     background: var(--surface-soft);
+    color: var(--text);
 }
 
 .notification-item-link {
     text-decoration: none;
-    color: inherit;
+    color: var(--text);
     display: block;
 }
 
     .notification-item-link:hover {
-        background: #f8fafc;
+        background: var(--table-hover);
     }
 
 @keyframes fadeIn {
@@ -1034,7 +1089,7 @@ a {
     width: min(440px, 100%);
     padding: 28px;
     border-radius: 28px;
-    background: #fff;
+    background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
 }
@@ -1048,6 +1103,7 @@ a {
         margin: 14px 0 4px;
         font-size: 1.45rem;
         font-weight: 800;
+        color: var(--text);
     }
 
     .login-brand p {
@@ -1059,7 +1115,7 @@ a {
 /* Sidebar Admin Section */
 .sidebar-divider {
     border: none;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     margin: 1rem 0 !important;
 }
 
@@ -1067,7 +1123,7 @@ a {
     padding: 0.75rem 1rem;
     font-size: 0.75rem;
     font-weight: 800;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -1087,7 +1143,7 @@ a {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
     z-index: 1000;
     overflow: hidden;
 }
@@ -1114,7 +1170,7 @@ a {
 
     .profile-menu-item:hover,
     .profile-menu-form button:hover {
-        background: var(--bg);
+        background: var(--surface-soft);
         color: var(--primary);
     }
 
@@ -1149,7 +1205,16 @@ a {
 .form-control,
 .form-select {
     border-radius: 12px;
+    background-color: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
 }
+
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--surface);
+        color: var(--text);
+    }
 
 @media (max-width: 1199.98px) {
     :root {
@@ -1254,9 +1319,9 @@ a {
         min-width: 0;
     }
 }
+
 /* --- تأثير تفاعلي لأيقونات البطاقات --- */
 .stat-icon {
-    /* هذه الخصائص تضمن حركة ناعمة */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: grid;
     place-items: center;
@@ -1264,16 +1329,14 @@ a {
 }
 
     .stat-icon:hover {
-        transform: scale(1.08); /* تكبير الأيقونة قليلاً عند المرور عليها */
-        filter: brightness(1.15); /* زيادة سطوع اللون ليعطي إيحاء بالإضاءة */
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15); /* إضافة ظل خفيف عند التمرير */
+        transform: scale(1.08);
+        filter: brightness(1.15);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
     }
 
-/* اختيارياً: إذا كنت تريد التأكد من أن الرابط لا يغير لون الأيقونة */
 a.stat-icon:hover {
     color: #fff;
 }
-
 
 @font-face {
     font-family: 'Cairo';
@@ -1305,19 +1368,19 @@ a.stat-icon:hover {
 }
 
 .queue-tile {
-    background: #fff;
+    background: var(--surface);
     border-radius: 15px;
     padding: 1.25rem;
     display: flex;
     align-items: center;
     gap: 15px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--border);
     transition: all 0.3s ease;
 }
 
     .queue-tile:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        box-shadow: var(--shadow);
     }
 
     .queue-tile.waiting {
@@ -1350,45 +1413,45 @@ a.stat-icon:hover {
     font-size: 1.5rem;
 }
 
-    .queue-tile.waiting .queue-icon {
-        background: #fef3c7;
-        color: #854d0e;
-    }
+.queue-tile.waiting .queue-icon {
+    background: #fef3c7;
+    color: #854d0e;
+}
 
-    .queue-tile.completed .queue-icon {
-        background: #dcfce7;
-        color: #166534;
-    }
+.queue-tile.completed .queue-icon {
+    background: #dcfce7;
+    color: #166534;
+}
 
-    .queue-tile.cancelled .queue-icon {
-        background: #fee2e2;
-        color: #991b1b;
-    }
+.queue-tile.cancelled .queue-icon {
+    background: #fee2e2;
+    color: #991b1b;
+}
 
-    .queue-tile.walkin .queue-icon {
-        background: #ede9fe;
-        color: #5b21b6;
-    }
+.queue-tile.walkin .queue-icon {
+    background: #ede9fe;
+    color: #5b21b6;
+}
 
 .queue-tile > div {
     display: flex;
     flex-direction: column;
 }
 
-    .queue-tile span {
-        display: block;
-        color: var(--muted);
-        font-size: .84rem;
-        font-weight: 800;
-        margin-bottom: 4px;
-    }
+.queue-tile span {
+    display: block;
+    color: var(--muted);
+    font-size: .84rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
 
-    .queue-tile strong {
-        display: block;
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--text);
-    }
+.queue-tile strong {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+}
 
 @media (max-width: 1199.98px) {
     .queue-summary-grid {
@@ -1404,17 +1467,15 @@ a.stat-icon:hover {
 
 /* الكلاس اللي ضفناه في الـ TR */
 .row-cancelled {
-    opacity: 0.5; /* يخليه باهت */
-    background-color: #f8f9fa !important; /* خلفية رمادية فاتحة */
+    opacity: 0.5;
+    background-color: var(--row-cancelled-bg) !important;
 }
 
-    /* التشطيب على النصوص داخل السطر الملغي */
     .row-cancelled td {
-        text-decoration: line-through; /* ده السطر المسؤول عن التشطيب */
-        color: #888; /* تغيير لون النص لرمادي */
+        text-decoration: line-through;
+        color: var(--muted);
     }
 
-        /* استثناء الإجراءات (الزراير) عشان لو حبيت تسيبها واضحة */
         .row-cancelled td.text-end {
             text-decoration: none !important;
         }

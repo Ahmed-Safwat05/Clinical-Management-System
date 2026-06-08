@@ -26,7 +26,7 @@
     }
 }
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html dir="rtl" lang="ar" data-bs-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,6 +36,11 @@
     <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ClinicManagementSystem.styles.css" asp-append-version="true" />
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    </script>
 </head>
 <body>
     @if (User.Identity?.IsAuthenticated != true)
@@ -133,26 +138,79 @@
         </aside>
 
         <div class="app-main">
-            <header class="app-topbar">
-                <form class="topbar-search position-relative d-flex align-items-center" role="search" asp-controller="Home" asp-action="GlobalSearch" method="get" style="width: 100%; max-width: 400px;">
-                    <button type="submit" class="btn border-0 position-absolute text-muted" style="right: 10px; z-index: 10; padding: 0; background: transparent;">
-                        <i class="bi bi-search"></i>
+            @{
+                // تعريف المسارات لترجمة الكنترولر
+                var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString();
+                var currentAct = ViewContext.RouteData.Values["action"]?.ToString();
+                var currentTitle = ViewData["Title"]?.ToString();
+
+                var controllerNames = new Dictionary<string, string>
+    {
+        { "Patients", "المرضى" },
+        { "Doctors", "الأطباء" },
+        { "Appointments", "المواعيد" },
+        { "Visits", "الزيارات" },
+        { "Procedures", "الإجراءات" },
+        { "Products", "المخزون" },
+        { "Dashboard", "التقارير" },
+        { "Users", "المستخدمين" },
+        { "Settings", "الإعدادات" }
+    };
+
+                string parentName = controllerNames.ContainsKey(currentCtrl ?? "") ? controllerNames[currentCtrl] : currentCtrl;
+            }
+
+            <header class="app-topbar px-4 py-2 d-flex justify-content-between align-items-center w-100 bg-body border-bottom">
+
+                <nav aria-label="breadcrumb" class="d-none d-md-flex align-items-center">
+                    <ol class="breadcrumb mb-0 bg-transparent p-0">
+                        <li class="breadcrumb-item">
+                            <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary fw-medium">
+                                <i class="bi bi-house-door me-1"></i>الرئيسية
+                            </a>
+                        </li>
+
+                        @if (currentCtrl != "Home")
+                        {
+                            if (currentAct == "Index")
+                            {
+                                <li class="breadcrumb-item active text-muted fw-bold" aria-current="page">@currentTitle</li>
+                            }
+                            else
+                            {
+                                <li class="breadcrumb-item">
+                                    <a asp-controller="@currentCtrl" asp-action="Index" class="text-decoration-none text-secondary">@parentName</a>
+                                </li>
+                                <li class="breadcrumb-item active text-muted fw-bold" aria-current="page">@currentTitle</li>
+                            }
+                        }
+                    </ol>
+                </nav>
+
+                <div class="topbar-actions d-flex align-items-center gap-3">
+
+                    <div class="live-clock d-none d-lg-block text-end me-2 text-muted" style="font-size: 0.85rem; line-height: 1.2;">
+                        <div id="liveTime" class="fw-bold text-body" style="font-size: 1.1rem; letter-spacing: 0.5px;">--:--</div>
+                        <div id="liveDate">--/--/----</div>
+                    </div>
+
+                    <div class="vr bg-secondary opacity-25 d-none d-md-block" style="height: 30px;"></div>
+
+                    <button id="themeToggleBtn" class="btn btn-sm btn-link text-body p-0 rounded-circle d-flex justify-content-center align-items-center transition-all" style="width: 35px; height: 35px; text-decoration: none;">
+                        <i class="bi bi-moon-stars fs-5" id="themeIcon"></i>
                     </button>
-                    <!-- تم زيادة padding-right لـ 40px لإبعاد النص عن الأيقونة -->
-                    <input class="form-control rounded-pill w-100" name="searchTerm" type="search" placeholder="ابحث عن مريض أو موعد..." aria-label="بحث" style="padding-right: 40px !important; padding-left: 15px;" required />
-                </form>
 
-                <div class="topbar-actions">
+                    <div class="vr bg-secondary opacity-25" style="height: 30px;"></div>
+
                     <div class="dropdown">
-                        <div class="user-profile dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
-                            <img src="~/images/receptionist-icon-svg-download-png-6973939.png" alt="صورة المستخدم" />
-                            <div class="user-info">
-                                <strong>@(User.Identity?.Name ?? "مستخدم")</strong>
-                                <span>@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "موظف")</span>
+                        <div class="user-profile dropdown-toggle d-flex align-items-center gap-2" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                            <div class="user-info text-end d-none d-sm-block">
+                                <strong class="d-block text-body lh-1 mb-1">@(User.Identity?.Name ?? "مستخدم")</strong>
+                                <small class="text-muted" style="font-size: 0.8rem;">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "موظف")</small>
                             </div>
+                            <img src="~/images/receptionist-icon-svg-download-png-6973939.png" alt="صورة المستخدم" class="rounded-circle shadow-sm border border-2 border-body-tertiary" style="width: 42px; height: 42px; object-fit: cover;" />
                         </div>
-
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 200px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2 mt-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 200px;">
                             @{
                                 var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0";
                             }
@@ -176,7 +234,7 @@
                 </div>
             </header>
 
-            <main class="app-content" role="main">
+            <main class="app-content p-4" role="main">
                 @RenderBody()
             </main>
         </div>
@@ -185,7 +243,52 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/Chart.js/chart.umd.js"></script>
-    <script src="~/js/site.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        // 1. تشغيل الساعة والتاريخ
+        function updateLiveClock() {
+        const timeElement = document.getElementById('liveTime');
+        const dateElement = document.getElementById('liveDate');
+        if (timeElement && dateElement) {
+        const now = new Date();
+        timeElement.textContent = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
+        dateElement.textContent = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // 2. تشغيل الوضع الليلي (Dark Mode Toggle)
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlElement = document.documentElement;
+
+        function updateIcon(theme) {
+        if(theme === 'dark') {
+        themeIcon.classList.remove('bi-moon-stars');
+        themeIcon.classList.add('bi-sun-fill', 'text-warning');
+        } else {
+        themeIcon.classList.remove('bi-sun-fill', 'text-warning');
+        themeIcon.classList.add('bi-moon-stars');
+        }
+        }
+
+        // تحديث الأيقونة أول ما الصفحة تفتح بناءً على الثيم المحفوظ
+        updateIcon(htmlElement.getAttribute('data-bs-theme'));
+
+        themeToggleBtn.addEventListener('click', function () {
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        htmlElement.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+        });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

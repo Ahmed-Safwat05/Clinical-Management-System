@@ -23,28 +23,28 @@
 
 <section class="row g-3 mb-4" aria-label="إجراءات سريعة">
     <div class="col-md-4">
-        <a asp-controller="Patients" asp-action="Create" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between" style="background-color: #e3f2fd; color: #0d47a1; border-radius: 12px;">
+        <a asp-controller="Patients" asp-action="Create" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between bg-primary-subtle text-primary-emphasis" style="border-radius: 12px;">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-person-plus-fill me-2"></i> مريض جديد</h5>
-                <small class="text-muted">تسجيل ملف طبي لمريض لأول مرة</small>
+                <small class="opacity-75">تسجيل ملف طبي لمريض لأول مرة</small>
             </div>
             <i class="bi bi-arrow-left-circle-fill fs-3 opacity-50"></i>
         </a>
     </div>
     <div class="col-md-4">
-        <a asp-controller="Appointments" asp-action="Create" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between" style="background-color: #e8f5e9; color: #1b5e20; border-radius: 12px;">
+        <a asp-controller="Appointments" asp-action="Create" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between bg-success-subtle text-success-emphasis" style="border-radius: 12px;">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-calendar-plus-fill me-2"></i> حجز موعد</h5>
-                <small class="text-muted">إدراج مريض في طابور الانتظار اليوم</small>
+                <small class="opacity-75">إدراج مريض في طابور الانتظار اليوم</small>
             </div>
             <i class="bi bi-arrow-left-circle-fill fs-3 opacity-50"></i>
         </a>
     </div>
     <div class="col-md-4">
-        <a asp-controller="Doctors" asp-action="Index" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between" style="background-color: #f3e5f5; color: #4a148c; border-radius: 12px;">
+        <a asp-controller="Doctors" asp-action="Index" class="btn p-4 w-100 text-start border-0 shadow-sm d-flex align-items-center justify-content-between bg-info-subtle text-info-emphasis" style="border-radius: 12px;">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-person-badge-fill me-2"></i> الأطباء</h5>
-                <small class="text-muted">متابعة حضور وضغط عيادات الدكاترة</small>
+                <small class="opacity-75">متابعة حضور وضغط عيادات الدكاترة</small>
             </div>
             <i class="bi bi-arrow-left-circle-fill fs-3 opacity-50"></i>
         </a>
@@ -86,7 +86,7 @@
                 <div class="d-flex align-items-center">
                     <div class="stat-icon bg-amber text-white rounded p-2"><i class="bi bi-clipboard2-pulse-fill fs-4"></i></div>
                     <div class="ms-3">
-                        <small class="text-muted d-block" style="font-size: 0.8rem;">زيارات اليوم</small>
+                        <small class="text-muted d-block" style="font-size: 0.8rem;">مواعيد اليوم</small>
                         <strong style="font-size: 1.5rem;">@Model.TodayVisitsCount.ToString("0.##")</strong>
                     </div>
                 </div>
@@ -95,13 +95,13 @@
     </div>
 
     <div class="col-md-3">
-        <a asp-controller="Reports" asp-action="Index" class="text-decoration-none text-dark d-block">
+        <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-dark d-block">
             <div class="dashboard-card stat-summary p-3 shadow-sm transition-hover">
                 <div class="d-flex align-items-center">
                     <div class="stat-icon bg-success text-white rounded p-2" style="background-color: #198754 !important;"><i class="bi bi-cash-stack fs-4"></i></div>
                     <div class="ms-3">
                         <small class="text-muted d-block" style="font-size: 0.8rem;">إيرادات اليوم</small>
-                        <strong style="font-size: 1.5rem;">@Model.TodayRevenue.ToString("C")</strong>
+                        <strong style="font-size: 1.5rem;">@Model.TodayRevenue.ToString("0.##")</strong>
                     </div>
                 </div>
             </div>
@@ -197,13 +197,13 @@
     </div>
 
     <div class="d-flex flex-column gap-4">
-        <div class="dashboard-card p-3" style="background-color: #fffde7; border-left: 5px solid #fbc02d; border-radius:12px;">
+        <div class="dashboard-card p-3 bg-warning-subtle border-start border-warning border-5" style="border-radius:12px;">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h5 class="fw-bold mb-0 text-warning-emphasis"><i class="bi bi-sticky-fill me-2"></i> نوتة الاستقبال اليومية</h5>
             </div>
             <textarea id="stickyNoteArea" class="form-control border-0 bg-transparent" rows="4"
                       placeholder="اكتب هنا الملاحظات السريعة لليوم... (تُحفظ تلقائياً)"
-                      style="resize: none; font-size: 0.9rem; color: #555;"></textarea>
+                      style="resize: none; font-size: 0.9rem;"></textarea>
         </div>
 
         <div class="dashboard-card notifications-panel flex-grow-1">
