@@ -17,12 +17,21 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
             .Take(count)
             .ToListAsync();
     }
+    public async Task<IReadOnlyList<Visit>> GetPatientVisitsAsync(int patientId, int currentVisitId)
+    {
+        return await Context.Visits
+            .Where(x => x.PatientId == patientId && x.Id != currentVisitId)
+            .OrderByDescending(x => x.Date)
+            .ToListAsync();
+    }
+
 
     public Task<Visit?> GetDetailsAsync(int id)
     {
         return Context.Visits
             .Include(x => x.Patient)
             .Include(x => x.Doctor)
+            .Include(x => x.Prescriptions)
             .Include(x => x.VisitProcedures)
             .ThenInclude(x => x.Procedure)
             .Include(x => x.Payments.OrderByDescending(payment => payment.CreatedAt))
@@ -33,6 +42,7 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
     {
         return await Context.Visits.SumAsync(x => (decimal?)x.PaidAmount) ?? 0m;
     }
+
 
     public async Task<decimal> GetIncomeByDateAsync(DateTime date)
     {

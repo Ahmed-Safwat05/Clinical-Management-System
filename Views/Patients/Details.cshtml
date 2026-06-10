@@ -13,21 +13,21 @@
 
     .patient-info-card {
         padding: 16px;
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--bs-border-color);
         border-radius: 12px;
-        background: var(--surface-soft);
+        background-color: var(--bs-secondary-bg);
     }
 
     .patient-info-label {
         font-size: 0.875rem;
-        color: var(--text-secondary);
+        color: var(--bs-secondary-color);
         margin-bottom: 4px;
         font-weight: 500;
     }
 
     .patient-info-value {
         font-size: 1rem;
-        color: var(--text-primary);
+        color: var(--bs-body-color);
         font-weight: 600;
     }
 
@@ -36,9 +36,10 @@
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 12px;
         padding: 16px;
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--bs-border-color);
         border-radius: 12px;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        /* التخلص من الـ gradient الأبيض اللي كان مسبب المشكلة */
+        background-color: var(--bs-tertiary-bg);
         margin-bottom: 24px;
     }
 
@@ -49,7 +50,7 @@
 
     .summary-stat-label {
         font-size: 0.75rem;
-        color: var(--text-secondary);
+        color: var(--bs-secondary-color);
         text-transform: uppercase;
         margin-bottom: 4px;
         font-weight: 500;
@@ -57,7 +58,7 @@
 
     .summary-stat-value {
         font-size: 1.5rem;
-        color: var(--primary);
+        color: var(--bs-primary);
         font-weight: 700;
     }
 
@@ -68,20 +69,26 @@
 
     .timeline-item {
         padding: 16px;
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--bs-border-color);
         border-radius: 12px;
-        background: #fff;
+        /* تغيير الخلفية البيضاء إلى ديناميكية */
+        background-color: var(--bs-secondary-bg);
         display: grid;
         grid-template-columns: auto 1fr;
         gap: 12px;
         align-items: start;
+        transition: background-color 0.2s ease;
     }
+
+        .timeline-item:hover {
+            background-color: var(--bs-tertiary-bg);
+        }
 
     .timeline-marker {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--primary);
+        background: var(--bs-primary);
         color: white;
         display: flex;
         align-items: center;
@@ -90,9 +97,9 @@
         flex-shrink: 0;
     }
 
-    .timeline-marker.voided {
-        background: #dc3545;
-    }
+        .timeline-marker.voided {
+            background: var(--bs-danger);
+        }
 
     .timeline-content {
         display: grid;
@@ -109,18 +116,19 @@
 
     .timeline-date {
         font-size: 0.875rem;
-        color: var(--text-secondary);
+        color: var(--bs-secondary-color);
     }
 
     .timeline-doctor {
         font-weight: 600;
-        color: var(--text-primary);
+        color: var(--bs-body-color);
     }
 
     .timeline-price {
         display: flex;
         gap: 12px;
         font-size: 0.875rem;
+        color: var(--bs-body-color);
     }
 
     .timeline-price-item {
@@ -131,10 +139,12 @@
 
     .timeline-notes {
         padding: 8px 12px;
-        background: var(--surface-soft);
+        background: var(--bs-tertiary-bg);
         border-radius: 8px;
         font-size: 0.875rem;
-        border-right: 3px solid var(--primary);
+        color: var(--bs-body-color);
+        /* دعم الاتجاهين RTL و LTR تلقائياً */
+        border-inline-start: 3px solid var(--bs-primary);
     }
 
     .status-badge {
@@ -146,30 +156,30 @@
         text-transform: uppercase;
     }
 
-    .status-badge.active {
-        background: #d4edda;
-        color: #155724;
-    }
+        .status-badge.active {
+            background-color: var(--bs-success-subtle);
+            color: var(--bs-success-text-emphasis);
+        }
 
-    .status-badge.voided {
-        background: #f8d7da;
-        color: #721c24;
-    }
+        .status-badge.voided {
+            background-color: var(--bs-danger-subtle);
+            color: var(--bs-danger-text-emphasis);
+        }
 
-    .status-badge.partial {
-        background: #fff3cd;
-        color: #856404;
-    }
+        .status-badge.partial {
+            background-color: var(--bs-warning-subtle);
+            color: var(--bs-warning-text-emphasis);
+        }
 
-    .status-badge.paid {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
+        .status-badge.paid {
+            background-color: var(--bs-info-subtle);
+            color: var(--bs-info-text-emphasis);
+        }
 
     .empty-state {
         text-align: center;
         padding: 32px 16px;
-        color: var(--text-secondary);
+        color: var(--bs-secondary-color);
     }
 
     .empty-state-icon {
@@ -190,12 +200,7 @@
     .patient-name-header {
         font-size: 2rem;
         font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 8px;
+        color: var(--bs-body-color);
     }
 </style>
 
@@ -214,9 +219,8 @@
     </div>
 </div>
 
-<!-- Patient Info Card -->
-<div class="content-card" style="margin-bottom: 24px;">
-    <h5 class="mb-3"><i class="bi bi-person-badge"></i> المعلومات الأساسية</h5>
+<div class="card bg-body-tertiary border-secondary-subtle" style="margin-bottom: 24px; border-radius:16px; padding:20px;">
+    <h5 class="mb-3 text-body"><i class="bi bi-person-badge"></i> المعلومات الأساسية</h5>
     <div class="patient-info-grid">
         <div class="patient-info-card">
             <div class="patient-info-label">الهاتف</div>
@@ -242,11 +246,10 @@
     </div>
 </div>
 
-<!-- History Summary Section -->
 @if (Model?.HistorySummary?.HasHistory ?? false)
 {
-    <div class="content-card" style="margin-bottom: 24px;">
-        <h5 class="mb-3"><i class="bi bi-graph-up"></i> ملخص السجل الطبي</h5>
+    <div class="card bg-body-tertiary border-secondary-subtle" style="margin-bottom: 24px; border-radius:16px; padding:20px;">
+        <h5 class="mb-3 text-body"><i class="bi bi-graph-up"></i> ملخص السجل الطبي</h5>
         <div class="summary-section">
             <div class="summary-stat">
                 <div class="summary-stat-label">إجمالي الزيارات</div>
@@ -254,11 +257,11 @@
             </div>
             <div class="summary-stat">
                 <div class="summary-stat-label">آخر زيارة</div>
-                <div class="summary-stat-value">@Model.HistorySummary.LastVisitDate?.ToString("dd/MM/yyyy")</div>
+                <div class="summary-stat-value" style="font-size: 1.2rem; line-height: 2;">@Model.HistorySummary.LastVisitDate?.ToString("dd/MM/yyyy")</div>
             </div>
             <div class="summary-stat">
                 <div class="summary-stat-label">آخر طبيب</div>
-                <div class="summary-stat-value" style="font-size: 0.9rem;">@Model.HistorySummary.LastDoctorName</div>
+                <div class="summary-stat-value" style="font-size: 1.1rem; line-height: 2.2;">@Model.HistorySummary.LastDoctorName</div>
             </div>
             <div class="summary-stat">
                 <div class="summary-stat-label">إجمالي المبلغ</div>
@@ -272,9 +275,8 @@
     </div>
 }
 
-<!-- Clinical Timeline Section -->
-<div class="content-card">
-    <h5 class="mb-3"><i class="bi bi-clock-history"></i> السجل الطبي الكامل</h5>
+<div class="card bg-body-tertiary border-secondary-subtle" style="border-radius:16px; padding:20px;">
+    <h5 class="mb-3 text-body"><i class="bi bi-clock-history"></i> السجل الطبي الكامل</h5>
 
     @if (Model?.VisitTimeline?.Visits?.Any() ?? false)
     {
@@ -313,17 +315,17 @@
                             <div class="timeline-price">
                                 <div class="timeline-price-item">
                                     <span>السعر:</span>
-                                    <strong>@visit.TotalPrice.ToString("0.##") ج.م</strong>
+                                    <strong class="text-primary">@visit.TotalPrice.ToString("0.##") ج.م</strong>
                                 </div>
                                 <div class="timeline-price-item">
                                     <span>المدفوع:</span>
-                                    <strong>@visit.TotalPaid.ToString("0.##") ج.م</strong>
+                                    <strong class="text-success">@visit.TotalPaid.ToString("0.##") ج.م</strong>
                                 </div>
                                 @if (!visit.IsPaidInFull)
                                 {
                                     <div class="timeline-price-item">
                                         <span>المتبقي:</span>
-                                        <strong>@visit.RemainingBalance.ToString("0.##") ج.م</strong>
+                                        <strong class="text-danger">@visit.RemainingBalance.ToString("0.##") ج.م</strong>
                                     </div>
                                 }
                             </div>
@@ -337,7 +339,7 @@
 
                             @if (visit.IsVoided && !string.IsNullOrEmpty(visit.VoidReason))
                             {
-                                <div style="padding: 8px 12px; background: #f8d7da; border-radius: 8px; font-size: 0.875rem; color: #721c24; border-right: 3px solid #dc3545;">
+                                <div style="padding: 8px 12px; background-color: var(--bs-danger-subtle); border-radius: 8px; font-size: 0.875rem; color: var(--bs-danger-text-emphasis); border-inline-start: 3px solid var(--bs-danger);">
                                     <strong>سبب الإلغاء:</strong> @visit.VoidReason
                                 </div>
                             }

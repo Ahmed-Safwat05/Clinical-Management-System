@@ -44,6 +44,7 @@ builder.Services.AddScoped<IVisitProductConsumptionRepository, VisitProductConsu
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IPatientMedicalHistoryRepository, PatientMedicalHistoryRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPrescriptionItemRepository, PrescriptionItemRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
@@ -63,6 +64,7 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IPatientMedicalHistoryService, PatientMedicalHistoryService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
+builder.Services.AddScoped<IPrescriptionItemService, PrescriptionItemService>();
 
 // Add logging
 builder.Services.AddLogging(logging =>

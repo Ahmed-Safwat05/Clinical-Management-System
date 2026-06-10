@@ -1,0 +1,247 @@
+﻿@model ClinicManagementSystem.Models.Visit 
+@{
+    Layout = null; 
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>طباعة روشتة - @Model.Patient?.Name</title>
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+            /* ❌ شلنا الـ import الخارجي تماماً عشان نمنع اللاج */
+
+            body {
+                /* 🎯 استخدمنا فونتات السيستم السريعة جداً في الرندر */
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+                background-color: #ffffff;
+                color: #000000;
+                padding: 20px;
+                overflow: auto !important;
+                height: auto !important;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            .prescription-header {
+                border-bottom: 3px double #1a252f;
+                padding-bottom: 15px;
+                margin-bottom: 30px;
+            }
+
+            .clinic-title {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #1a252f;
+            }
+
+            .patient-info-bar {
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 30px;
+                font-size: 0.95rem;
+            }
+
+            .rx-symbol {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #1a252f;
+                margin-bottom: 15px;
+                font-style: italic;
+            }
+
+            .prescription-table {
+                width: 100%;
+                margin-bottom: 40px;
+            }
+
+                .prescription-table th {
+                    background-color: #1a252f !important;
+                    color: #ffffff !important;
+                    font-weight: 600;
+                    border: 1px solid #1a252f;
+                    padding: 10px;
+                }
+
+                .prescription-table td {
+                    padding: 12px 10px;
+                    border-bottom: 1px solid #dee2e6;
+                    font-size: 1rem;
+                }
+
+            .med-name {
+                font-weight: 700;
+                font-size: 1.1rem;
+            }
+
+            .prescription-footer {
+                margin-top: 50px;
+                border-top: 1px solid #dee2e6;
+                padding-top: 15px;
+                text-align: center;
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+
+            @@media print {
+                body {
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .no-print {
+                    display: none !important;
+                }
+
+                .prescription-footer {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    margin-top: 0;
+                }
+
+                .patient-info-bar {
+                    background-color: #f8f9fa !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .prescription-table th {
+                    background-color: #1a252f !important;
+                    color: #ffffff !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <!-- زرار طوارئ علوي يظهر فقط على الشاشة ولا يظهر في الطباعة -->
+    <div class="text-center mb-4 no-print">
+        <button onclick="window.print();" class="btn btn-dark px-4 shadow-sm">
+            <i class="bi bi-printer-fill me-2"></i> إعادة أمر الطباعة
+        </button>
+        <button onclick="window.close();" class="btn btn-outline-secondary px-3 ms-2">
+            غلق الصفحة
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- 1. ترويسة العيادة (Header) -->
+        <div class="prescription-header d-flex justify-content-between align-items-center">
+            <div>
+                <div class="clinic-title">اسم العيادة</div>
+                <div class="text-muted small">رعاية طبية متكاملة تفوق التوقعات</div>
+            </div>
+            <div class="text-end">
+                <h5 class="fw-bold text-dark mb-1">د/ @Model.Doctor?.Name</h5>
+                <span class="badge bg-secondary">@Model.Doctor?.Specialty</span>
+            </div>
+        </div>
+
+        <!-- 2. بار بيانات المريض والزيارة -->
+        <div class="patient-info-bar">
+            <div class="row g-3">
+                <div class="col-6 col-md-4">
+                    <span class="text-muted">اسم المريض:</span> <strong class="text-dark">@Model.Patient?.Name</strong>
+                </div>
+                <div class="col-6 col-md-4">
+                    <span class="text-muted">تاريخ الزيارة:</span> <strong>@Model.Date.ToString("yyyy-MM-dd")</strong>
+                </div>
+                <div class="col-6 col-md-4 text-md-end">
+                    <span class="text-muted">رقم الزيارة:</span> <span class="badge bg-light text-dark border">#@Model.Id</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. جسم الروشتة (الأدوية الموصوفة) -->
+        <div class="rx-symbol">R<sub>x</sub></div>
+
+        <table class="prescription-table">
+            <thead>
+                <tr>
+                    <th style="width: 35%;">اسم الدواء</th>
+                    <th style="width: 15%;">الجرعة</th>
+                    <th style="width: 20%;">التكرار</th>
+                    <th style="width: 15%;">المدة</th>
+                    <th style="width: 15%;">ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Prescriptions != null && Model.Prescriptions.Any())
+                {
+                    @foreach (var med in Model.Prescriptions)
+                    {
+                        <tr>
+                            <td class="med-name">@med.MedicationName</td>
+                            <td>@med.Dosage</td>
+                            <td>@med.Frequency</td>
+                            <td>@med.Duration</td>
+                            <td class="text-muted small">@(string.IsNullOrWhiteSpace(med.Notes) ? "-" : med.Notes)</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">لم يتم تسجيل أدوية في هذه الزيارة.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- 4. سكشن فرعي اختياري (الإجراءات الطبية اللي تمت لو الطبيب حابب تطبع في نفس الورقة) -->
+        @if (Model.VisitProcedures != null && Model.VisitProcedures.Any())
+        {
+            <div class="mt-4">
+                <h6 class="fw-bold text-secondary border-bottom pb-2 mb-3"><i class="bi bi-activity"></i> الإجراءات والفحوصات الطبية بالزيارة:</h6>
+                <ul class="list-group list-group-flush p-0">
+                    @foreach (var proc in Model.VisitProcedures)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-1 py-2">
+                            <span>• @proc.Procedure?.Name</span>
+                            <small class="text-muted">العدد: @proc.Quantity</small>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <!-- 5. ترويسة الفوتر (Footer) ثابت أسفل الورقة -->
+        <div class="prescription-footer">
+            <div class="row">
+                <div class="col-6 text-start">
+                    <i class="bi bi-geo-alt-fill"></i> الزقازيق - الشرقية - برج الأطباء
+                </div>
+                <div class="col-6 text-end">
+                    <i class="bi bi-telephone-fill"></i> للاستفسار والدعم: 010xxxxxxxx
+                </div>
+            </div>
+            <div class="mt-2 text-center text-dark-50 small" style="font-size: 10px;">
+                تمت الطباعة عبر نظام إدارة العيادات 
+            </div>
+        </div>
+    </div>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(function () {
+                    window.print();
+                }, 500);
+            });
+
+            window.onfocus = function () {
+                document.body.style.overflow = 'auto';
+            };
+    </script>
+</body>
+</html>

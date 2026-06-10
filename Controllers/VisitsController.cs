@@ -13,6 +13,7 @@ public class VisitsController : Controller
     private readonly IPaymentService _paymentService;
     private readonly IPatientHistoryService _patientHistoryService;
     private readonly IPatientMedicalHistoryService _medicalHistoryService;
+    private readonly IPrescriptionItemService _prescriptionItemService;
 
     public VisitsController(
         IVisitService visitService,
@@ -24,7 +25,8 @@ public class VisitsController : Controller
         IProductService productService,
         IPaymentService paymentService,
         IPatientHistoryService patientHistoryService,
-        IPatientMedicalHistoryService medicalHistoryService)
+        IPatientMedicalHistoryService medicalHistoryService,
+        IPrescriptionItemService prescriptionItemService)
     {
         _visitService = visitService;
         _patientService = patientService;
@@ -36,6 +38,7 @@ public class VisitsController : Controller
         _paymentService = paymentService;
         _patientHistoryService = patientHistoryService;
         _medicalHistoryService = medicalHistoryService;
+        _prescriptionItemService = prescriptionItemService;
     }
 
     public async Task<IActionResult> Index()
@@ -46,6 +49,10 @@ public class VisitsController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var visit = await _visitService.GetDetailsAsync(id);
+        if (visit == null)
+        {
+            return NotFound();
+        }
         return visit is null ? NotFound() : View(await BuildDetailsModelAsync(visit));
     }
 
@@ -178,7 +185,19 @@ public class VisitsController : Controller
             return Json(new { success = false, message = $"حدث خطأ أثناء إلغاء الزيارة: {ex.Message}" });
         }
     }
+    [HttpGet]
+    public async Task<IActionResult> PrintSummary(int id)
+    {
+        // 🎯 بنستخدم الـ Service اللي مجهزة عندك ومحقونة في الكنترولر ومفيش أي حاجة هتضرب
+        var visit = await _visitService.GetDetailsAsync(id);
 
+        if (visit == null)
+        {
+            return NotFound("الزيارة غير موجودة.");
+        }
+
+        return View(visit);
+    }
     public async Task<IActionResult> Delete(int id)
     {
         try
@@ -241,7 +260,80 @@ public class VisitsController : Controller
 
         return RedirectToAction(nameof(Details), new { id = visitId });
     }
+    [HttpPost]
+    public async Task<IActionResult> AddPrescriptionItem(PrescriptionItem model)
+    {
+        ModelState.Remove("Visit");
+        ModelState.Remove("Id");
 
+        if (!ModelState.IsValid) return Json(new { success = false, message = "بيانات غير صالحة" });
+
+        try
+        {
+            var result = await _prescriptionItemService.CreateAsync(model); // 👈 الميثود الجديدة
+
+            if (result != null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    data = new { id = result.Id, medicationName = result.MedicationName, dosage = result.Dosage, frequency = result.Frequency, duration = result.Duration, notes = result.Notes }
+                });
+            }
+            return Json(new { success = false, message = "لم يتم حفظ الدواء." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdatePrescriptionItem(PrescriptionItem model)
+    {
+        ModelState.Remove("Visit");
+
+        if (!ModelState.IsValid) return Json(new { success = false, message = "بيانات غير صالحة" });
+
+        try
+        {
+            var success = await _prescriptionItemService.UpdateAsync(model); // 👈 الميثود الجديدة
+
+            if (success)
+            {
+                return Json(new
+                {
+                    success = true,
+                    data = new { id = model.Id, medicationName = model.MedicationName, dosage = model.Dosage, frequency = model.Frequency, duration = model.Duration, notes = model.Notes }
+                });
+            }
+            return Json(new { success = false, message = "حدث خطأ أثناء تحديث بيانات الدواء." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+    [HttpPost]
+    public async Task<IActionResult> DeletePrescriptionItem(int id)
+    {
+        try
+        {
+            var success = await _prescriptionItemService.DeleteAsync(id);
+            if (success)
+            {
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = "لم يتم العثور على الدواء أو فشل الحذف." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+    
+
+    [HttpPost]
     private async Task<VisitCreateViewModel> BuildCreateModelAsync(VisitCreateViewModel model)
     {
         var patients = await _patientService.SearchAsync(null);
@@ -298,9 +390,10 @@ public class VisitsController : Controller
         // 2. السحر هنا: جلب كل الزيارات السابقة للمريض (ترتيب من الأحدث للأقدم) باستثناء الحالية
         var allPatientVisits = await _visitService.GetRecentAsync(); // أو أي ميثود في الخدمة تجيب بالـ PatientId
                                                                      // لو الـ visitService مفيهاش ميثود فلترة، تقدر تكلم الـ DbContext مباشرة أو الفلترة هنا:
-        var pastVisits = (await _visitService.GetRecentAsync())
-            .Where(v => v.PatientId == visit.PatientId && v.Id != visit.Id)
-            .OrderByDescending(v => v.Date)
+        var pastVisits = await _visitService.GetPatientVisitsAsync(visit.PatientId, visit.Id);
+
+        pastVisits = pastVisits
+            .Where(x => x.Id != visit.Id)
             .ToList();
 
         return new VisitDetailsViewModel

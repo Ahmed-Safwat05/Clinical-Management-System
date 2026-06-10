@@ -36,8 +36,14 @@ public class VisitService : IVisitService
         return _visits.GetRecentAsync();
     }
 
-    public Task<Visit?> GetDetailsAsync(int id) => _visits.GetDetailsAsync(id);
-
+    public async Task<Visit?> GetDetailsAsync(int id)
+    {
+        return await _visits.GetDetailsAsync(id);
+    }
+    public async Task<IReadOnlyList<Visit>> GetPatientVisitsAsync(int patientId, int currentVisitId)
+    {
+        return await _visits.GetPatientVisitsAsync(patientId, currentVisitId);
+    }
     public async Task<VisitCreateViewModel?> BuildFromAppointmentAsync(int appointmentId)
     {
         var appointment = await _appointments.GetDetailsAsync(appointmentId);

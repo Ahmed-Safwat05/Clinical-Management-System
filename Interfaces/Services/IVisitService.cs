@@ -8,4 +8,5 @@ public interface IVisitService
     Task CreateAsync(VisitCreateViewModel model);
     Task VoidAsync(int id, string? reason = null);
     Task DeleteAsync(int id);
+    Task<IReadOnlyList<Visit>> GetPatientVisitsAsync(int patientId,int currentVisitId);
 }

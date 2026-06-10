@@ -1,7 +1,3 @@
-using ClinicManagementSystem.Interfaces.Repositories;
-using ClinicManagementSystem.Interfaces.Services;
-using ClinicManagementSystem.Models;
-
 namespace ClinicManagementSystem.Services;
 
 public class PatientService : IPatientService

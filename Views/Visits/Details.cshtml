@@ -10,10 +10,16 @@
         <h1>تفاصيل الزيارة</h1>
         <p>ملخص الزيارة، الطبيب، المريض، الإجراءات، المدفوعات، والمنتجات المستهلكة.</p>
     </div>
-    <a asp-action="Index" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-right"></i>
-        رجوع
-    </a>
+    <div class="d-flex gap-2">
+        <a asp-action="PrintSummary" asp-route-id="@visit.Id" target="_blank" class="btn btn-outline-success">
+            <i class="bi bi-printer"></i>
+            طباعة الزيارة
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i>
+            رجوع
+        </a>
+    </div>
 </div>
 
 <div class="content-card mb-3">
@@ -37,7 +43,7 @@
     @if (!string.IsNullOrWhiteSpace(visit.Notes))
     {
         <div class="notes-box">
-            <strong>ملاحظات الطبيب</strong>
+            <strong>ملاحظات / تشخيص الطبيب</strong>
             <p class="mb-0">@visit.Notes</p>
         </div>
     }
@@ -56,33 +62,186 @@
 
 <div class="content-card mb-3">
     <div class="section-head">
+        <div>
+            <h2><i class="bi bi-capsule text-primary"></i> الوصفة الطبية (الروشتة)</h2>
+            <p>الأدوية الموصوفة للمريض خلال هذه الزيارة.</p>
+        </div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMedicationModal">
+            <i class="bi bi-plus-circle"></i> إضافة دواء
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table admin-table mb-0" id="prescriptionTable">
+            <thead>
+                <tr>
+                    <th>اسم الدواء</th>
+                    <th>الجرعة</th>
+                    <th>التكرار</th>
+                    <th>المدة</th>
+                    <th>ملاحظات</th>
+                    <th style="width: 120px;" class="text-center">العمليات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (visit.Prescriptions != null && visit.Prescriptions.Any())
+                {
+                    @foreach (var item in visit.Prescriptions)
+                    {
+                        <tr id="med-row-@item.Id">
+                            <td class="fw-bold medication-name">@item.MedicationName</td>
+                            <td><span class="badge bg-light text-dark border medication-dosage">@item.Dosage</span></td>
+                            <td class="medication-frequency">@item.Frequency</td>
+                            <td class="medication-duration">@item.Duration</td>
+                            <td class="medication-notes">@(string.IsNullOrWhiteSpace(item.Notes) ? "-" : item.Notes)</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-warning edit-med-btn"
+                                        data-id="@item.Id" data-name="@item.MedicationName" data-dosage="@item.Dosage"
+                                        data-frequency="@item.Frequency" data-duration="@item.Duration" data-notes="@item.Notes">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-med-btn" data-id="@item.Id">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr id="emptyPrescriptionRow">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-4 d-block mb-2 text-secondary"></i>
+                            لا توجد أدوية مضافة لهذه الزيارة حتى الآن.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="content-card mb-3">
+    <div class="section-head">
+        <div>
+            <h2>الإجراءات الطبية</h2>
+            <p>الإجراءات المسجلة داخل الزيارة.</p>
+        </div>
+    </div>
+    <table class="table admin-table mb-0">
+        <thead>
+            <tr>
+                <th>الإجراء</th>
+                <th>الكمية</th>
+                <th>الإجمالي الفرعي</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (visit.VisitProcedures != null && visit.VisitProcedures.Any())
+            {
+                @foreach (var item in visit.VisitProcedures)
+                {
+                    <tr>
+                        <td>@item.Procedure?.Name</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.SubTotal.ToString("0.##") ج.م</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center text-muted py-3">لا توجد إجراءات طبية.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="content-card mb-3">
+    <div class="section-head">
+        <div>
+            <h2>المنتجات المستهلكة</h2>
+            <p>تسجيل وعرض المنتجات التي تم استهلاكها أثناء الزيارة.</p>
+        </div>
+        <span class="badge bg-light text-dark border">إجمالي التكلفة: @Model.TotalConsumptionCost.ToString("0.##") ج.م</span>
+    </div>
+
+    <form asp-action="ConsumeProduct" method="post" class="row g-2 align-items-end mb-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="visitId" value="@visit.Id" />
+
+        <div class="col-lg-7">
+            <label class="form-label" for="productId">المنتج</label>
+            <select id="productId" name="productId" class="form-select" asp-items="Model.AvailableProducts" required>
+                <option value="">اختر المنتج</option>
+            </select>
+        </div>
+
+        <div class="col-lg-3">
+            <label class="form-label" for="quantity">الكمية</label>
+            <input id="quantity" name="quantity" type="number" min="1" value="1" class="form-control" required />
+        </div>
+
+        <div class="col-lg-2 d-grid">
+            <button type="submit" class="btn btn-primary" @(Model.AvailableProducts.Any() ? null : "disabled")>
+                <i class="bi bi-plus-circle"></i>
+                إضافة
+            </button>
+        </div>
+    </form>
+
+    @if (Model.ProductConsumptions.Any())
+    {
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>تكلفة الوحدة</th>
+                        <th>إجمالي التكلفة</th>
+                        <th>تاريخ الاستهلاك</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ProductConsumptions.OrderByDescending(x => x.CreatedAt))
+                    {
+                        var unitCost = item.Product?.CostPrice ?? 0m;
+                        var totalCost = unitCost * item.QuantityConsumed;
+                        <tr>
+                            <td>@item.Product?.Name</td>
+                            <td>@item.QuantityConsumed @(item.Product?.Unit ?? "")</td>
+                            <td>@unitCost.ToString("0.##") ج.م</td>
+                            <td class="fw-bold">@totalCost.ToString("0.##") ج.م</td>
+                            <td>@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state py-4">
+            <i class="bi bi-box-seam"></i>
+            <h3>لا توجد منتجات مستهلكة</h3>
+            <p>يمكن تسجيل استهلاك المنتجات الطبية المرتبطة بهذه الزيارة من النموذج أعلاه.</p>
+        </div>
+    }
+</div>
+
+<div class="content-card mb-3">
+    <div class="section-head">
         <h2>التفاصيل المالية</h2>
     </div>
     <div class="details-grid">
-        <div class="detail-tile">
-            <span>قيمة الكشف</span>
-            <strong>@visit.ExaminationPrice.ToString("0.##") ج.م</strong>
-        </div>
-        <div class="detail-tile">
-            <span>إجمالي الإجراءات</span>
-            <strong>@visit.ProceduresPrice.ToString("0.##") ج.م</strong>
-        </div>
-        <div class="detail-tile">
-            <span>الخصم</span>
-            <strong class="text-danger">@visit.Discount.ToString("0.##") ج.م</strong>
-        </div>
-        <div class="detail-tile">
-            <span>الإجمالي النهائي</span>
-            <strong class="text-primary">@visit.TotalPrice.ToString("0.##") ج.م</strong>
-        </div>
-        <div class="detail-tile">
-            <span>المبلغ المدفوع</span>
-            <strong class="text-success">@visit.TotalPaid.ToString("0.##") ج.م</strong>
-        </div>
-        <div class="detail-tile">
-            <span>المتبقي</span>
-            <strong class="@(visit.RemainingBalance > 0 ? "text-warning" : "text-success")">@visit.RemainingBalance.ToString("0.##") ج.م</strong>
-        </div>
+        <div class="detail-tile"><span>قيمة الكشف</span><strong>@visit.ExaminationPrice.ToString("0.##") ج.م</strong></div>
+        <div class="detail-tile"><span>إجمالي الإجراءات</span><strong>@visit.ProceduresPrice.ToString("0.##") ج.م</strong></div>
+        <div class="detail-tile"><span>الخصم</span><strong class="text-danger">@visit.Discount.ToString("0.##") ج.م</strong></div>
+        <div class="detail-tile"><span>إجمالي النهائي</span><strong class="text-primary">@visit.TotalPrice.ToString("0.##") ج.م</strong></div>
+        <div class="detail-tile"><span>المبلغ المدفوع</span><strong class="text-success">@visit.TotalPaid.ToString("0.##") ج.م</strong></div>
+        <div class="detail-tile"><span>المتبقي</span><strong class="@(visit.RemainingBalance > 0 ? "text-warning" : "text-success")">@visit.RemainingBalance.ToString("0.##") ج.م</strong></div>
         <div class="detail-tile">
             <span>حالة الدفع</span>
             <span class="status-badge @(visit.IsPaidInFull ? "confirmed" : "waiting") mt-2">
@@ -120,15 +279,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach (var payment in visit.Payments.OrderByDescending(x => x.CreatedAt))
-                {
-                    <tr>
-                        <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                        <td class="fw-bold text-success">@payment.Amount.ToString("0.##") ج.م</td>
-                        <td>@(string.IsNullOrWhiteSpace(payment.Notes) ? "-" : payment.Notes)</td>
-                        <td>@(string.IsNullOrWhiteSpace(payment.CreatedBy) ? "-" : payment.CreatedBy)</td>
-                    </tr>
-                }
+                    @foreach (var payment in visit.Payments.OrderByDescending(x => x.CreatedAt))
+                    {
+                        <tr id="payment-row-@payment.Id">
+                            <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                            <td class="fw-bold text-success">@payment.Amount.ToString("0.##") ج.م</td>
+                            <td>@(string.IsNullOrWhiteSpace(payment.Notes) ? "-" : payment.Notes)</td>
+                            <td>@(string.IsNullOrWhiteSpace(payment.CreatedBy) ? "-" : payment.CreatedBy)</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -146,112 +305,10 @@
 <div class="content-card mb-3">
     <div class="section-head">
         <div>
-            <h2>المنتجات المستهلكة</h2>
-            <p>تسجيل وعرض المنتجات التي تم استهلاكها أثناء الزيارة.</p>
-        </div>
-        <span class="badge bg-light text-dark">إجمالي التكلفة: @Model.TotalConsumptionCost.ToString("0.##") ج.م</span>
-    </div>
-
-    <form asp-action="ConsumeProduct" method="post" class="row g-2 align-items-end mb-3">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="visitId" value="@visit.Id" />
-
-        <div class="col-lg-7">
-            <label class="form-label" for="productId">المنتج</label>
-            <select id="productId" name="productId" class="form-select" asp-items="Model.AvailableProducts" required>
-                <option value="">اختر المنتج</option>
-            </select>
-        </div>
-
-        <div class="col-lg-3">
-            <label class="form-label" for="quantity">الكمية</label>
-            <input id="quantity" name="quantity" type="number" min="1" value="1" class="form-control" required />
-        </div>
-
-        <div class="col-lg-2 d-grid">
-            <button type="submit" class="btn btn-primary" @(Model.AvailableProducts.Any() ? null : "disabled")>
-                <i class="bi bi-plus-circle"></i>
-                إضافة استهلاك
-            </button>
-        </div>
-    </form>
-
-    @if (Model.ProductConsumptions.Any())
-    {
-        <div class="table-responsive">
-            <table class="table admin-table mb-0">
-                <thead>
-                    <tr>
-                        <th>المنتج</th>
-                        <th>الكمية</th>
-                        <th>تكلفة الوحدة</th>
-                        <th>إجمالي التكلفة</th>
-                        <th>تاريخ الاستهلاك</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model.ProductConsumptions.OrderByDescending(x => x.CreatedAt))
-                {
-                    var unitCost = item.Product?.CostPrice ?? 0m;
-                    var totalCost = unitCost * item.QuantityConsumed;
-                    <tr>
-                        <td>@item.Product?.Name</td>
-                        <td>@item.QuantityConsumed @(item.Product?.Unit ?? "")</td>
-                        <td>@unitCost.ToString("0.##") ج.م</td>
-                        <td class="fw-bold">@totalCost.ToString("0.##") ج.م</td>
-                        <td>@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <div class="empty-state py-4">
-            <i class="bi bi-box-seam"></i>
-            <h3>لا توجد منتجات مستهلكة</h3>
-            <p>يمكن تسجيل استهلاك المنتجات الطبية المرتبطة بهذه الزيارة من النموذج أعلاه.</p>
-        </div>
-    }
-</div>
-
-<div class="content-card">
-    <div class="section-head">
-        <div>
-            <h2>الإجراءات الطبية</h2>
-            <p>الإجراءات المسجلة داخل الزيارة.</p>
-        </div>
-    </div>
-    <table class="table admin-table mb-0">
-        <thead>
-            <tr>
-                <th>الإجراء</th>
-                <th>الكمية</th>
-                <th>الإجمالي الفرعي</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in visit.VisitProcedures)
-        {
-            <tr>
-                <td>@item.Procedure?.Name</td>
-                <td>@item.Quantity</td>
-                <td>@item.SubTotal.ToString("0.##") ج.م</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-</div>
-
-<!-- Patient Medical History Section -->
-<div class="content-card">
-    <div class="section-head">
-        <div>
-            <h2><i class="bi bi-heart-pulse"></i> السجل الطبي للمريض</h2>
+            <h2><i class="bi bi-heart-pulse text-danger"></i> السجل الطبي للمريض</h2>
             <p>المدخلات الطبية للمريض.</p>
         </div>
-        <a asp-controller="Patients" asp-action="History" asp-route-id="@Model.Visit.PatientId" class="btn btn-outline-primary btn-sm">
+        <a asp-controller="Patients" asp-action="History" asp-route-id="@visit.PatientId" class="btn btn-outline-primary btn-sm">
             <i class="bi bi-file-text"></i> عرض الملف الطبي الكامل
         </a>
     </div>
@@ -259,39 +316,38 @@
     @if (Model.PatientMedicalHistory?.Any() ?? false)
     {
         <style>
-            .medical-history-list {
-                display: grid;
-                gap: 12px;
-            }
+                .medical-history-list {
+                    display: grid;
+                    gap: 12px;
+                }
 
-            .medical-entry {
-                padding: 14px;
-                border-left: 4px solid var(--primary);
-                background: var(--surface-soft);
-                border-radius: 8px;
-                display: grid;
-                gap: 6px;
-            }
+                .medical-entry {
+                    padding: 14px;
+                    border-left: 4px solid var(--primary);
+                    background: var(--surface-soft);
+                    border-radius: 8px;
+                    display: grid;
+                    gap: 6px;
+                }
 
-            .medical-entry-title {
-                font-weight: 600;
-                color: var(--text-primary);
-                font-size: 0.95rem;
-            }
+                .medical-entry-title {
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    font-size: 0.95rem;
+                }
 
-            .medical-entry-description {
-                color: var(--text-secondary);
-                font-size: 0.875rem;
-                line-height: 1.5;
-            }
+                .medical-entry-description {
+                    color: var(--text-secondary);
+                    font-size: 0.875rem;
+                    line-height: 1.5;
+                }
 
-            .medical-entry-date {
-                font-size: 0.75rem;
-                color: #999;
-                margin-top: 4px;
-            }
+                .medical-entry-date {
+                    font-size: 0.75rem;
+                    color: #999;
+                    margin-top: 4px;
+                }
         </style>
-
         <div class="medical-history-list">
             @foreach (var entry in Model.PatientMedicalHistory.OrderByDescending(e => e.CreatedAt).Take(10))
             {
@@ -308,12 +364,11 @@
         <div class="empty-state py-4">
             <i class="bi bi-inbox"></i>
             <h3>لا توجد مدخلات طبية</h3>
-            <p>لم يتم إضافة أي مدخلات طبية لهذا المريض حتى الآن.</p>
         </div>
     }
 </div>
 
-<div class="content-card mt-3">
+<div class="content-card mb-3">
     <div class="section-head">
         <div>
             <h2><i class="bi bi-clock-history text-primary"></i> شريط الزيارات السابقة للمريض</h2>
@@ -423,3 +478,242 @@
         </div>
     }
 </div>
+
+<!-- Modal إضافة دواء -->
+<div class="modal fade" id="addMedicationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i> إضافة دواء للروشتة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addMedicationForm">
+                <input type="hidden" name="VisitId" value="@visit.Id" />
+
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">اسم الدواء</label>
+                        <input type="text" name="MedicationName" class="form-control bg-light" placeholder="مثال: Paracetamol 500mg" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small fw-bold">الجرعة</label>
+                            <input type="text" name="Dosage" class="form-control bg-light" placeholder="مثال: قرص" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small fw-bold">التكرار</label>
+                            <input type="text" name="Frequency" class="form-control bg-light" placeholder="مثال: كل 8 ساعات" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">المدة</label>
+                        <input type="text" name="Duration" class="form-control bg-light" placeholder="مثال: لمدة 5 أيام" required />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label text-secondary small fw-bold">ملاحظات إضافية</label>
+                        <textarea name="Notes" class="form-control bg-light" rows="2" placeholder="أي تعليمات إضافية (اختياري)..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top bg-light" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4">حفظ الدواء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal تعديل دواء -->
+<div class="modal fade" id="editMedicationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil text-warning me-2"></i> تعديل بيانات الدواء</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editMedicationForm">
+                <input type="hidden" name="Id" id="editMedId" />
+                <input type="hidden" name="VisitId" value="@visit.Id" />
+
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">اسم الدواء</label>
+                        <input type="text" name="MedicationName" id="editMedName" class="form-control bg-light" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small fw-bold">الجرعة</label>
+                            <input type="text" name="Dosage" id="editMedDosage" class="form-control bg-light" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-secondary small fw-bold">التكرار</label>
+                            <input type="text" name="Frequency" id="editMedFrequency" class="form-control bg-light" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">المدة</label>
+                        <input type="text" name="Duration" id="editMedDuration" class="form-control bg-light" required />
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label text-secondary small fw-bold">ملاحظات إضافية</label>
+                        <textarea name="Notes" id="editMedNotes" class="form-control bg-light" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top bg-light" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-warning px-4">تعديل الدواء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // 1. إضافة دواء جديد للروشتة
+            $('#addMedicationForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var formData = form.serialize();
+                var submitBtn = form.find('button[type="submit"]');
+                var originalText = submitBtn.html();
+
+                submitBtn.html('<span class="spinner-border spinner-border-sm"></span> جاري الحفظ...').prop('disabled', true);
+
+                $.ajax({
+                    url: '/Visits/AddPrescriptionItem',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#addMedicationModal').modal('hide');
+                            form[0].reset();
+                            $('#emptyPrescriptionRow').remove();
+
+                            var notes = response.data.notes ? response.data.notes : '-';
+
+                            var newRow = `<tr id="med-row-${response.data.id}">
+                                <td class="fw-bold medication-name">${response.data.medicationName}</td>
+                                <td><span class="badge bg-light text-dark border medication-dosage">${response.data.dosage}</span></td>
+                                <td class="medication-frequency">${response.data.frequency}</td>
+                                <td class="medication-duration">${response.data.duration}</td>
+                                <td class="medication-notes">${notes}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-warning edit-med-btn"
+                                            data-id="${response.data.id}" data-name="${response.data.medicationName}" data-dosage="${response.data.dosage}"
+                                            data-frequency="${response.data.frequency}" data-duration="${response.data.duration}" data-notes="${notes}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-med-btn" data-id="${response.data.id}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>`;
+
+                            $('#prescriptionTable tbody').append(newRow);
+                        } else {
+                            alert('حدث خطأ: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert("حدث خطأ في السيرفر: " + xhr.status + " - " + error);
+                    },
+                    complete: function () {
+                        submitBtn.html(originalText).prop('disabled', false);
+                    }
+                });
+            });
+
+            // 2. فتح مودال التعديل وتعبئة البيانات الحالية
+            $(document).on('click', '.edit-med-btn', function () {
+                $('#editMedId').val($(this).data('id'));
+                $('#editMedName').val($(this).data('name'));
+                $('#editMedDosage').val($(this).data('dosage'));
+                $('#editMedFrequency').val($(this).data('frequency'));
+                $('#editMedDuration').val($(this).data('duration'));
+                $('#editMedNotes').val($(this).data('notes') === '-' ? '' : $(this).data('notes'));
+
+                $('#editMedicationModal').modal('show');
+            });
+
+            // 3. حفظ تعديل الدواء عبر الـ Ajax بدون ريفريش
+            $('#editMedicationForm').on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var formData = form.serialize();
+
+                $.ajax({
+                    url: '/Visits/UpdatePrescriptionItem',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#editMedicationModal').modal('hide');
+                            var row = $('#med-row-' + response.data.id);
+
+                            row.find('.medication-name').text(response.data.medicationName);
+                            row.find('.medication-dosage').text(response.data.dosage);
+                            row.find('.medication-frequency').text(response.data.frequency);
+                            row.find('.medication-duration').text(response.data.duration);
+                            row.find('.medication-notes').text(response.data.notes ? response.data.notes : '-');
+
+                            var editBtn = row.find('.edit-med-btn');
+                            editBtn.data('name', response.data.medicationName);
+                            editBtn.data('dosage', response.data.dosage);
+                            editBtn.data('frequency', response.data.frequency);
+                            editBtn.data('duration', response.data.duration);
+                            editBtn.data('notes', response.data.notes ? response.data.notes : '-');
+                        } else {
+                            alert('حدث خطأ: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('حدث خطأ في الاتصال بالسيرفر أثناء التعديل.');
+                    }
+                });
+            });
+
+            // 4. حذف دواء من الروشتة (Soft Delete) فوري
+            $(document).on('click', '.delete-med-btn', function () {
+                var btn = $(this);
+                var medId = btn.data('id');
+
+                if (confirm('هل أنت متأكد من حذف هذا الدواء من الروشتة؟')) {
+                    $.ajax({
+                        url: '/Visits/DeletePrescriptionItem',
+                        type: 'POST',
+                        data: { id: medId },
+                        success: function (response) {
+                            if (response.success) {
+                                $('#med-row-' + medId).fadeOut(400, function () {
+                                    $(this).remove();
+
+                                    if ($('#prescriptionTable tbody tr').length === 0) {
+                                        $('#prescriptionTable tbody').append(`
+                                            <tr id="emptyPrescriptionRow">
+                                                <td colspan="6" class="text-center text-muted py-4">
+                                                    <i class="bi bi-inbox fs-4 d-block mb-2 text-secondary"></i>
+                                                    لا توجد أدوية مضافة لهذه الزيارة حتى الآن.
+                                                </td>
+                                            </tr>
+                                        `);
+                                    }
+                                });
+                            } else {
+                                alert('حدث خطأ: ' + response.message);
+                            }
+                        },
+                        error: function () {
+                            alert('حدث خطأ في السيرفر أثناء محاولة الحذف.');
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+}

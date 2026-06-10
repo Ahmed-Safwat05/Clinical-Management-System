@@ -7,4 +7,6 @@ public interface IVisitRepository : IRepository<Visit>
     Task<decimal> GetTotalIncomeAsync();
     Task<decimal> GetIncomeByDateAsync(DateTime date);
     Task<int> CountPatientsByVisitDateAsync(DateTime date);
+
+    Task<IReadOnlyList<Visit>> GetPatientVisitsAsync(int patientId, int currentVisitId);
 }

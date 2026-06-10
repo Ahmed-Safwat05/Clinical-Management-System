@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<PatientMedicalHistoryEntry> PatientMedicalHistoryEntries => Set<PatientMedicalHistoryEntry>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PrescriptionItem> PrescriptionItems => Set<PrescriptionItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

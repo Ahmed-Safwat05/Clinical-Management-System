@@ -36,7 +36,7 @@ public class Visit
 
     public List<VisitProcedure> VisitProcedures { get; set; } = new List<VisitProcedure>();
     public List<Payment> Payments { get; set; } = new List<Payment>();
-
+    public List<PrescriptionItem> Prescriptions { get; set; } = new List<PrescriptionItem>();
     public bool IsVoided => Status == VisitStatus.Voided;
     public decimal TotalPaid => PaidAmount;
     public decimal RemainingBalance => Math.Max(0m, TotalPrice - TotalPaid);
