@@ -22,4 +22,5 @@ public class Appointment
     public bool IsWalkIn { get; set; } = false;
 
     public Visit? Visit { get; set; }
+    public bool IsDeleted { get; internal set; }
 }

@@ -41,4 +41,6 @@ public class Visit
     public decimal TotalPaid => PaidAmount;
     public decimal RemainingBalance => Math.Max(0m, TotalPrice - TotalPaid);
     public bool IsPaidInFull => RemainingBalance <= 0m;
+
+    public bool IsDeleted { get; internal set; }
 }

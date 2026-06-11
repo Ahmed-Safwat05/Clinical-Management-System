@@ -19,6 +19,9 @@ public class CreateUserViewModel
     [Compare("Password", ErrorMessage = "كلمات المرور غير متطابقة")]
     [DataType(DataType.Password)]
     public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "برجاء اختيار صلاحية المستخدم")]
+    public UserRole Role { get; set; }
 }
 
 public class ChangePasswordViewModel
@@ -38,4 +41,5 @@ public class ChangePasswordViewModel
     [Compare("NewPassword", ErrorMessage = "كلمات المرور غير متطابقة")]
     [DataType(DataType.Password)]
     public string ConfirmNewPassword { get; set; } = string.Empty;
+
 }

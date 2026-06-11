@@ -33,26 +33,21 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Patient>()
             .HasQueryFilter(x => !x.IsDeleted);
 
-        modelBuilder.Entity<PatientMedicalHistoryEntry>()
-            .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted);
-
         modelBuilder.Entity<Doctor>()
             .HasQueryFilter(x => !x.IsDeleted);
 
         modelBuilder.Entity<Appointment>()
-            .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted && x.Doctor != null && !x.Doctor.IsDeleted);
+            .HasQueryFilter(x => !x.IsDeleted);
 
         modelBuilder.Entity<Visit>()
-            .HasQueryFilter(x => x.Patient != null && !x.Patient.IsDeleted && x.Doctor != null && !x.Doctor.IsDeleted);
+            .HasQueryFilter(x => !x.IsDeleted);
 
         modelBuilder.Entity<VisitProcedure>()
-            .HasQueryFilter(x => x.Visit != null && x.Visit.Patient != null && !x.Visit.Patient.IsDeleted && x.Visit.Doctor != null && !x.Visit.Doctor.IsDeleted);
+            .HasQueryFilter(x => !x.IsDeleted);
 
         modelBuilder.Entity<Payment>()
-            .HasQueryFilter(x => x.Visit != null && x.Visit.Patient != null && !x.Visit.Patient.IsDeleted && x.Visit.Doctor != null && !x.Visit.Doctor.IsDeleted);
+            .HasQueryFilter(x => !x.IsDeleted);
 
-        modelBuilder.Entity<DoctorSchedule>()
-            .HasQueryFilter(x => x.Doctor != null && !x.Doctor.IsDeleted);
 
         modelBuilder.Entity<AppUser>()
             .HasQueryFilter(x => x.IsActive);
@@ -88,6 +83,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Visit>()
             .Property(x => x.VoidReason)
             .HasMaxLength(500);
+        modelBuilder.Entity<Visit>()
+            .HasIndex(x => x.Date);
 
         modelBuilder.Entity<Payment>(entity =>
         {
@@ -109,7 +106,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(x => x.Visit)
                 .WithMany(x => x.Payments)
                 .HasForeignKey(x => x.VisitId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<VisitProcedure>()
@@ -164,14 +161,14 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(x => x.Patient)
                 .WithMany(x => x.MedicalHistoryEntries)
                 .HasForeignKey(x => x.PatientId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<VisitProcedure>()
             .HasOne(x => x.Visit)
             .WithMany(x => x.VisitProcedures)
             .HasForeignKey(x => x.VisitId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<VisitProcedure>()
             .HasOne(x => x.Procedure)
@@ -245,10 +242,10 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<VisitProductConsumption>()
-            .HasOne(x => x.Visit)
+            .HasOne(x => x.Visit)   
             .WithMany()
             .HasForeignKey(x => x.VisitId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<VisitProductConsumption>()
             .HasOne(x => x.Product)

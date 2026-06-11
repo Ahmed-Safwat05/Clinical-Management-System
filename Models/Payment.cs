@@ -17,4 +17,5 @@ public class Payment
 
     [StringLength(100)]
     public string? CreatedBy { get; set; }
+    public bool IsDeleted { get; internal set; }
 }
