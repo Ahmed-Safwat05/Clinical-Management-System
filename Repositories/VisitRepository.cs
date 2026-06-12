@@ -9,6 +9,7 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
     public async Task<IReadOnlyList<Visit>> GetRecentAsync(int count = 50)
     {
         return await Context.Visits
+            .IgnoreQueryFilters()
             .Include(x => x.Patient)
             .Include(x => x.Doctor)
             .Include(x => x.Payments)
@@ -20,6 +21,7 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
     public async Task<IReadOnlyList<Visit>> GetPatientVisitsAsync(int patientId, int currentVisitId)
     {
         return await Context.Visits
+            .IgnoreQueryFilters()
             .Where(x => x.PatientId == patientId && x.Id != currentVisitId)
             .OrderByDescending(x => x.Date)
             .ToListAsync();
@@ -29,6 +31,7 @@ public class VisitRepository : Repository<Visit>, IVisitRepository
     public Task<Visit?> GetDetailsAsync(int id)
     {
         return Context.Visits
+            .IgnoreQueryFilters()
             .Include(x => x.Patient)
             .Include(x => x.Doctor)
             .Include(x => x.Prescriptions)

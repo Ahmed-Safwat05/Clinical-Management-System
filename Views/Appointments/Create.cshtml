@@ -12,14 +12,13 @@
 </div>
 
 <div class="row g-3">
-    <!-- فورم الحجز الأساسي -->
     <div class="col-lg-8">
         <div class="content-card form-card">
             <form asp-action="Create" method="post" data-success-message="تم إنشاء الموعد بنجاح">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                 <div class="row g-3">
                     <div class="col-md-12">
-                        <label asp-for="PatientId" class="form-label font-weight-bold">المريض</label>
+                        <label asp-for="PatientId" class="form-label fw-bold">المريض</label>
                         <select asp-for="PatientId" asp-items="Model.Patients" class="form-select select-patient-trigger">
                             <option value="">-- اختر المريض لعرض التاريخ الطبي --</option>
                         </select>
@@ -44,27 +43,25 @@
         </div>
     </div>
 
-    <!-- الـ Sidebar المصغر الجانبي الثابت لعرض البيانات فوراً -->
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-3 h-100" style="background: #fff; min-height: 300px;">
-            <div class="card-header bg-light border-0 py-3">
-                <h5 class="mb-0 text-dark" style="font-size: 1.05rem;">
+        <div class="card border-0 shadow-sm rounded-3 h-100 bg-body" style="min-height: 300px;">
+            <div class="card-header bg-body-tertiary border-0 py-3">
+                <h5 class="mb-0 text-body" style="font-size: 1.05rem;">
                     <i class="bi bi-person-lines-fill text-primary"></i> الملف الخاطف للمريض
                 </h5>
             </div>
             <div class="card-body" id="patientSummaryContainer">
-                <div class="text-center text-muted py-5" id="emptySummaryState">
+                <div class="text-center text-secondary py-5" id="emptySummaryState">
                     <i class="bi bi-arrow-right-square" style="font-size: 2rem;"></i>
                     <p class="mt-2 mb-0" style="font-size: 0.85rem;">قم باختيار مريض من القائمة اليسرى لعرض تاريخه الطبي والزيارات السابقة هنا فوراً.</p>
                 </div>
 
-                <!-- المحتوى الديناميكي المخفي افتراضياً -->
                 <div id="summaryContent" class="d-none">
                     <div class="mb-3">
                         <h6 class="text-danger fw-bold" style="font-size: 0.85rem;"><i class="bi bi-exclamation-triangle"></i> الأمراض المزمنة / التحذيرات:</h6>
                         <div id="patientConditions" class="d-flex flex-wrap gap-1 mt-1"></div>
                     </div>
-                    <hr class="my-2" />
+                    <hr class="my-2 text-secondary-50" />
                     <div>
                         <h6 class="text-primary fw-bold mb-2" style="font-size: 0.85rem;"><i class="bi bi-clock-history"></i> آخر 3 زيارات سابقة:</h6>
                         <div id="patientVisitsList" class="d-flex flex-column gap-2"></div>
@@ -75,16 +72,14 @@
     </div>
 </div>
 
-<!-- 📦 الـ Modal السريعة لعرض تفاصيل الزيارة فورياً بدون مغادرة الصفحة -->
 <div class="modal fade" id="visitQuickViewModal" tabindex="-1" aria-labelledby="visitQuickViewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white py-3">
-                <h5 class="modal-title" id="visitQuickViewModalLabel"><i class="bi bi-eye"></i> نظرة خاطفة على الزيارة</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow bg-body">
+            <div class="modal-header bg-body-tertiary text-body py-3 border-bottom border-translucent">
+                <h5 class="modal-title" id="visitQuickViewModalLabel"><i class="bi bi-eye text-primary"></i> نظرة خاطفة على الزيارة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4" id="quickViewModalBody">
-                <!-- هيتم ملئ البيانات ديناميكياً بالجافا سكريبت -->
                 <div class="text-center py-3">
                     <div class="spinner-border text-primary" role="status"></div>
                 </div>
@@ -92,3 +87,34 @@
         </div>
     </div>
 </div>
+<style>
+        /* تأمين تفاصيل الزيارات في الملف الخاطف والـ Modal للدارك مود */
+        [data-bs-theme="dark"] #patientSummaryContainer,
+        [data-bs-theme="dark"] #visitQuickViewModal {
+            
+            /* تلوين نصوص الملاحظات والتشخيص لتكون واضحة */
+            .text-dark, .text-black, p, span, text {
+                color: var(--bs-body-color) !important;
+            }
+
+            /* تظبيط لستة آخر 3 زيارات */
+            #patientVisitsList .list-group-item, 
+            .visit-item {
+                background-color: var(--bs-body-bg) !important;
+                border-color: var(--bs-border-color-translucent) !important;
+                color: var(--bs-body-color) !important;
+            }
+
+            /* العناوين الجانبية الصغبرة داخل المودال والملف الخاطف */
+            h6, .fw-bold {
+                color: var(--bs-heading-color) !important;
+            }
+
+            /* الملاحظات الطبية أو التكست بوكس المقفول */
+            .bg-light, .diagnostic-box, .notes-container {
+                background-color: var(--bs-body-tertiary-bg) !important;
+                color: var(--bs-body-color) !important;
+                border: 1px solid var(--bs-border-color-translucent) !important;
+            }
+        }
+    </style>
