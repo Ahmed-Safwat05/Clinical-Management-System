@@ -19,6 +19,8 @@ global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using System.Security.Claims;
 global using System.ComponentModel.DataAnnotations.Schema;
-
+global using System.Security.Cryptography;
+global using System.Text;
+global using Microsoft.Win32;
 
 
