@@ -1,0 +1,273 @@
+﻿@model ClinicManagementSystem.Models.LicenseDto
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Lock - Clinic Management System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css" />
+
+    <style>
+            /* --- Dark Mode --- */
+            body.dark-theme {
+                background-color: #0b0f19;
+                color: #f8fafc;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem 0;
+                transition: background-color 0.3s ease;
+            }
+
+                body.dark-theme .expired-card {
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(220, 53, 69, 0.25);
+                    backdrop-filter: blur(12px);
+                    border-radius: 16px;
+                    max-width: 520px;
+                    width: 100%;
+                    padding: 2.5rem;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                }
+
+                body.dark-theme .icon-box {
+                    width: 80px;
+                    height: 80px;
+                    background-color: rgba(220, 53, 69, 0.12);
+                    color: #ff6b76;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                    border: 1px solid rgba(220, 53, 69, 0.2);
+                }
+
+                body.dark-theme .btn-email {
+                    background-color: rgba(255, 255, 255, 0.05);
+                    color: #f8fafc;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    transition: all 0.2s ease;
+                }
+
+                    body.dark-theme .btn-email:hover {
+                        background-color: rgba(255, 255, 255, 0.1);
+                        color: #fff;
+                        transform: translateY(-2px);
+                    }
+
+                body.dark-theme .fingerprint-box {
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px dashed rgba(255, 255, 255, 0.15);
+                    font-family: 'Courier New', Courier, monospace;
+                    letter-spacing: 1px;
+                }
+
+                body.dark-theme .text-custom-muted {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+
+                body.dark-theme .info-panel {
+                    background-color: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }
+
+            /* --- Light Mode --- */
+            body.light-theme {
+                background-color: #f1f5f9;
+                color: #0f172a;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem 0;
+                transition: background-color 0.3s ease;
+            }
+
+                body.light-theme .expired-card {
+                    background: #ffffff;
+                    border: 1px solid rgba(220, 53, 69, 0.3);
+                    border-radius: 16px;
+                    max-width: 520px;
+                    width: 100%;
+                    padding: 2.5rem;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+                }
+
+                body.light-theme .icon-box {
+                    width: 80px;
+                    height: 80px;
+                    background-color: #fef2f2;
+                    color: #dc2626;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                    border: 1px solid rgba(220, 53, 69, 0.15);
+                }
+
+                body.light-theme .btn-email {
+                    background-color: #f8fafc;
+                    color: #334155;
+                    border: 1px solid #cbd5e1;
+                    transition: all 0.2s ease;
+                }
+
+                    body.light-theme .btn-email:hover {
+                        background-color: #e2e8f0;
+                        color: #0f172a;
+                        transform: translateY(-2px);
+                    }
+
+                body.light-theme .fingerprint-box {
+                    background: #f8fafc;
+                    border: 1px dashed #cbd5e1;
+                    font-family: 'Courier New', Courier, monospace;
+                    letter-spacing: 1px;
+                    color: #0284c7 !important;
+                }
+
+                body.light-theme .text-custom-muted {
+                    color: #64748b;
+                }
+
+                body.light-theme .info-panel {
+                    background-color: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                }
+
+                body.light-theme .text-white {
+                    color: #0f172a !important;
+                }
+
+            .btn-whatsapp {
+                background-color: #25d366;
+                color: #fff;
+                border: none;
+                transition: all 0.2s ease;
+            }
+
+                .btn-whatsapp:hover {
+                    background-color: #20ba5a;
+                    color: #fff;
+                    transform: translateY(-2px);
+                }
+    </style>
+</head>
+<body class="dark-theme" id="themeBody">
+
+    <div class="expired-card text-center mx-3">
+        <div class="icon-box" id="lockIcon">
+            <i class="bi bi-shield-lock-fill fs-1"></i>
+        </div>
+
+        <h2 class="fw-bold mb-1 text-white">System Locked</h2>
+
+        @if (Model != null && !Model.IsDeviceValid)
+        {
+            <p class="text-danger small fw-semibold mb-4" style="letter-spacing: 1px;">ERROR: HARDWARE ID MISMATCH (LICENSE MOVED)</p>
+        }
+        else if (Model != null && Model.IsTrialExpired)
+        {
+            <p class="text-danger small fw-semibold mb-4" style="letter-spacing: 1px;">TRIAL VERSION PERIOD ENDED</p>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger text-center small fw-bold mb-3 py-2" style="background-color: rgba(220, 53, 69, 0.15); color: #ff6b76; border: 1px solid rgba(220, 53, 69, 0.3);">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="p-3 rounded-3 mb-4 info-panel">
+            <span class="text-custom-muted d-block small mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">REGISTERED CLINIC</span>
+            <span class="fw-bold text-info fs-5">@(Model?.ClinicName ?? "Unknown Clinic")</span>
+        </div>
+
+        <div class="mb-4 text-start">
+            <label class="text-custom-muted small mb-1" style="font-size: 0.75rem;">YOUR DEVICE ID (SEND TO DEVELOPER):</label>
+            <div class="d-flex gap-2">
+                <input type="text" id="deviceId" class="form-control fingerprint-box text-info text-center form-control-sm border-0 py-2" value="@(Model?.DeviceFingerprint ?? "")" readonly />
+                <button class="btn btn-secondary btn-sm px-3" onclick="copyDeviceId()">
+                    <i id="copyIcon" class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+
+        <form action="/License/Activate" method="post" class="mb-4 text-start">
+            @Html.AntiForgeryToken() <label class="text-custom-muted small mb-1" style="font-size: 0.75rem;">ENTER ACTIVATION CODE:</label>
+            <div class="d-flex flex-column gap-2">
+                <input type="text" name="activationCode" class="form-control text-center fw-bold bg-dark text-white border-secondary" placeholder="CMS-LIC:..." required autocomplete="off" />
+                <button type="submit" class="btn btn-info fw-bold text-dark py-2">
+                    <i class="bi bi-key-fill me-1"></i> Activate System
+                </button>
+            </div>
+        </form>
+
+        <div class="d-flex flex-column gap-2">
+            <a href="https://wa.me/201220015827?text=Hello%20Ahmed,%20I%20need%20to%20activate%20my%20license.%20My%20Device%20ID%20is:%20@Uri.EscapeDataString(Model?.DeviceFingerprint ?? " ")"
+               target="_blank" class="btn btn-whatsapp d-flex align-items-center justify-content-center gap-2 py-2.5 fw-bold rounded-2 shadow-sm">
+                <i class="bi bi-whatsapp fs-5"></i>
+                <span>Contact via WhatsApp</span>
+            </a>
+
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=safwata677@@gmail.com&su=Clinic%20License%20Activation&body=My%20Device%20ID%20is:%20@Uri.EscapeDataString(Model?.DeviceFingerprint ?? " ")"
+               target="_blank" class="btn btn-email d-flex align-items-center justify-content-center gap-2 py-2.5 fw-medium rounded-2">
+                <i class="bi bi-envelope-fill text-info"></i>
+                <span>Send Email Support</span>
+            </a>
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-white border-opacity-5 d-flex justify-content-between align-items-center text-custom-muted" style="font-size: 0.68rem; opacity: 0.7;">
+            <div><span>System Version: @(Model?.Version ?? "1.0.0")</span></div>
+            <div class="text-end">
+                <span class="d-block mb-1">Developed By: <b>Ahmed Safwat</b></span>
+                <span class="d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-telephone-fill text-info" style="font-size: 0.6rem;"></i> +20 122 001 5827
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const body = document.getElementById("themeBody");
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    body.className = "light-theme";
+                }
+
+                const lockIcon = document.getElementById("lockIcon");
+                if (lockIcon) {
+                    lockIcon.animate([
+                        { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(220, 53, 69, 0.4)' },
+                        { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(220, 53, 69, 0)' },
+                        { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(220, 53, 69, 0.4)' }
+                    ], {
+                        duration: 2000,
+                        iterations: Infinity,
+                        easing: 'ease-in-out'
+                    });
+                }
+            });
+
+            function copyDeviceId() {
+                var copyText = document.getElementById("deviceId");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(copyText.value);
+
+                var icon = document.getElementById("copyIcon");
+                icon.className = "bi bi-clipboard-check-fill text-success";
+                setTimeout(() => { icon.className = "bi bi-clipboard"; }, 2000);
+            }
+    </script>
+</body>
+</html>

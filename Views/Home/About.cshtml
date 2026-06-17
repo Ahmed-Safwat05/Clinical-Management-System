@@ -1,0 +1,102 @@
+﻿@model LicenseDto
+
+@{
+    ViewData["Title"] = "حول النظام";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- الكارت الأساسي يتأقلم تلقائياً مع الثيم بفضل bg-body و border -->
+            <div class="card shadow-lg border border-secondary border-opacity-10 rounded-4 text-center p-4 bg-body">
+
+                <!-- الجزء العلوي للوجو واسم النظام -->
+                <div class="my-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="mt-2 fw-bold text-body">Clinic Management System</h2>
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mt-2" style="font-size: 0.85rem;">Version @Model.Version</span>
+                </div>
+
+                <hr class="my-4 opacity-25">
+
+                <div class="mb-4 p-4 rounded-3 border border-primary border-opacity-10 shadow-sm" style="background-color: var(--bs-hover-bg, rgba(0,0,0,0.015)); text-align: left; direction: ltr;">
+
+                    <h5 class="text-primary fw-bold mb-4 d-flex align-items-center gap-2">
+                        <i class="bi bi-key-fill"></i> License Information
+                    </h5>
+
+                    <div class="d-flex flex-row justify-content-between align-items-center mb-3 w-100">
+                        <div class="text-body text-nowrap">
+                            <strong class="text-muted">Licensed to:</strong>
+                            <span class="text-body-emphasis fw-bold ms-1" style="font-size: 1.05rem;">@Model.ClinicName</span>
+                        </div>
+
+                        <div class="text-body text-nowrap d-flex align-items-center">
+                            <strong class="text-muted">License Status:</strong>
+                            <span class="badge bg-warning text-dark border border-warning border-opacity-50 fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
+                                @Model.LicenseType
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-row justify-content-between align-items-center w-100">
+                        <div class="text-body text-nowrap d-flex align-items-center">
+                            <strong class="text-muted">Expiration Date:</strong>
+                            <span class="badge bg-danger text-white border border-danger border-opacity-50 fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
+                                @Model.ExpirationDate.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+
+                        <div class="text-body text-nowrap d-flex align-items-center">
+                            <strong class="text-muted">Remaining:</strong>
+                            <span class="badge bg-dark text-light border border-secondary border-opacity-50 fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
+                                @Model.DaysRemaining Days
+                            </span>
+                        </div>
+                    </div>
+
+                </div>  
+                <!-- كارت المطور المحترف (جراديانت فخم ثابت اللون في الوضعين) -->
+                <div class="bg-dark text-white p-4 rounded-4 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #1e1e24 0%, #0f0f12 100%);">
+                    <div class="position-absolute border border-white border-opacity-5 rounded-circle" style="width: 150px; height: 150px; top: -50px; right: -50px;"></div>
+
+                    <h4 class="fw-medium text-white-50 mb-1" style="font-size: 0.9rem; letter-spacing: 1px;">DEVELOPED BY</h4>
+                    <h3 class="text-info fw-bold mb-1" style="letter-spacing: 0.5px;">Ahmed Safwat</h3>
+                    <p class="text-white-50 mb-4" style="font-size: 0.85rem;">Backend .NET Developer & Software Engineer</p>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                        <!-- زر الواتساب -->
+                        <a href="https://wa.me/201220015827" target="_blank" class="btn btn-sm btn-outline-light border-white border-opacity-25 py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-2 text-white text-decoration-none custom-hover-btn" dir="ltr">
+                            <i class="bi bi-whatsapp text-success fs-5"></i>
+                            <span class="btn-text">+20 122 001 5827</span>
+                        </a>
+                        <!-- زر الجيميل -->
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=safwata677@gmail.com" target="_blank" class="btn btn-sm btn-outline-light border-white border-opacity-25 py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-2 text-white text-decoration-none custom-hover-btn">
+                            <i class="bi bi-envelope-fill text-danger fs-5"></i>
+                            <span class="btn-text">safwata677@gmail.com</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ستايل حماية الألوان من الـ Hover الخاص بالبوتستراب الافتراضي -->
+<style>
+    .custom-hover-btn:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+        .custom-hover-btn:hover .btn-text {
+            color: #fff !important;
+        }
+
+    .custom-sidebar-logout-btn:hover {
+        opacity: 0.8;
+    }
+</style>

@@ -4,10 +4,11 @@ namespace ClinicManagementSystem.Controllers;
 public class HomeController : Controller
 {
     private readonly IHomeService _homeService;
-
-    public HomeController(IHomeService homeService)
+    private readonly ILicenseService _licenseService;
+    public HomeController(IHomeService homeService, ILicenseService licenseService)
     {
         _homeService = homeService;
+        _licenseService = licenseService;
     }
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -38,4 +39,11 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+    public IActionResult About()
+    {
+        var licenseInfo = _licenseService.GetCurrentLicenseInfo();
+
+        return View(licenseInfo);
+    }
+
 }

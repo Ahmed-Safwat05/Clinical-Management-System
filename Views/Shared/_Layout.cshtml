@@ -1,9 +1,14 @@
 @inject ISettingsService SettingsService
 @inject IProductService ProductService
+@inject ILicenseService LicenseService
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = ViewContext.RouteData.Values["action"]?.ToString();
-    string IsActive(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+
+    // تعديل الميثود لتشيك على الكنترولر والأكشن معًا لمنع تداخل الإضاءة في السايد بار
+    string IsActive(string ctrlName, string actName = "Index") =>
+        string.Equals(controller, ctrlName, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(action, actName, StringComparison.OrdinalIgnoreCase) ? "active" : "";
 
     string clinicName = "عيادة الخير";
     try
@@ -23,6 +28,17 @@
     catch
     {
         lowStockCount = 0;
+    }
+
+    // جلب بيانات الترخيص بأمان للحفاظ على الـ Architecture
+    LicenseDto licenseInfo = null;
+    try
+    {
+        licenseInfo = LicenseService.GetCurrentLicenseInfo();
+    }
+    catch
+    {
+        licenseInfo = new LicenseDto { ClinicName = "Demo Clinic", LicenseType = "Trial", ExpirationDate = Model.ExpirationDate };
     }
 }
 <!DOCTYPE html>
@@ -57,111 +73,153 @@
     }
 
     <div class="app-shell" hx-boost="true">
-        <aside class="app-sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-mark">
-                    <i class="bi bi-hospital"></i>
+        <aside class="app-sidebar d-flex flex-column justify-content-between">
+            <div>
+                <div class="sidebar-brand">
+                    <div class="brand-mark">
+                        <i class="bi bi-hospital"></i>
+                    </div>
+                    <div>
+                        <span>@clinicName</span>
+                        <small>المركز الطبي</small>
+                    </div>
                 </div>
-                <div>
-                    <span>@clinicName</span>
-                    <small>المركز الطبي</small>
-                </div>
+
+                <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
+                    <a class="sidebar-link @IsActive("Home", "Index")" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-grid-1x2-fill"></i>
+                        <span>الرئيسية</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Patients")" asp-controller="Patients" asp-action="Index">
+                        <i class="bi bi-people-fill"></i>
+                        <span>المرضى</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Doctors")" asp-controller="Doctors" asp-action="Index">
+                        <i class="bi bi-person-badge-fill"></i>
+                        <span>الأطباء</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Appointments")" asp-controller="Appointments" asp-action="Index">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                        <span>المواعيد</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Visits")" asp-controller="Visits" asp-action="Index">
+                        <i class="bi bi-clipboard2-pulse-fill"></i>
+                        <span>الزيارات</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Procedures")" asp-controller="Procedures" asp-action="Index">
+                        <i class="bi bi-capsule-pill"></i>
+                        <span>الإجراءات</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Products")" asp-controller="Products" asp-action="Index">
+                        <i class="bi bi-box-seam"></i>
+                        <span>المخزون</span>
+                        @if (lowStockCount > 0)
+                        {
+                            <span class="badge bg-warning-subtle text-warning" style="margin-right: auto;">@lowStockCount</span>
+                        }
+                    </a>
+                    <a class="sidebar-link @IsActive("Dashboard")" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-bar-chart-line-fill"></i>
+                        <span>التقارير</span>
+                    </a>
+                    <a class="sidebar-link @IsActive("Deleted")" asp-controller="Deleted" asp-action="Index">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <span>المحذوفات</span>
+                    </a>
+
+                    <a class="sidebar-link @IsActive("Home", "About")" asp-controller="Home" asp-action="About">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>حول النظام</span>
+                    </a>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <hr class="sidebar-divider my-2" />
+                        <div class="sidebar-group-title">إدارة النظام</div>
+                        <a class="sidebar-link @IsActive("Users")" asp-controller="Users" asp-action="Index">
+                            <i class="bi bi-people-fill"></i>
+                            <span>المستخدمين</span>
+                        </a>
+                        <a class="sidebar-link @IsActive("AuditLogs")" asp-controller="AuditLogs" asp-action="Index">
+                            <i class="bi bi-journal-text"></i>
+                            <span>سجل العمليات</span>
+                        </a>
+                        <a class="sidebar-link @IsActive("Settings")" asp-controller="Settings" asp-action="Index">
+                            <i class="bi bi-gear-fill"></i>
+                            <span>الإعدادات</span>
+                        </a>
+                    }
+                </nav>
             </div>
 
-            <nav class="sidebar-menu" aria-label="القائمة الرئيسية">
-                <a class="sidebar-link @IsActive("Home")" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-grid-1x2-fill"></i>
-                    <span>الرئيسية</span>
-                </a>
-                <a class="sidebar-link @IsActive("Patients")" asp-controller="Patients" asp-action="Index">
-                    <i class="bi bi-people-fill"></i>
-                    <span>المرضى</span>
-                </a>
-                <a class="sidebar-link @IsActive("Doctors")" asp-controller="Doctors" asp-action="Index">
-                    <i class="bi bi-person-badge-fill"></i>
-                    <span>الأطباء</span>
-                </a>
-                <a class="sidebar-link @IsActive("Appointments")" asp-controller="Appointments" asp-action="Index">
-                    <i class="bi bi-calendar2-check-fill"></i>
-                    <span>المواعيد</span>
-                </a>
-                <a class="sidebar-link @IsActive("Visits")" asp-controller="Visits" asp-action="Index">
-                    <i class="bi bi-clipboard2-pulse-fill"></i>
-                    <span>الزيارات</span>
-                </a>
-                <a class="sidebar-link @IsActive("Procedures")" asp-controller="Procedures" asp-action="Index">
-                    <i class="bi bi-capsule-pill"></i>
-                    <span>الإجراءات</span>
-                </a>
-                <a class="sidebar-link @IsActive("Products")" asp-controller="Products" asp-action="Index">
-                    <i class="bi bi-box-seam"></i>
-                    <span>المخزون</span>
-                    @if (lowStockCount > 0)
-                    {
-                        <span class="badge bg-warning-subtle text-warning" style="margin-right: auto;">@lowStockCount</span>
-                    }
-                </a>
-                <a class="sidebar-link @IsActive("Dashboard")" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi bi-bar-chart-line-fill"></i>
-                    <span>التقارير</span>
-                </a>
-                <a class="sidebar-link @IsActive("Deleted")" asp-controller="Deleted" asp-action="Index">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                    <span>المحذوفات</span>
-                </a>
+            <div class="sidebar-footer mx-3 my-3 p-3 rounded-3 border border-white border-opacity-10 shadow-sm d-flex flex-column" style="background-color: rgba(255, 255, 255, 0.05); direction: ltr !important; text-align: left !important;">
 
-                @if (User.IsInRole("Admin"))
-                {
-                    <hr class="sidebar-divider my-2" />
-                    <div class="sidebar-group-title">إدارة النظام</div>
-                    <a class="sidebar-link @IsActive("Users")" asp-controller="Users" asp-action="Index">
-                        <i class="bi bi-people-fill"></i>
-                        <span>المستخدمين</span>
-                    </a>
-                    <a class="sidebar-link @IsActive("AuditLogs")" asp-controller="AuditLogs" asp-action="Index">
-                        <i class="bi bi-journal-text"></i>
-                        <span>سجل العمليات</span>
-                    </a>
-                    <a class="sidebar-link @IsActive("Settings")" asp-controller="Settings" asp-action="Index">
-                        <i class="bi bi-gear-fill"></i>
-                        <span>الإعدادات</span>
-                    </a>
-                }
-            </nav>
+                <div class="d-flex align-items-center gap-2 mb-3 w-100" style="direction: ltr !important; text-align: left !important;">
+                    <div class="text-info d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; flex-shrink: 0;">
+                        <i class="bi bi-shield-check-fill fs-5"></i>
+                    </div>
+                    <div class="flex-grow-1 min-w-0" style="line-height: 1.25;">
+                        <div class="text-white-50 fw-medium" style="font-size: 0.65rem; opacity: 0.7; letter-spacing: 0.8px;">LICENSED TO:</div>
+                        <div class="fw-bold text-white text-truncate" style="font-size: 0.95rem;" title="@licenseInfo.ClinicName">@licenseInfo.ClinicName</div>
+                    </div>
+                </div>
 
-            <form asp-controller="Account" asp-action="Logout" method="post" class="sidebar-logout" hx-boost="false">
-                <button type="submit" class="sidebar-link logout-link border-0 w-100 text-start bg-transparent">
-                    <i class="bi bi-box-arrow-left"></i>
-                    <span>تسجيل الخروج</span>
-                </button>
-            </form>
+                <div class="d-flex flex-column gap-2 p-2 rounded-2 mb-3 w-100"
+                     style="font-size: 0.7rem; background-color: rgba(220, 53, 69, 0.08); border: 1px solid rgba(220, 53, 69, 0.15); color: #ff858d; direction: ltr !important; text-align: left !important;">
+
+                    <div class="d-flex justify-content-between align-items-center text-nowrap w-100">
+                        <span class="text-white-50"><i class="bi bi-hourglass-split me-1"></i> License:</span>
+                        <span class="badge bg-warning text-dark fw-bold px-1.5 py-0.5" style="font-size: 0.62rem;">@licenseInfo.LicenseType</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center text-nowrap w-100 border-top border-danger border-opacity-10 pt-2">
+                        <span class="text-white-50"><i class="bi bi-calendar-event me-1"></i> Expires in:</span>
+                        <span class="badge bg-danger text-white fw-bold px-1.5 py-0.5" style="font-size: 0.62rem;">@licenseInfo.DaysRemaining Days</span>
+                    </div>
+                </div>
+
+                <div class="pt-2 pb-2 border-top border-white border-opacity-10 d-flex justify-content-between align-items-center text-nowrap w-100"
+                     style="font-size: 0.65rem; direction: ltr !important; text-align: left !important;">
+                    <span class="text-white-50" style="opacity: 0.5;">v1.0 (MVP)</span>
+                    <span class="text-white-50" style="opacity: 0.5;">Dev: <span class="text-info fw-bold">Ahmed Safwat</span></span>
+                </div>
+
+                <form asp-controller="Account" asp-action="Logout" method="post" class="sidebar-logout m-0 w-100" hx-boost="false">
+                    <button type="submit" class="btn btn-sm btn-link text-danger w-100 p-0 py-2 d-flex align-items-center justify-content-center gap-2 border-0 text-decoration-none custom-sidebar-logout-btn rounded-2"
+                            style="font-size: 0.85rem; color: #ff6b76 !important; direction: ltr !important; transition: all 0.2s ease-in-out; background-color: rgba(220, 53, 69, 0);"
+                            onmouseover="this.style.backgroundColor='rgba(220, 53, 69, 0.1)'; this.style.color='#ff858d';"
+                            onmouseout="this.style.backgroundColor='rgba(220, 53, 69, 0)'; this.style.color='#ff6b76';">
+                        <i class="bi bi-box-arrow-left fs-6"></i>
+                        <span class="fw-bold" style="letter-spacing: 0.3px;">Logout</span>
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <div class="app-main">
             @{
-                // تعريف المسارات لترجمة الكنترولر
                 var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString();
                 var currentAct = ViewContext.RouteData.Values["action"]?.ToString();
                 var currentTitle = ViewData["Title"]?.ToString();
 
                 var controllerNames = new Dictionary<string, string>
-    {
-        { "Patients", "المرضى" },
-        { "Doctors", "الأطباء" },
-        { "Appointments", "المواعيد" },
-        { "Visits", "الزيارات" },
-        { "Procedures", "الإجراءات" },
-        { "Products", "المخزون" },
-        { "Dashboard", "التقارير" },
-        { "Users", "المستخدمين" },
-        { "Settings", "الإعدادات" }
-    };
+                {
+                    { "Patients", "المرضى" },
+                    { "Doctors", "الأطباء" },
+                    { "Appointments", "المواعيد" },
+                    { "Visits", "الزيارات" },
+                    { "Procedures", "الإجراءات" },
+                    { "Products", "المخزون" },
+                    { "Dashboard", "التقارير" },
+                    { "Users", "المستخدمين" },
+                    { "Settings", "الإعدادات" },
+                    { "Home", "الرئيسية" }
+                };
 
                 string parentName = controllerNames.ContainsKey(currentCtrl ?? "") ? controllerNames[currentCtrl] : currentCtrl;
             }
 
             <header class="app-topbar px-4 py-2 d-flex justify-content-between align-items-center w-100 bg-body border-bottom">
-
                 <nav aria-label="breadcrumb" class="d-none d-md-flex align-items-center">
                     <ol class="breadcrumb mb-0 bg-transparent p-0">
                         <li class="breadcrumb-item">
@@ -184,11 +242,14 @@
                                 <li class="breadcrumb-item active text-muted fw-bold" aria-current="page">@currentTitle</li>
                             }
                         }
+                        else if (currentAct == "About")
+                        {
+                            <li class="breadcrumb-item active text-muted fw-bold" aria-current="page">حول النظام</li>
+                        }
                     </ol>
                 </nav>
 
                 <div class="topbar-actions d-flex align-items-center gap-3">
-
                     <div class="live-clock d-none d-lg-block text-end me-2 text-muted" style="font-size: 0.85rem; line-height: 1.2;">
                         <div id="liveTime" class="fw-bold text-body" style="font-size: 1.1rem; letter-spacing: 0.5px;">--:--</div>
                         <div id="liveDate">--/--/----</div>
@@ -247,7 +308,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-        // 1. تشغيل الساعة والتاريخ
         function updateLiveClock() {
         const timeElement = document.getElementById('liveTime');
         const dateElement = document.getElementById('liveDate');
@@ -260,7 +320,6 @@
         setInterval(updateLiveClock, 1000);
         updateLiveClock();
 
-        // 2. تشغيل الوضع الليلي (Dark Mode Toggle)
         const themeToggleBtn = document.getElementById('themeToggleBtn');
         const themeIcon = document.getElementById('themeIcon');
         const htmlElement = document.documentElement;
@@ -275,7 +334,6 @@
         }
         }
 
-        // تحديث الأيقونة أول ما الصفحة تفتح بناءً على الثيم المحفوظ
         updateIcon(htmlElement.getAttribute('data-bs-theme'));
 
         themeToggleBtn.addEventListener('click', function () {
