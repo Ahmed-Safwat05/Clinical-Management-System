@@ -1,3 +1,5 @@
+using ClinicManagementSystem.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
@@ -8,7 +10,10 @@ builder.Logging.AddDebug();
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var dbPath = Path.Combine(AppContext.BaseDirectory, "clinic.db");
+    options.UseSqlite($"Data Source={dbPath}");
+});
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")))
     .SetApplicationName("CharityClinicCms");
@@ -65,6 +70,7 @@ builder.Services.AddScoped<IPatientMedicalHistoryService, PatientMedicalHistoryS
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
 builder.Services.AddScoped<IPrescriptionItemService, PrescriptionItemService>();
+builder.Services.AddScoped<ILicenseService, LicenseService>();
 
 // Add logging
 builder.Services.AddLogging(logging =>
@@ -108,14 +114,18 @@ catch (Exception ex)
 }
 }
 
+// 1. الجزء المتعدل بتاع الداتا التجريبية (الديمو) - خليناه يشتغل في الـ Development بس
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        // 🎯 استدعاء كود التهيئة اللي عملناه
-        DbInitializer.Seed(context);
+        // 👈 الشرط السحري: الديمو داتا مش هتنزل غير لو أنت شغال تطوير بس
+        if (app.Environment.IsDevelopment())
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            DbInitializer.Seed(context);
+        }
     }
     catch (Exception ex)
     {
@@ -128,9 +138,9 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 var supportedCultures = new[] { "ar-EG", "en-US" };
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(supportedCultures[0])
@@ -141,9 +151,10 @@ app.UseHttpsRedirection();
 app.UseRequestLocalization(localizationOptions);
 
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<LicenseMiddleware>();
 
 app.MapStaticAssets();
 
@@ -152,5 +163,25 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+// 2. كود الفتح التلقائي للبراوزر - هيشتغل فقط لما العميل يفتح الـ .exe (في الـ Production)
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    if (!app.Environment.IsDevelopment()) // 👈 يشتغل في البابلش بس
+    {
+        try
+        {
+            var url = "http://localhost:5000";
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not open browser automatically: {ex.Message}");
+        }
+    }
+});
 
 app.Run();
