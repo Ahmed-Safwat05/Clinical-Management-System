@@ -36,7 +36,7 @@ public static class HardwareFingerprint
         catch (Exception)
         {
             // Fallback في حال حدوث أي مشكلة في الصلاحيات
-            return "FALLBACK-CLINIC-CMS-FINGERPRINT";
+            return Guid.NewGuid().ToString();
         }
     }
 }

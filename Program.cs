@@ -2,6 +2,7 @@ using ClinicManagementSystem.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 🎯 تجميع الـ Logging في مكان واحد وتنظيف التكرار
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
@@ -9,11 +10,13 @@ builder.Logging.AddDebug();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var dbPath = Path.Combine(AppContext.BaseDirectory, "clinic.db");
     options.UseSqlite($"Data Source={dbPath}");
 });
+
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")))
     .SetApplicationName("CharityClinicCms");
@@ -27,6 +30,11 @@ builder.Services
         options.AccessDeniedPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+
+        // 🎯 زيادة أمان الـ Cookie ضد هجمات الـ XSS والـ CSRF
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Strict;
     });
 
 builder.Services.AddAuthorization(options =>
@@ -35,6 +43,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin"));
 });
 
+// 🎯 تسجيل الـ Repositories (بدون تعديل حرف)
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
@@ -51,6 +60,7 @@ builder.Services.AddScoped<IPatientMedicalHistoryRepository, PatientMedicalHisto
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPrescriptionItemRepository, PrescriptionItemRepository>();
 
+// 🎯 تسجيل الـ Services (بدون تعديل حرف)
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IOperationalDataService, OperationalDataService>();
@@ -72,15 +82,6 @@ builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
 builder.Services.AddScoped<IPrescriptionItemService, PrescriptionItemService>();
 builder.Services.AddScoped<ILicenseService, LicenseService>();
 
-// Add logging
-builder.Services.AddLogging(logging =>
-{
-    logging.AddConsole();
-    logging.AddDebug();
-});
-
-
-
 var app = builder.Build();
 
 // Seed database with default users
@@ -89,38 +90,38 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // 1. عمل الـ Migrate أوتوماتيكياً لإنشاء الجداول (لـ SQLite)
-    await dbContext.Database.MigrateAsync();
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-    // 2. تنظيف الـ Audit Logs القديمة (أقدم من 30 يوم)
-    var retentionDate = DateTime.UtcNow.AddDays(-30);
-    var oldLogs = dbContext.AuditLogs.Where(log => log.CreatedAt < retentionDate);
+        // 1. عمل الـ Migrate أوتوماتيكياً لإنشاء الجداول (لـ SQLite)
+        await dbContext.Database.MigrateAsync();
 
-    if (oldLogs.Any())
-    {
-        dbContext.AuditLogs.RemoveRange(oldLogs);
-        await dbContext.SaveChangesAsync();
+        // 2. تنظيف الـ Audit Logs القديمة (تم رفعها لـ 90 يوم لأمان الداتا)
+        var retentionDate = DateTime.UtcNow.AddDays(-90);
+        var oldLogs = dbContext.AuditLogs.Where(log => log.CreatedAt < retentionDate);
 
-        // ضغط ملف الـ SQLite لتقليص المساحة على الهارد
-        await dbContext.Database.ExecuteSqlRawAsync("VACUUM;");
+        if (oldLogs.Any())
+        {
+            dbContext.AuditLogs.RemoveRange(oldLogs);
+            await dbContext.SaveChangesAsync();
+
+            // ضغط ملف الـ SQLite لتقليص المساحة على الهارد
+            await dbContext.Database.ExecuteSqlRawAsync("VACUUM;");
+        }
+        await DatabaseInitializer.SeedUsersAsync(dbContext);
     }
-    await DatabaseInitializer.SeedUsersAsync(dbContext);
-}
-catch (Exception ex)
+    catch (Exception ex)
     {
-    // تسجيل أي خطأ يحدث أثناء بداية التشغيل
-    Console.WriteLine($"An error occurred during startup/migration: {ex.Message}");
-}
+        // استخدام الـ Console المؤقت في الـ Startup
+        Console.WriteLine($"An error occurred during startup/migration: {ex.Message}");
+    }
 }
 
-// 1. الجزء المتعدل بتاع الداتا التجريبية (الديمو) - خليناه يشتغل في الـ Development بس
+// الجزء الخاص بالداتا التجريبية (الديمو) - يعمل في الـ Development فقط
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        // 👈 الشرط السحري: الديمو داتا مش هتنزل غير لو أنت شغال تطوير بس
         if (app.Environment.IsDevelopment())
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
@@ -149,31 +150,33 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseHttpsRedirection();
 app.UseRequestLocalization(localizationOptions);
-
 app.UseRouting();
+
+// 🎯 تقديم الـ LicenseMiddleware قبل الـ Auth لغلق البرنامج فوراً لو الترخيص منتهي
+app.UseMiddleware<LicenseMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<LicenseMiddleware>();
-
 app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// 2. كود الفتح التلقائي للبراوزر - هيشتغل فقط لما العميل يفتح الـ .exe (في الـ Production)
+// كود الفتح التلقائي للبراوزر - معدل ليكون ديناميكي تماماً بناءً على البورت الفعلي للـ Server
 app.Lifetime.ApplicationStarted.Register(() =>
 {
-    if (!app.Environment.IsDevelopment()) // 👈 يشتغل في البابلش بس
+    if (!app.Environment.IsDevelopment()) // يشتغل في البابلش بس
     {
         try
         {
-            var url = "http://localhost:5000";
+            // 🎯 جلب الـ URL الفعلي اللي الـ Kestrel اشتغل عليه (سواء 5000 أو غيره)
+            var serverUrl = app.Urls.FirstOrDefault() ?? "http://localhost:5000";
+
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                FileName = url,
+                FileName = serverUrl,
                 UseShellExecute = true
             });
         }

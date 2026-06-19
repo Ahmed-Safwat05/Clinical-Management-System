@@ -5,12 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>WinExe</OutputType>
-    <ApplicationIcon>5a857b13-0dd7-429a-ab2c-ac79e1a730c8.ico</ApplicationIcon>
+    <ApplicationIcon>wwwroot\Icons\5a857b13-0dd7-429a-ab2c-ac79e1a730c8.ico</ApplicationIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="5a857b13-0dd7-429a-ab2c-ac79e1a730c8.ico" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="8.10.0" />
@@ -21,9 +17,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Utils\" />
   </ItemGroup>
 

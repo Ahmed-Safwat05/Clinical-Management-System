@@ -1,8 +1,6 @@
 ﻿using ClinicManagementSystem.Helpers;
-using System.ComponentModel;
 using System.Runtime.Versioning;
 using System.Text.Json;
-using Microsoft.Win32; // 🎯 مطلوب لتشغيل الـ Registry وحماية الـ Trial
 
 namespace ClinicManagementSystem.Services
 {

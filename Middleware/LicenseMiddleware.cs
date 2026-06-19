@@ -34,7 +34,8 @@ public class LicenseMiddleware
             path.EndsWith(".js") ||
             path.EndsWith(".woff2") ||
             path.EndsWith(".svg") ||
-            path.EndsWith(".png"))
+            path.EndsWith(".png") ||
+            path.EndsWith(".ico"))
         {
             await _next(context);
             return;
