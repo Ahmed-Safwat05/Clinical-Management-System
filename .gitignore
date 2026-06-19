@@ -10,6 +10,10 @@ obj/
 *.suo
 *.log
 *.cache
+*.db
+*.db-shm
+*.db-wal
+Properties/PublishProfiles/
 app.stdout.log
 app.stderr.log
 app.log
