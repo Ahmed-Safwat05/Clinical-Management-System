@@ -1,8 +1,3 @@
-using ClinicManagementSystem.Data;
-using ClinicManagementSystem.Interfaces.Repositories;
-using ClinicManagementSystem.Models;
-using Microsoft.EntityFrameworkCore;
-
 namespace ClinicManagementSystem.Repositories;
 
 public class ProcedureRepository : Repository<Procedure>, IProcedureRepository
@@ -13,6 +8,11 @@ public class ProcedureRepository : Repository<Procedure>, IProcedureRepository
 
     public async Task<IReadOnlyList<Procedure>> GetOrderedAsync()
     {
-        return await Context.Procedures.AsNoTracking().OrderBy(x => x.Name).ToListAsync();
+        // 🎯 تصفية البيانات لعرض الإجراءات النشطة فقط وتجاهل المحذوفة "ناعماً"
+        return await Context.Procedures
+            .AsNoTracking()
+            .Where(x => !x.IsDeleted) // 👈 السطر السحري
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
 }

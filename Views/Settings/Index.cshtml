@@ -7,28 +7,64 @@
     <div>
         <span class="module-kicker">إعدادات النظام</span>
         <h1>الإعدادات</h1>
-        <p>إدارة بيانات العيادة، الأسعار الافتراضية، وبيانات التشغيل.</p>
+        <p>إدارة بيانات العيادة، الأسعار الافتراضية، الهوية التجارية، وبيانات التشغيل.</p>
     </div>
 </div>
 
-@if (TempData["SuccessMessage"] is string message)
+@if (TempData["SuccessMessage"] is string successMessage)
 {
-    <div class="alert alert-success">@message</div>
+    <div class="alert alert-success mb-3">@successMessage</div>
 }
 
-<form asp-action="Index" method="post" class="content-card form-card mb-4">
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger mb-3">@errorMessage</div>
+}
+
+<form asp-action="Index" method="post" enctype="multipart/form-data" class="content-card form-card mb-4">
+    @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
     <div class="form-section">
         <div class="form-section-title">
             <i class="bi bi-hospital"></i>
-            بيانات العيادة
+            الهوية التجارية وبيانات العيادة
         </div>
         <div class="row g-3">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <label asp-for="ClinicName" class="form-label">اسم العيادة</label>
                 <input asp-for="ClinicName" class="form-control" />
                 <span asp-validation-for="ClinicName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ClinicPhone" class="form-label">رقم الهاتف</label>
+                <input asp-for="ClinicPhone" class="form-control" placeholder="مثال: 01xxxxxxxxx" />
+                <span asp-validation-for="ClinicPhone" class="text-danger"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="ClinicAddress" class="form-label">العنوان بالتفصيل</label>
+                <input asp-for="ClinicAddress" class="form-control" placeholder="المحافظة - المدينة - الشارع - الدور" />
+                <span asp-validation-for="ClinicAddress" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="LogoFile" class="form-label">شعار العيادة (Logo)</label>
+                <input asp-for="LogoFile" type="file" class="form-control" accept="image/*" />
+                <span asp-validation-for="LogoFile" class="text-danger"></span>
+                <div class="form-text">يفضل رفع صورة مربعة بخلفية شفافة (PNG).</div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.ClinicLogoPath))
+            {
+                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                    <div class="border rounded p-2 text-center" style="background: #f8f9fa;">
+                        <img src="@Model.ClinicLogoPath" alt="شعار العيادة الحالي" style="max-height: 80px; max-width: 100%; object-fit: contain;" />
+                        <div class="small text-muted mt-1">الشعار الحالي</div>
+                    </div>
+                </div>
+            }
+            <div class="col-md-12">
+                <label asp-for="ReceiptFooter" class="form-label">نص تذييل الروشتة (Receipt Footer)</label>
+                <textarea asp-for="ReceiptFooter" class="form-control" rows="2" maxlength="500" placeholder="جملة تظهر أسفل الروشتة المطبوعة (مثل: تمنياتنا الشفاء العاجل، الإعادة خلال أسبوع)"></textarea>
+                <span asp-validation-for="ReceiptFooter" class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -36,25 +72,23 @@
     <div class="form-section">
         <div class="form-section-title">
             <i class="bi bi-cash-stack"></i>
-            التسعير
+            التسعير والعمليات المادية
         </div>
         <div class="row g-3">
             <div class="col-md-4">
                 <label asp-for="DefaultExamPrice" class="form-label">سعر الكشف الافتراضي</label>
-                <input asp-for="DefaultExamPrice" class="form-control" 
-                value="@(Model.DefaultExamPrice.ToString("0.##"))" />
+                <input asp-for="DefaultExamPrice" class="form-control" value="@(Model.DefaultExamPrice.ToString("0.##"))" />
                 <span asp-validation-for="DefaultExamPrice" class="text-danger"></span>
             </div>
             <div class="col-md-4">
-                <label asp-for="MaxDiscount" class="form-label">أقصى خصم</label>
-                <input asp-for="MaxDiscount" class="form-control" 
-                value="@(Model.MaxDiscount.ToString("0.##"))" />
+                <label asp-for="MaxDiscount" class="form-label">أقصى خصم مسموح به</label>
+                <input asp-for="MaxDiscount" class="form-control" value="@(Model.MaxDiscount.ToString("0.##"))" />
                 <span asp-validation-for="MaxDiscount" class="text-danger"></span>
             </div>
             <div class="col-md-4 d-flex align-items-end">
                 <div class="form-check form-switch mb-2">
                     <input asp-for="AllowDiscount" class="form-check-input" />
-                    <label asp-for="AllowDiscount" class="form-check-label">السماح بالخصم</label>
+                    <label asp-for="AllowDiscount" class="form-check-label">السماح بالخصم </label>
                 </div>
             </div>
         </div>
@@ -63,45 +97,123 @@
     <div class="form-actions">
         <button class="btn btn-primary" type="submit">
             <i class="bi bi-check2-circle"></i>
-            حفظ الإعدادات
+            حفظ  
         </button>
     </div>
 </form>
 
+<div class="content-card mb-4">
+    <div class="section-head d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2>النسخ الاحتياطي واستعادة البيانات</h2>
+            <p>يمكنك إنشاء نسخة احتياطية من قاعدة البيانات الحالية أو استرجاع نسخة سابقة بأمان.</p>
+        </div>
+        <div>
+            <form asp-action="CreateBackup" method="post">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-success" type="submit">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    إنشاء نسخة احتياطية جديدة
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Backups == null || !Model.Backups.Any())
+    {
+        <div class="alert alert-info text-center my-3">
+            <i class="bi bi-info-circle me-2"></i> لا توجد نسخ احتياطية متاحة حالياً على السيرفر المحلي.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>اسم ملف النسخة</th>
+                        <th>تاريخ ووقت الإنشاء</th>
+                        <th>الحجم</th>
+                        <th>الإجراءات المتاحة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var backup in Model.Backups)
+                    {
+                        <tr>
+                            <td class="text-start dir-ltr font-monospace text-secondary">@backup.FileName</td>
+                            <td>@backup.CreatedAt.ToString("yyyy-MM-dd || hh:mm tt")</td>
+                            <td><span class="badge bg-secondary-soft text-secondary">@backup.DisplaySize</span></td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <form asp-action="RestoreBackup" method="post"
+                                          data-confirm="⚠️ تحذير صارم: هل أنت متأكد من استعادة هذه النسخة؟ سيتم استبدال بيانات العيادة الحالية بالكامل!"
+                                          data-success-message="تم استرجاع قاعدة البيانات وتحديث النظام بنجاح">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="fileName" value="@backup.FileName" />
+                                        <button class="btn btn-sm btn-warning text-dark" type="submit">
+                                            <i class="bi bi-arrow-clockwise"></i> استرجاع
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="DeleteBackup" method="post"
+                                          data-confirm="هل أنت متأكد من حذف ملف النسخة الاحتياطية هذه نهائياً من القرص الصلب؟"
+                                          data-success-message="تم حذف ملف النسخة الاحتياطية بنجاح">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="fileName" value="@backup.FileName" />
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            <i class="bi bi-trash3"></i> حذف
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
 <div class="content-card">
     <div class="section-head">
         <div>
-            <h2>إدارة البيانات</h2>
-            <p>عمليات حذف تشغيلية للزيارات والمواعيد فقط.</p>
+            <h2>إدارة البيانات المتقدمة</h2>
+            <p>عمليات صيانة وحذف تشغيلية سريعة للزيارات والمواعيد فقط دون المساس بالإجراءات والأساسيات.</p>
         </div>
     </div>
 
     <div class="row g-3">
         <div class="col-md-4">
             <form asp-action="DeleteAllVisits" method="post" data-confirm="هل تريد حذف كل الزيارات؟" data-success-message="تم حذف كل الزيارات">
+                @Html.AntiForgeryToken()
                 <button class="btn btn-danger-soft w-100" type="submit">
                     <i class="bi bi-trash3"></i>
-                    حذف كل الزيارات
+                    حذف كل الزيارات المسجلة
                 </button>
             </form>
         </div>
         <div class="col-md-4">
             <form asp-action="DeleteAllAppointments" method="post" data-confirm="هل تريد حذف كل المواعيد؟" data-success-message="تم حذف كل المواعيد">
+                @Html.AntiForgeryToken()
                 <button class="btn btn-danger-soft w-100" type="submit">
                     <i class="bi bi-calendar-x"></i>
-                    حذف كل المواعيد
+                    حذف كل المواعيد المجدولة
                 </button>
             </form>
         </div>
         <div class="col-md-4">
-            <form asp-action="ResetOperationalData" method="post" data-confirm="هل تريد تصفير الزيارات والمواعيد؟" data-success-message="تم تصفير بيانات التشغيل">
+            <form asp-action="ResetOperationalData" method="post" data-confirm="هل تريد تصفير الزيارات والمواعيد معاً؟" data-success-message="تم تصفير بيانات التشغيل بالكامل">
+                @Html.AntiForgeryToken()
                 <button class="btn btn-danger-soft w-100" type="submit">
                     <i class="bi bi-arrow-counterclockwise"></i>
-                    تصفير بيانات التشغيل
+                    تصفير بيانات التشغيل بالكامل
                 </button>
             </form>
         </div>
     </div>
 </div>
 
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

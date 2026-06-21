@@ -1,7 +1,3 @@
-using ClinicManagementSystem.Interfaces.Repositories;
-using ClinicManagementSystem.Interfaces.Services;
-using ClinicManagementSystem.Models;
-
 namespace ClinicManagementSystem.Services;
 
 public class ProcedureService : IProcedureService
@@ -31,13 +27,16 @@ public class ProcedureService : IProcedureService
 
     public async Task DeleteAsync(int id)
     {
-        var procedure = await _procedures.GetByIdAsync(id);
-        if (procedure is null)
+        var procedure = await _procedures.GetByIdAsync(id); // أو حسب طريقة جلب الإجراء عندك
+        if (procedure != null)
         {
-            return;
-        }
+            // 🎯 بدل الحذف الفعلي اللي بيضرب القيد، بنعمل علم إنه محذوف
+            // بحيث ما يظهرش للدكتور في قائمة الإجراءات الجديدة، بس يفضل مقروء في الزيارات القديمة
+            procedure.IsDeleted = true;
 
-        _procedures.Delete(procedure);
-        await _procedures.SaveChangesAsync();
+
+            _procedures.Update(procedure);
+            await _procedures.SaveChangesAsync();
+        }
     }
 }
