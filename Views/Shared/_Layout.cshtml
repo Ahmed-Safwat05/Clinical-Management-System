@@ -11,13 +11,16 @@
         string.Equals(action, actName, StringComparison.OrdinalIgnoreCase) ? "active" : "";
 
     string clinicName = "عيادة الخير";
+    string clinicLogoPath = ""; // 🎯 جلب مسار الشعار بأمان
     try
     {
         clinicName = await SettingsService.GetValue(SettingKeys.ClinicName) ?? "عيادة الخير";
+        clinicLogoPath = await SettingsService.GetValue(SettingKeys.ClinicLogoPath) ?? "";
     }
     catch
     {
         clinicName = "عيادة الخير";
+        clinicLogoPath = "";
     }
 
     int lowStockCount = 0;
@@ -75,13 +78,21 @@
     <div class="app-shell" hx-boost="true">
         <aside class="app-sidebar d-flex flex-column justify-content-between">
             <div>
-                <div class="sidebar-brand">
-                    <div class="brand-mark">
-                        <i class="bi bi-hospital"></i>
-                    </div>
-                    <div>
-                        <span>@clinicName</span>
-                        <small>المركز الطبي</small>
+                <div class="sidebar-brand" style="display: flex; align-items: center; gap: 12px; padding: 15px 20px;">
+                    @if (!string.IsNullOrEmpty(clinicLogoPath))
+                    {
+                        <div class="brand-mark" style="background: none; padding: 0;">
+                            <img src="@clinicLogoPath" alt="شعار العيادة" style="max-width: 42px; max-height: 42px; object-fit: contain; border-radius: 6px;" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="brand-mark">
+                            <i class="bi bi-hospital"></i>
+                        </div>
+                    }
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <span class="fw-bold text-truncate" style="max-width: 150px; font-size: 1.05rem; display: block; line-height: 1.2;">@clinicName</span>
                     </div>
                 </div>
 

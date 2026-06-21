@@ -81,6 +81,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
 builder.Services.AddScoped<IPrescriptionItemService, PrescriptionItemService>();
 builder.Services.AddScoped<ILicenseService, LicenseService>();
+builder.Services.AddScoped<IBackupService, BackupService>();
 
 var app = builder.Build();
 
@@ -150,6 +151,7 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseHttpsRedirection();
 app.UseRequestLocalization(localizationOptions);
+app.UseStaticFiles();
 app.UseRouting();
 
 // 🎯 تقديم الـ LicenseMiddleware قبل الـ Auth لغلق البرنامج فوراً لو الترخيص منتهي

@@ -9,6 +9,7 @@ public class Procedure
 
     [Range(0, 999999)]
     public decimal Price { get; set; }
+    public bool IsDeleted { get; set; } 
 
     public ICollection<VisitProcedure> VisitProcedures { get; set; } = new List<VisitProcedure>();
 }
