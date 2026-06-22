@@ -1,7 +1,8 @@
 using ClinicManagementSystem.Middleware;
-
+using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
+QuestPDF.Settings.License = LicenseType.Community;
 // 🎯 تجميع الـ Logging في مكان واحد وتنظيف التكرار
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -43,7 +44,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin"));
 });
 
-// 🎯 تسجيل الـ Repositories (بدون تعديل حرف)
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
@@ -60,7 +60,6 @@ builder.Services.AddScoped<IPatientMedicalHistoryRepository, PatientMedicalHisto
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPrescriptionItemRepository, PrescriptionItemRepository>();
 
-// 🎯 تسجيل الـ Services (بدون تعديل حرف)
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 builder.Services.AddScoped<IOperationalDataService, OperationalDataService>();
@@ -82,7 +81,8 @@ builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
 builder.Services.AddScoped<IPrescriptionItemService, PrescriptionItemService>();
 builder.Services.AddScoped<ILicenseService, LicenseService>();
 builder.Services.AddScoped<IBackupService, BackupService>();
-
+builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
 var app = builder.Build();
 
 // Seed database with default users

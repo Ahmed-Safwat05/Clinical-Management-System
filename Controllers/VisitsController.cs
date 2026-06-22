@@ -1,3 +1,5 @@
+using ClinicManagementSystem.DTOs.Visits;
+
 namespace ClinicManagementSystem.Controllers;
 
 [Authorize]
@@ -14,6 +16,7 @@ public class VisitsController : Controller
     private readonly IPatientHistoryService _patientHistoryService;
     private readonly IPatientMedicalHistoryService _medicalHistoryService;
     private readonly IPrescriptionItemService _prescriptionItemService;
+    private readonly IExcelService _excelService;
 
     public VisitsController(
         IVisitService visitService,
@@ -26,7 +29,8 @@ public class VisitsController : Controller
         IPaymentService paymentService,
         IPatientHistoryService patientHistoryService,
         IPatientMedicalHistoryService medicalHistoryService,
-        IPrescriptionItemService prescriptionItemService)
+        IPrescriptionItemService prescriptionItemService,
+        IExcelService excelService)
     {
         _visitService = visitService;
         _patientService = patientService;
@@ -39,13 +43,35 @@ public class VisitsController : Controller
         _patientHistoryService = patientHistoryService;
         _medicalHistoryService = medicalHistoryService;
         _prescriptionItemService = prescriptionItemService;
+        _excelService = excelService;
     }
 
     public async Task<IActionResult> Index()
     {
         return View(await _visitService.GetRecentAsync());
     }
+    [HttpGet]
+    public async Task<IActionResult> ExportExcel()
+    {
+        var visits = await _visitService.GetRecentAsync();
+        var excelData = visits.Select(v => new VisitExcelDto
+        {
+            رقم_الزيارة = v.Id,
+            المريض = v.Patient?.Name ?? "مجهول",
+            الطبيب = v.Doctor?.Name ?? "مجهول",
+            التاريخ = v.Date.ToString("yyyy-MM-dd HH:mm"),
+            التشخيص = string.IsNullOrWhiteSpace(v.Notes) ? "لم يحدد" : v.Notes,
+            التكلفة = v.TotalPrice.ToString("N2") + " ج.م.",
+            الدفع_المستلم = v.TotalPaid.ToString("N2") + " ج.م.",
+            المتبقي = v.RemainingBalance.ToString("N2") + " ج.م.",
+            حالة_الدفع = v.Paid ? "تم الدفع" : "معلق"
+        }).ToList();
+        var fileBytes = _excelService.ExportExcel(excelData, "سجل الزيارات");
+        string fileName = $"Visits_Report_{DateTime.Now:yyyyMMdd}.xlsx";
 
+        // 4. إرجاع الملف للتحميل فوراً
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+    }
     public async Task<IActionResult> Details(int id)
     {
         var visit = await _visitService.GetDetailsAsync(id);

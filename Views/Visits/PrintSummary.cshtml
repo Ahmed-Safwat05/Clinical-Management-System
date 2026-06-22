@@ -1,8 +1,28 @@
-﻿@model ClinicManagementSystem.Models.Visit 
+﻿@model ClinicManagementSystem.Models.Visit
+@inject ClinicManagementSystem.Interfaces.Services.ISettingsService SettingsService
 @{
-    Layout = null; 
-}
+    Layout = null;
 
+    // جلب بيانات الهوية والبراندنج ديناميكياً بأمان
+    string clinicName = "عيادة الخير";
+    string clinicLogoPath = "";
+    string clinicAddress = "الزقازيق - الشرقية";
+    string clinicPhone = "010xxxxxxxx";
+    string footerInfo = "رعاية طبية متكاملة تفوق التوقعات";
+
+    try
+    {
+        clinicName = await SettingsService.GetValue(SettingKeys.ClinicName) ?? "عيادة الخير";
+        clinicLogoPath = await SettingsService.GetValue(SettingKeys.ClinicLogoPath) ?? "";
+        clinicAddress = await SettingsService.GetValue(SettingKeys.ClinicAddress) ?? "الزقازيق - الشرقية";
+        clinicPhone = await SettingsService.GetValue(SettingKeys.ClinicPhone) ?? "010xxxxxxxx";
+        footerInfo = await SettingsService.GetValue(SettingKeys.ReceiptFooter) ?? "رعاية طبية متكاملة تفوق التوقعات";
+    }
+    catch
+    {
+        // Fallback الافتراضي في حالة حدوث أي مشكلة في السيرفيس
+    }
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,16 +30,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>طباعة روشتة - @Model.Patient?.Name</title>
 
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-            /* ❌ شلنا الـ import الخارجي تماماً عشان نمنع اللاج */
-
             body {
-                /* 🎯 استخدمنا فونتات السيستم السريعة جداً في الرندر */
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                 background-color: #ffffff;
                 color: #000000;
                 padding: 20px;
@@ -34,10 +50,24 @@
                 margin-bottom: 30px;
             }
 
+            .clinic-brand-zone {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .prescription-logo {
+                max-width: 65px;
+                max-height: 65px;
+                object-fit: contain;
+                border-radius: 8px;
+            }
+
             .clinic-title {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
                 font-weight: 700;
                 color: #1a252f;
+                line-height: 1.2;
             }
 
             .patient-info-bar {
@@ -50,7 +80,7 @@
             }
 
             .rx-symbol {
-                font-size: 2.2rem;
+                font-size: 2.5rem;
                 font-weight: 700;
                 color: #1a252f;
                 margin-bottom: 15px;
@@ -87,7 +117,7 @@
                 padding-top: 15px;
                 text-align: center;
                 font-size: 0.85rem;
-                color: #6c757d;
+                color: #495057;
             }
 
             @@media print {
@@ -106,6 +136,7 @@
                     left: 0;
                     right: 0;
                     margin-top: 0;
+                    padding-bottom: 10px;
                 }
 
                 .patient-info-bar {
@@ -125,22 +156,26 @@
 </head>
 <body>
 
-    <!-- زرار طوارئ علوي يظهر فقط على الشاشة ولا يظهر في الطباعة -->
     <div class="text-center mb-4 no-print">
         <button onclick="window.print();" class="btn btn-dark px-4 shadow-sm">
-            <i class="bi bi-printer-fill me-2"></i> إعادة أمر الطباعة
+            <i class="bi bi-printer-fill me-2"></i> طباعة الروشتة
         </button>
         <button onclick="window.close();" class="btn btn-outline-secondary px-3 ms-2">
-            غلق الصفحة
+            إغلاق النافذة
         </button>
     </div>
 
     <div class="container">
-        <!-- 1. ترويسة العيادة (Header) -->
         <div class="prescription-header d-flex justify-content-between align-items-center">
-            <div>
-                <div class="clinic-title">اسم العيادة</div>
-                <div class="text-muted small">رعاية طبية متكاملة تفوق التوقعات</div>
+            <div class="clinic-brand-zone">
+                @if (!string.IsNullOrEmpty(clinicLogoPath))
+                {
+                    <img src="@clinicLogoPath" alt="Logo" class="prescription-logo" />
+                }
+                <div>
+                    <div class="clinic-title">@clinicName</div>
+                    <div class="text-muted small">@footerInfo</div>
+                </div>
             </div>
             <div class="text-end">
                 <h5 class="fw-bold text-dark mb-1">د/ @Model.Doctor?.Name</h5>
@@ -148,7 +183,6 @@
             </div>
         </div>
 
-        <!-- 2. بار بيانات المريض والزيارة -->
         <div class="patient-info-bar">
             <div class="row g-3">
                 <div class="col-6 col-md-4">
@@ -163,7 +197,6 @@
             </div>
         </div>
 
-        <!-- 3. جسم الروشتة (الأدوية الموصوفة) -->
         <div class="rx-symbol">R<sub>x</sub></div>
 
         <table class="prescription-table">
@@ -199,7 +232,6 @@
             </tbody>
         </table>
 
-        <!-- 4. سكشن فرعي اختياري (الإجراءات الطبية اللي تمت لو الطبيب حابب تطبع في نفس الورقة) -->
         @if (Model.VisitProcedures != null && Model.VisitProcedures.Any())
         {
             <div class="mt-4">
@@ -216,18 +248,17 @@
             </div>
         }
 
-        <!-- 5. ترويسة الفوتر (Footer) ثابت أسفل الورقة -->
         <div class="prescription-footer">
             <div class="row">
                 <div class="col-6 text-start">
-                    <i class="bi bi-geo-alt-fill"></i> الزقازيق - الشرقية - برج الأطباء
+                    <i class="bi bi-geo-alt-fill"></i> @clinicAddress
                 </div>
                 <div class="col-6 text-end">
-                    <i class="bi bi-telephone-fill"></i> للاستفسار والدعم: 010xxxxxxxx
+                    <i class="bi bi-telephone-fill"></i> للاستفسار والدعم: @clinicPhone
                 </div>
             </div>
-            <div class="mt-2 text-center text-dark-50 small" style="font-size: 10px;">
-                تمت الطباعة عبر نظام إدارة العيادات 
+            <div class="mt-2 text-center text-muted small" style="font-size: 10px; opacity: 0.6;">
+                تمت الطباعة آلياً عبر نظام أحمد صفوت لإدارة العيادات الطبية
             </div>
         </div>
     </div>
@@ -236,12 +267,8 @@
             document.addEventListener("DOMContentLoaded", function () {
                 setTimeout(function () {
                     window.print();
-                }, 500);
+                }, 700); // زيادة بسيطة لضمان تحميل صورة اللوجو بالكامل قبل بدء الطباعة
             });
-
-            window.onfocus = function () {
-                document.body.style.overflow = 'auto';
-            };
     </script>
 </body>
 </html>

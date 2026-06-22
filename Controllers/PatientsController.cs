@@ -1,3 +1,5 @@
+using ClinicManagementSystem.DTOs.Patients;
+
 namespace ClinicManagementSystem.Controllers;
 
 [Authorize]
@@ -7,17 +9,20 @@ public class PatientsController : Controller
     private readonly IPatientMedicalHistoryService _medicalHistoryService;
     private readonly IPatientHistoryService _patientHistoryService;
     private readonly IAuditService _auditService; 
+    private readonly IExcelService _excelService;
 
     public PatientsController(
         IPatientService patientService,
         IPatientMedicalHistoryService medicalHistoryService,
         IPatientHistoryService patientHistoryService,
-        IAuditService auditService)
+        IAuditService auditService,
+        IExcelService excelService)
     {
         _patientService = patientService;
         _medicalHistoryService = medicalHistoryService;
         _patientHistoryService = patientHistoryService;
         _auditService = auditService;
+        _excelService = excelService;
     }
 
     public async Task<IActionResult> Index(string? searchTerm)
@@ -216,5 +221,28 @@ public class PatientsController : Controller
             TempData["ErrorMessage"] = $"حدث خطأ أثناء حذف المريض: {ex.Message}";
         }
         return RedirectToAction(nameof(Index));
+    }
+    [HttpGet]
+    public async Task<IActionResult> ExportExcel()
+    {
+        // 1. جلب المرضى الفعالين فقط (غير المحذوفين)
+        var patients = await _patientService.SearchAsync(null); // جلب كل المرضى
+
+        // 2. تحويل البيانات للـ DTO العربي
+        var excelData = patients.Select(p => new PatientExcelDto
+        {
+            الكود = p.Id,
+            الاسم = p.Name,
+            الهاتف = p.Phone ?? "-",
+            الجنس = p.Gender.ToString(),
+            العمر = p.Age,
+        }).ToList();
+
+        // 3. توليد الملف
+        var fileBytes = _excelService.ExportExcel(excelData, "قائمة المرضى");
+        string fileName = $"Patients_Report_{DateTime.Now:yyyyMMdd}.xlsx";
+
+        // 4. إرجاع الملف للتحميل فوراً
+        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 }
