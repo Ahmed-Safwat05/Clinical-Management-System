@@ -1,0 +1,210 @@
+﻿@inject ClinicManagementSystem.Interfaces.Services.ISettingsService SettingsService
+@{
+    // الإعدادات الافتراضية للـ Fallback
+    string clinicName = "عيادة الخير";
+    string clinicLogoPath = "";
+    string clinicAddress = "الزقازيق - الشرقية";
+    string clinicPhone = "010xxxxxxxx";
+    string footerInfo = "رعاية طبية متكاملة تفوق التوقعات";
+
+    try
+    {
+        clinicName = await SettingsService.GetValue(SettingKeys.ClinicName) ?? "عيادة الخير";
+        clinicLogoPath = await SettingsService.GetValue(SettingKeys.ClinicLogoPath) ?? "";
+        clinicAddress = await SettingsService.GetValue(SettingKeys.ClinicAddress) ?? "الزقازيق - الشرقية";
+        clinicPhone = await SettingsService.GetValue(SettingKeys.ClinicPhone) ?? "010xxxxxxxx";
+        footerInfo = await SettingsService.GetValue(SettingKeys.ReceiptFooter) ?? "رعاية طبية متكاملة تفوق التوقعات";
+    }
+    catch { /* Fallback */ }
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                background-color: #ffffff;
+                color: #000000;
+                padding: 20px;
+                overflow: auto !important;
+                height: auto !important;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* الهيدر الاحترافي الموحد للبراندنج */
+            .print-header {
+                border-bottom: 3px double #1a252f;
+                padding-bottom: 15px;
+                margin-bottom: 25px;
+            }
+
+            .clinic-brand-zone {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .print-logo {
+                max-width: 75px;
+                max-height: 75px;
+                object-fit: contain;
+                border-radius: 8px;
+            }
+
+            .clinic-title {
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: #1a252f;
+                line-height: 1.2;
+            }
+
+            /* بار البيانات الأساسية الموحد */
+            .info-bar {
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 25px;
+                font-size: 0.95rem;
+            }
+
+            /* جداول الطباعة الاحترافية */
+            .print-table {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+
+                .print-table th {
+                    background-color: #1a252f !important;
+                    color: #ffffff !important;
+                    font-weight: 600;
+                    border: 1px solid #1a252f;
+                    padding: 10px;
+                }
+
+                .print-table td {
+                    padding: 12px 10px;
+                    border-bottom: 1px solid #dee2e6;
+                    font-size: 1rem;
+                }
+
+            /* الفوتر الموحد */
+            .print-footer {
+                margin-top: 50px;
+                border-top: 1px solid #dee2e6;
+                padding-top: 15px;
+                text-align: center;
+                font-size: 0.85rem;
+                color: #495057;
+            }
+
+            @@media print {
+                body {
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .no-print {
+                    display: none !important;
+                }
+
+                .print-footer {
+                    margin-top: 40px;
+                }
+
+                .info-bar {
+                    background-color: #f8f9fa !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+
+                .print-table th {
+                    background-color: #1a252f !important;
+                    color: #ffffff !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+
+            .rx-symbol {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #1a252f;
+                margin-bottom: 15px;
+                font-style: italic;
+            }
+
+            /* ستايل اسم الدواء الموحد داخل جداول الروشتات */
+            .med-name {
+                font-weight: 700;
+                font-size: 1.1rem;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- أزرار التحكم العلوية (تختفي أثناء الطباعة) -->
+    <div class="text-center mb-4 no-print">
+        <button onclick="window.print();" class="btn btn-dark px-4 shadow-sm">
+            <i class="bi bi-printer-fill me-2"></i> طباعة الآن
+        </button>
+        <button onclick="window.close();" class="btn btn-outline-secondary px-3 ms-2">
+            إغلاق النافذة
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- 🏢 الهيدر الموحد باللوجو والبيانات الديناميكية -->
+        <header class="print-header d-flex justify-content-between align-items-center">
+            <div class="clinic-brand-zone">
+                @if (!string.IsNullOrEmpty(clinicLogoPath))
+                {
+                    <img src="@clinicLogoPath" alt="Logo" class="print-logo" />
+                }
+                <div>
+                    <div class="clinic-title">@clinicName</div>
+                    <div class="text-muted small">@footerInfo</div>
+                </div>
+            </div>
+            <div class="text-end">
+                @RenderSection("HeaderLeft", required: false)
+            </div>
+        </header>
+
+        <!-- 📄 محتوى التقرير المتغير -->
+        <main>
+            @RenderBody()
+        </main>
+
+        <!-- 📜 الفوتر الموحد الثابت أسفل الورقة -->
+        <footer class="print-footer">
+            <div class="row">
+                <div class="col-6 text-start">
+                    <i class="bi bi-geo-alt-fill"></i> @clinicAddress
+                </div>
+                <div class="col-6 text-end">
+                    <i class="bi bi-telephone-fill"></i> للاستفسار والدعم: @clinicPhone
+                </div>
+            </div>
+            <div class="mt-2 text-center text-muted small" style="font-size: 10px; opacity: 0.6;">
+                تمت الطباعة آلياً عبر نظام أحمد صفوت لإدارة العيادات الطبية
+            </div>
+        </footer>
+    </div>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                setTimeout(function () {
+                    window.print();
+                }, 700);
+            });
+    </script>
+</body>
+</html>

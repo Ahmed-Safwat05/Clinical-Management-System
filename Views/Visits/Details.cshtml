@@ -482,41 +482,41 @@
 <!-- Modal إضافة دواء -->
 <div class="modal fade" id="addMedicationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <div class="modal-header border-bottom">
-                <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle text-primary me-2"></i> إضافة دواء للروشتة</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content" style="border-radius: 12px; background-color: #1a2431; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10">
+                <h5 class="modal-title fw-bold text-white"><i class="bi bi-plus-circle text-primary me-2"></i> إضافة دواء للروشتة</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="addMedicationForm">
                 <input type="hidden" name="VisitId" value="@visit.Id" />
 
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">اسم الدواء</label>
-                        <input type="text" name="MedicationName" class="form-control bg-light" placeholder="مثال: Paracetamol 500mg" required />
+                        <label class="form-label text-muted small fw-bold">اسم الدواء</label>
+                        <input type="text" name="MedicationName" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" placeholder="مثال: Paracetamol 500mg" required />
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-secondary small fw-bold">الجرعة</label>
-                            <input type="text" name="Dosage" class="form-control bg-light" placeholder="مثال: قرص" required />
+                            <label class="form-label text-muted small fw-bold">الجرعة</label>
+                            <input type="text" name="Dosage" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" placeholder="مثال: قرص" required />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-secondary small fw-bold">التكرار</label>
-                            <input type="text" name="Frequency" class="form-control bg-light" placeholder="مثال: كل 8 ساعات" required />
+                            <label class="form-label text-muted small fw-bold">التكرار</label>
+                            <input type="text" name="Frequency" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" placeholder="مثال: كل 8 ساعات" required />
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">المدة</label>
-                        <input type="text" name="Duration" class="form-control bg-light" placeholder="مثال: لمدة 5 أيام" required />
+                        <label class="form-label text-muted small fw-bold">المدة</label>
+                        <input type="text" name="Duration" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" placeholder="مثال: لمدة 5 أيام" required />
                     </div>
                     <div class="mb-0">
-                        <label class="form-label text-secondary small fw-bold">ملاحظات إضافية</label>
-                        <textarea name="Notes" class="form-control bg-light" rows="2" placeholder="أي تعليمات إضافية (اختياري)..."></textarea>
+                        <label class="form-label text-muted small fw-bold">ملاحظات إضافية</label>
+                        <textarea name="Notes" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" rows="2" placeholder="أي تعليمات إضافية (اختياري)..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-top bg-light" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary px-4">حفظ الدواء</button>
+                <div class="modal-footer border-top border-secondary border-opacity-10" style="background-color: #151e2a; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <button type="button" class="btn btn-outline-secondary text-light border-secondary border-opacity-50" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">حفظ الدواء</button>
                 </div>
             </form>
         </div>
@@ -526,10 +526,10 @@
 <!-- Modal تعديل دواء -->
 <div class="modal fade" id="editMedicationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <div class="modal-header border-bottom">
-                <h5 class="modal-title fw-bold"><i class="bi bi-pencil text-warning me-2"></i> تعديل بيانات الدواء</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content" style="border-radius: 12px; background-color: #1a2431; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10">
+                <h5 class="modal-title fw-bold text-white"><i class="bi bi-pencil text-warning me-2"></i> تعديل بيانات الدواء</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="editMedicationForm">
                 <input type="hidden" name="Id" id="editMedId" />
@@ -537,31 +537,31 @@
 
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">اسم الدواء</label>
-                        <input type="text" name="MedicationName" id="editMedName" class="form-control bg-light" required />
+                        <label class="form-label text-muted small fw-bold">اسم الدواء</label>
+                        <input type="text" name="MedicationName" id="editMedName" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" required />
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-secondary small fw-bold">الجرعة</label>
-                            <input type="text" name="Dosage" id="editMedDosage" class="form-control bg-light" required />
+                            <label class="form-label text-muted small fw-bold">الجرعة</label>
+                            <input type="text" name="Dosage" id="editMedDosage" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" required />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-secondary small fw-bold">التكرار</label>
-                            <input type="text" name="Frequency" id="editMedFrequency" class="form-control bg-light" required />
+                            <label class="form-label text-muted small fw-bold">التكرار</label>
+                            <input type="text" name="Frequency" id="editMedFrequency" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" required />
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">المدة</label>
-                        <input type="text" name="Duration" id="editMedDuration" class="form-control bg-light" required />
+                        <label class="form-label text-muted small fw-bold">المدة</label>
+                        <input type="text" name="Duration" id="editMedDuration" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" required />
                     </div>
                     <div class="mb-0">
-                        <label class="form-label text-secondary small fw-bold">ملاحظات إضافية</label>
-                        <textarea name="Notes" id="editMedNotes" class="form-control bg-light" rows="2"></textarea>
+                        <label class="form-label text-muted small fw-bold">ملاحظات إضافية</label>
+                        <textarea name="Notes" id="editMedNotes" class="form-control" style="background-color: #111a24; color: #ffffff; border: 1px solid #2d3748;" rows="2"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-top bg-light" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-warning px-4">تعديل الدواء</button>
+                <div class="modal-footer border-top border-secondary border-opacity-10" style="background-color: #151e2a; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <button type="button" class="btn btn-outline-secondary text-light border-secondary border-opacity-50" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-warning px-4 fw-bold text-dark">تعديل الدواء</button>
                 </div>
             </form>
         </div>
@@ -572,7 +572,7 @@
     <script>
         $(document).ready(function () {
 
-            // 1. إضافة دواء جديد للروشتة
+            // 1. إضافة دواء جديد للروشتة عبر Ajax
             $('#addMedicationForm').on('submit', function (e) {
                 e.preventDefault();
 
@@ -595,14 +595,15 @@
 
                             var notes = response.data.notes ? response.data.notes : '-';
 
+                            // هنا طبقنا كلاسات الدارك مود الموحدة (.med-name) المعتمدة في اللياوت وتلوين الـ Badge والـ Text
                             var newRow = `<tr id="med-row-${response.data.id}">
-                                <td class="fw-bold medication-name">${response.data.medicationName}</td>
-                                <td><span class="badge bg-light text-dark border medication-dosage">${response.data.dosage}</span></td>
-                                <td class="medication-frequency">${response.data.frequency}</td>
-                                <td class="medication-duration">${response.data.duration}</td>
-                                <td class="medication-notes">${notes}</td>
+                                <td class="med-name medication-name text-white">${response.data.medicationName}</td>
+                                <td><span class="badge bg-secondary-subtle text-light border border-secondary border-opacity-25 medication-dosage">${response.data.dosage}</span></td>
+                                <td class="medication-frequency text-white-50">${response.data.frequency}</td>
+                                <td class="medication-duration text-white-50">${response.data.duration}</td>
+                                <td class="medication-notes text-muted small">${notes}</td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-warning edit-med-btn"
+                                    <button type="button" class="btn btn-sm btn-outline-warning edit-med-btn me-1"
                                             data-id="${response.data.id}" data-name="${response.data.medicationName}" data-dosage="${response.data.dosage}"
                                             data-frequency="${response.data.frequency}" data-duration="${response.data.duration}" data-notes="${notes}">
                                         <i class="bi bi-pencil"></i>
@@ -640,11 +641,15 @@
                 $('#editMedicationModal').modal('show');
             });
 
-            // 3. حفظ تعديل الدواء عبر الـ Ajax بدون ريفريش
+            // 3. حفظ تعديل الدواء عبر الـ Ajax وتحديث السطر فوراً
             $('#editMedicationForm').on('submit', function (e) {
                 e.preventDefault();
                 var form = $(this);
                 var formData = form.serialize();
+                var submitBtn = form.find('button[type="submit"]');
+                var originalText = submitBtn.html();
+
+                submitBtn.html('<span class="spinner-border spinner-border-sm"></span> جاري الحفظ...').prop('disabled', true);
 
                 $.ajax({
                     url: '/Visits/UpdatePrescriptionItem',
@@ -673,11 +678,14 @@
                     },
                     error: function () {
                         alert('حدث خطأ في الاتصال بالسيرفر أثناء التعديل.');
+                    },
+                    complete: function () {
+                        submitBtn.html(originalText).prop('disabled', false);
                     }
                 });
             });
 
-            // 4. حذف دواء من الروشتة (Soft Delete) فوري
+            // 4. حذف دواء من الروشتة (Soft Delete) فوري مع تحديث الـ Row الفارغ بستايل داكن
             $(document).on('click', '.delete-med-btn', function () {
                 var btn = $(this);
                 var medId = btn.data('id');
@@ -695,8 +703,8 @@
                                     if ($('#prescriptionTable tbody tr').length === 0) {
                                         $('#prescriptionTable tbody').append(`
                                             <tr id="emptyPrescriptionRow">
-                                                <td colspan="6" class="text-center text-muted py-4">
-                                                    <i class="bi bi-inbox fs-4 d-block mb-2 text-secondary"></i>
+                                                <td colspan="6" class="text-center text-muted py-4" style="background-color: transparent;">
+                                                    <i class="bi bi-inbox fs-4 d-block mb-2 text-secondary text-opacity-50"></i>
                                                     لا توجد أدوية مضافة لهذه الزيارة حتى الآن.
                                                 </td>
                                             </tr>
