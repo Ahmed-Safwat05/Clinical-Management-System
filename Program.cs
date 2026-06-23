@@ -108,7 +108,6 @@ using (var scope = app.Services.CreateScope())
             // ضغط ملف الـ SQLite لتقليص المساحة على الهارد
             await dbContext.Database.ExecuteSqlRawAsync("VACUUM;");
         }
-        await DatabaseInitializer.SeedUsersAsync(dbContext);
     }
     catch (Exception ex)
     {
@@ -116,6 +115,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"An error occurred during startup/migration: {ex.Message}");
     }
 }
+
 
 // الجزء الخاص بالداتا التجريبية (الديمو) - يعمل في الـ Development فقط
 using (var scope = app.Services.CreateScope())
@@ -151,10 +151,11 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseHttpsRedirection();
 app.UseRequestLocalization(localizationOptions);
+
 app.UseStaticFiles();
 app.UseRouting();
 
-// 🎯 تقديم الـ LicenseMiddleware قبل الـ Auth لغلق البرنامج فوراً لو الترخيص منتهي
+app.UseMiddleware<SetupMiddleware>();
 app.UseMiddleware<LicenseMiddleware>();
 
 app.UseAuthentication();

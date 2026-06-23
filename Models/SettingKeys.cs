@@ -10,4 +10,6 @@ public static class SettingKeys
     public const string MaxDiscount = "MaxDiscount";
     public const string AllowDiscount = "AllowDiscount";
     public const string ReceiptFooter = "ReceiptFooter";
+    public const string ClinicTagLine = "ClinicTagLine";
+    public const string SetupCompleted = "SetupCompleted";
 }

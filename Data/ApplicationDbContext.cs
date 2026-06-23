@@ -260,9 +260,11 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Setting>().HasData(
-            new Setting { Id = 1, Key = "ClinicName", Value = "عيادة الخير" },
-            new Setting { Id = 2, Key = "DefaultExamPrice", Value = "100" },
-            new Setting { Id = 3, Key = "MaxDiscount", Value = "50" },
-            new Setting { Id = 4, Key = "AllowDiscount", Value = "true" });
+            new Setting
+            {
+                Id = 1,
+                Key = "SetupCompleted",
+                Value = "false"
+            });
     }
 }

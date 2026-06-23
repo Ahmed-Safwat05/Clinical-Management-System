@@ -1,0 +1,461 @@
+﻿@model ClinicManagementSystem.Models.ViewModels.SetupViewModel
+@{
+    Layout = null; // مش عاوزين الـ Layout الرئيسي عشان دي شاشة منفصلة تماماً لأول تشغيل
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=device-width, initial-scale=1.0" />
+    <title>إعداد النظام لأول مرة | Clinic Management System</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+            /* 🎨 التعريفات الافتراضية - Light Mode */
+            :root {
+                --bg-body: #f8fafc;
+                --bg-card: #ffffff;
+                --border-color: #e2e8f0;
+                --text-main: #0f172a;
+                --text-muted: #64748b;
+                --bg-input: #ffffff;
+                --text-input: #0f172a;
+                --border-input: #cbd5e1;
+                --progress-bg: #e2e8f0;
+                --sweet-alert-bg: #ffffff;
+                --sweet-alert-text: #0f172a;
+            }
+
+            /* 🌙 التعديلات التلقائية - Dark Mode */
+            @@media (prefers-color-scheme: dark) {
+                :root {
+                    --bg-body: #0b0f19;
+                    --bg-card: #111827;
+                    --border-color: #1f2937;
+                    --text-main: #f3f4f6;
+                    --text-muted: #9ca3af;
+                    --bg-input: #1f2937;
+                    --text-input: #f3f4f6;
+                    --border-input: #374151;
+                    --progress-bg: #1f2937;
+                    --sweet-alert-bg: #1f2937;
+                    --sweet-alert-text: #ffffff;
+                }
+            }
+
+            body {
+                font-family: 'Cairo', sans-serif;
+                background-color: var(--bg-body);
+                color: var(--text-main);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background-color 0.3s ease, color 0.3s ease;
+                padding: 15px;
+            }
+
+            .wizard-card {
+                background-color: var(--bg-card);
+                border: 1px solid var(--border-color);
+                border-radius: 16px;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                overflow: hidden;
+                max-width: 750px;
+                width: 100%;
+                transition: background-color 0.3s ease, border-color 0.3s ease;
+            }
+
+            @@media (prefers-color-scheme: dark) {
+                .wizard-card {
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+                }
+            }
+
+            .progress {
+                background-color: var(--progress-bg);
+                height: 6px;
+                border-radius: 0;
+            }
+
+            .progress-bar {
+                background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+                transition: width 0.4s ease;
+            }
+
+            .wizard-step {
+                display: none;
+                padding: 40px;
+            }
+
+                .wizard-step.active {
+                    display: block;
+                    animation: fadeIn 0.5s ease-in-out;
+                }
+
+            /* تنسيق النصوص والـ Labels لضمان وضوحها التام */
+            .form-label.text-muted {
+                color: var(--text-muted) !important;
+                font-weight: 600;
+            }
+
+            .text-muted {
+                color: var(--text-muted) !important;
+            }
+
+            .form-control, .form-select {
+                background-color: var(--bg-input);
+                border: 1px solid var(--border-input);
+                color: var(--text-input);
+                border-radius: 8px;
+                padding: 10px 14px;
+                transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+            }
+
+                .form-control:focus, .form-select:focus {
+                    background-color: var(--bg-input);
+                    border-color: #3b82f6;
+                    color: var(--text-input);
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+                }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                border: none;
+                padding: 10px 24px;
+                border-radius: 8px;
+                font-weight: 600;
+                color: #ffffff !important;
+            }
+
+                .btn-primary:hover {
+                    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                }
+
+            .btn-secondary {
+                background-color: var(--border-input);
+                border: none;
+                color: var(--text-main);
+                padding: 10px 24px;
+                border-radius: 8px;
+                font-weight: 600;
+            }
+
+                .btn-secondary:hover {
+                    background-color: var(--text-muted);
+                    color: #ffffff;
+                }
+
+            .step-icon {
+                font-size: 3.5rem;
+                background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 20px;
+            }
+
+            .image-preview {
+                width: 100px;
+                height: 100px;
+                border: 2px dashed var(--text-muted);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                margin: 10px auto;
+                background-color: var(--bg-input);
+            }
+
+                .image-preview img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+            .form-check-input:checked {
+                background-color: #3b82f6;
+                border-color: #3b82f6;
+            }
+
+            @@keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+    </style>
+</head>
+<body>
+
+    <div class="wizard-card">
+        <div class="progress">
+            <div id="setupProgressBar" class="progress-bar" role="progressbar" style="width: 20%"></div>
+        </div>
+
+        <form id="wizardForm" enctype="multipart/form-data">
+
+            <div class="wizard-step active" data-step="1">
+                <div class="text-center">
+                    <div class="step-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h2 class="fw-bold mb-3">مرحباً بك في Clinic Management System</h2>
+                    <p class="text-muted fs-5 mb-5">يبدو أن هذه هي المرة الأولى التي يتم فيها تشغيل النظام على هذا الجهاز. لنستغرق دقيقة واحدة لإعداد عيادتك وتجهيز كل شيء للعمل الفعلي.</p>
+                    <button type="button" class="btn btn-primary btn-lg px-5 next-step">ابدأ الإعداد <i class="fa-solid fa-arrow-left ms-2"></i></button>
+                </div>
+            </div>
+
+            <div class="wizard-step" data-step="2">
+                <h4 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-clinic-medical mb-1 me-2"></i> خطوة 1: بيانات العيادة والبراندينج</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">اسم العيادة <span class="text-danger">*</span></label>
+                        <input asp-for="ClinicName" class="form-control" placeholder="مثال: مركز الشفاء الطبي" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">رقم الهاتف <span class="text-danger">*</span></label>
+                        <input asp-for="ClinicPhone" class="form-control" placeholder="مثال: 01111111111" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">العنوان بالكامل <span class="text-danger">*</span></label>
+                        <input asp-for="ClinicAddress" class="form-control" placeholder="مثال: الزقازيق - القومية - برج الصفا" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">الجملة التعريفية (تظهر في الروشتة فوق) <span class="text-danger">*</span></label>
+                        <input asp-for="ClinicTagLine" class="form-control" placeholder="مثال: وإذا مرضت فهو يشفين أو رعاية طبية متكاملة" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">معلومات الفوتر (تظهر أسفل الفواتير والتقارير) <span class="text-danger">*</span></label>
+                        <input asp-for="ReceiptFooter" class="form-control" placeholder="مثال: نسأل الله لكم الشفاء العاجل - يرجى الالتزام بمواعيد الإعادة" required />
+                    </div>
+                    <div class="col-12 text-center mt-4">
+                        <label class="form-label d-block text-muted text-start">شعار العيادة (Logo)</label>
+                        <div class="image-preview" id="logoPreview">
+                            <i class="fa-solid fa-image text-muted fs-3"></i>
+                        </div>
+                        <input type="file" id="logoInput" name="clinicLogo" class="d-none" accept="image/*" />
+                        <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="$('#logoInput').click();"><i class="fa-solid fa-upload me-1"></i> رفع لوجو</button>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-5">
+                    <button type="button" class="btn btn-secondary prev-step"><i class="fa-solid fa-arrow-right me-2"></i> السابق</button>
+                    <button type="button" class="btn btn-primary next-step">التالي <i class="fa-solid fa-arrow-left ms-2"></i></button>
+                </div>
+            </div>
+
+            <div class="wizard-step" data-step="3">
+                <h4 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-user-shield mb-1 me-2"></i> خطوة 2: إعداد حساب المدير الـ Admin</h4>
+                <p class="text-muted small mb-4">قم بإنشاء حساب المدير الرئيسي للسيستم، هذا الحساب يمتلك كافة الصلاحيات لإدارة العيادة والحسابات والتقارير.</p>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label text-muted">اسم المدير بالكامل <span class="text-danger">*</span></label>
+                        <input asp-for="AdminDisplayName" class="form-control" placeholder="مثال: Dr. Ahmed Safwat" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">اسم المستخدم (Username بالإنجليزية) <span class="text-danger">*</span></label>
+                        <input asp-for="AdminUsername" class="form-control" placeholder="مثال: admin" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">كلمة المرور <span class="text-danger">*</span></label>
+                        <input type="password" asp-for="AdminPassword" id="txtPassword" class="form-control" placeholder="••••••••" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">تأكيد كلمة المرور <span class="text-danger">*</span></label>
+                        <input type="password" id="txtConfirmPassword" class="form-control" placeholder="••••••••" required />
+                        <span id="passwordError" class="text-danger small d-none fw-bold">كلمات المرور غير متطابقة!</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-5">
+                    <button type="button" class="btn btn-secondary prev-step"><i class="fa-solid fa-arrow-right me-2"></i> السابق</button>
+                    <button type="button" class="btn btn-primary next-step">التالي <i class="fa-solid fa-arrow-left ms-2"></i></button>
+                </div>
+            </div>
+
+            <div class="wizard-step" data-step="4">
+                <h4 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-wallet mb-1 me-2"></i> خطوة 3: الإعدادات والسياسات المالية</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">سعر الكشف الافتراضي (جنية) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" asp-for="DefaultExamPrice" class="form-control" value="0.00" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">أقصى قيمة خصم مسموح بها (جنية) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" asp-for="MaxDiscount" class="form-control" value="0.00" required />
+                    </div>
+                    <div class="col-12 mt-4">
+                        <div class="form-check form-switch p-0 ps-5 d-flex align-items-center justify-content-between">
+                            <label class="form-check-label text-muted fs-6" for="AllowDiscount">السماح بعمل خصومات على الزيارات والكشوفات؟</label>
+                            <input class="form-check-input fs-4" type="checkbox" role="switch" asp-for="AllowDiscount" checked>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-5">
+                    <button type="button" class="btn btn-secondary prev-step"><i class="fa-solid fa-arrow-right me-2"></i> السابق</button>
+                    <button type="button" id="btnSubmitWizard" class="btn btn-success px-4 text-white fw-bold"><i class="fa-solid fa-check-double me-1"></i> إنهاء الإعداد وتجهيز السيستم</button>
+                </div>
+            </div>
+
+            <div class="wizard-step" data-step="5">
+                <div class="text-center py-4">
+                    <div class="step-icon text-success"><i class="fa-solid fa-circle-check text-success" style="-webkit-text-fill-color: initial;"></i></div>
+                    <h3 class="fw-bold text-success mb-3">تم إعداد النظام بنجاح!</h3>
+                    <p class="text-muted fs-6">تم تهيئة قاعدة البيانات بالكامل، حفظ إعدادات البراند والعيادة، وإنشاء حساب المدير الأعلى بنجاح. سيتم الآن تسجيل دخولك تلقائياً وتوجيهك إلى الـ Dashboard.</p>
+                    <div class="spinner-border text-primary mt-4" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-primary small mt-2">جاري تحويلك الآن، برجاء الانتظار ثوانٍ معدودة...</p>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@@11"></script>
+
+    <script>
+        $(document).ready(function () {
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        // دالة للحصول على المتغيرات الحالية لـ SweetAlert2 لتتوافق مع وضع الجهاز
+        function getSweetAlertTheme() {
+        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return {
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#ffffff' : '#0f172a'
+        };
+        }
+
+        function updateProgressBar() {
+        let percentage = (currentStep / totalSteps) * 100;
+        $("#setupProgressBar").css("width", percentage + "%");
+        }
+
+        $("#logoInput").change(function () {
+        const file = this.files[0];
+        if (file) {
+        let reader = new FileReader();
+        reader.onload = function (e) {
+        $("#logoPreview").html(`<img src="${e.target.result}" alt="Logo Preview" />`);
+        }
+        reader.readAsDataURL(file);
+        }
+        });
+
+        $(".next-step").click(function () {
+        let currentTab = $(`.wizard-step[data-step="${currentStep}"]`);
+        let inputs = currentTab.find("input[required]");
+        let isValid = true;
+
+        inputs.each(function () {
+        if (!this.value.trim()) {
+        $(this).addClass("is-invalid");
+        isValid = false;
+        } else {
+        $(this).removeClass("is-invalid");
+        }
+        });
+
+        if (currentStep === 3) {
+        let pass = $("#txtPassword").val();
+        let confirmPass = $("#txtConfirmPassword").val();
+        if (pass !== confirmPass) {
+        $("#txtConfirmPassword").addClass("is-invalid");
+        $("#passwordError").removeClass("d-none");
+        isValid = false;
+        } else {
+        $("#passwordError").addClass("d-none");
+        }
+        }
+
+        if (!isValid) {
+        const theme = getSweetAlertTheme();
+        Swal.fire({
+        icon: 'error',
+        title: 'تنبيه',
+        text: 'يرجى ملء كافة الحقول المطلوبة الملحقة بعلامة (*)',
+        confirmButtonColor: '#3b82f6',
+        background: theme.background,
+        color: theme.color
+        });
+        return;
+        }
+
+        currentTab.removeClass("active");
+        currentStep++;
+        $(`.wizard-step[data-step="${currentStep}"]`).addClass("active");
+        updateProgressBar();
+        });
+
+        $(".prev-step").click(function () {
+        $(`.wizard-step[data-step="${currentStep}"]`).removeClass("active");
+        currentStep--;
+        $(`.wizard-step[data-step="${currentStep}"]`).addClass("active");
+        updateProgressBar();
+        });
+
+        $("#btnSubmitWizard").click(function () {
+        let currentTab = $(`.wizard-step[data-step="4"]`);
+        let inputs = currentTab.find("input[required]");
+        let isValid = true;
+
+        inputs.each(function () {
+        if (!this.value.trim()) {
+        $(this).addClass("is-invalid");
+        isValid = false;
+        }
+        });
+
+        if (!isValid) return;
+
+        var form = $('#wizardForm')[0];
+        var formData = new FormData(form);
+        formData.set("AllowDiscount", $("#AllowDiscount").is(":checked"));
+
+        let btn = $(this);
+        btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-2"></span> جاري تهيئة النظام...');
+
+        $.ajax({
+        url: '/Setup/CompleteSetup',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+        const theme = getSweetAlertTheme();
+        if (response.success) {
+        $(`.wizard-step[data-step="4"]`).removeClass("active");
+        currentStep = 5;
+        $(`.wizard-step[data-step="5"]`).addClass("active");
+        updateProgressBar();
+
+        setTimeout(function () {
+        window.location.href = response.redirectUrl;
+        }, 3500);
+        } else {
+        btn.prop("disabled", false).html('<i class="fa-solid fa-check-double me-1"></i> إنهاء الإعداد وتجهيز السيستم');
+        Swal.fire({ icon: 'error', title: 'فشل الحفظ', text: response.message, background: theme.background, color: theme.color });
+        }
+        },
+        error: function () {
+        const theme = getSweetAlertTheme();
+        btn.prop("disabled", false).html('<i class="fa-solid fa-check-double me-1"></i> إنهاء الإعداد وتجهيز السيستم');
+        Swal.fire({ icon: 'error', title: 'خطأ', text: 'حدث خطأ في الاتصال بالسيرفر أثناء معالجة البيانات.', background: theme.background, color: theme.color });
+        }
+        });
+        });
+        });
+    </script>
+</body>
+</html>

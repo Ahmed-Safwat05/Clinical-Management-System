@@ -1,7 +1,3 @@
-using System.Security.Claims;
-using ClinicManagementSystem.Interfaces.Repositories;
-using ClinicManagementSystem.Interfaces.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
 namespace ClinicManagementSystem.Services;

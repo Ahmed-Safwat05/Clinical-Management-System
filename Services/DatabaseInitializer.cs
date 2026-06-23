@@ -9,40 +9,40 @@ public static class DatabaseInitializer
         var passwordHasher = new PasswordHasher<AppUser>();
 
         // Admin
-        if (!await context.AppUsers.AnyAsync(x => x.Username == "admin"))
-        {
-            var adminUser = new AppUser
-            {
-                Username = "admin",
-                DisplayName = "Administrator",
-                Role = UserRole.Admin,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
+        //if (!await context.AppUsers.AnyAsync(x => x.Username == "admin"))
+        //{
+        //    var adminUser = new AppUser
+        //    {
+        //        Username = "admin",
+        //        DisplayName = "Administrator",
+        //        Role = UserRole.Admin,
+        //        IsActive = true,
+        //        CreatedAt = DateTime.UtcNow
+        //    };
 
-            adminUser.PasswordHash =
-                passwordHasher.HashPassword(adminUser, "admin1");
+        //    adminUser.PasswordHash =
+        //        passwordHasher.HashPassword(adminUser, "admin1");
 
-            context.AppUsers.Add(adminUser);
-        }
+        //    context.AppUsers.Add(adminUser);
+        //}
 
-        // Reception
-        if (!await context.AppUsers.AnyAsync(x => x.Username == "reception"))
-        {
-            var receptionUser = new AppUser
-            {
-                Username = "reception",
-                DisplayName = "Receptionist",
-                Role = UserRole.Receptionist,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
+        //// Reception
+        //if (!await context.AppUsers.AnyAsync(x => x.Username == "reception"))
+        //{
+        //    var receptionUser = new AppUser
+        //    {
+        //        Username = "reception",
+        //        DisplayName = "Receptionist",
+        //        Role = UserRole.Receptionist,
+        //        IsActive = true,
+        //        CreatedAt = DateTime.UtcNow
+        //    };
 
-            receptionUser.PasswordHash =
-                passwordHasher.HashPassword(receptionUser, "reception1");
+        //    receptionUser.PasswordHash =
+        //        passwordHasher.HashPassword(receptionUser, "reception1");
 
-            context.AppUsers.Add(receptionUser);
-        }
+        //    context.AppUsers.Add(receptionUser);
+        //}
 
         await context.SaveChangesAsync();
     }
