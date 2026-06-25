@@ -5,11 +5,13 @@ public class HomeController : Controller
 {
     private readonly IHomeService _homeService;
     private readonly ILicenseService _licenseService;
+
     public HomeController(IHomeService homeService, ILicenseService licenseService)
     {
         _homeService = homeService;
         _licenseService = licenseService;
     }
+
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -39,11 +41,32 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    [HttpGet]
     public IActionResult About()
     {
         var licenseInfo = _licenseService.GetCurrentLicenseInfo();
-
         return View(licenseInfo);
     }
 
+    // 🎯 الأكشن الجديدة لاستقبال كود التفعيل وتحديث الرخصة فوراً
+    [HttpPost]
+    public IActionResult ActivateSystem(string fullPackageKey)
+    {
+        if (string.IsNullOrEmpty(fullPackageKey))
+        {
+            TempData["LicenseError"] = "من فضلك أدخل كود التفعيل أولاً.";
+            return RedirectToAction(nameof(About));
+        }
+
+        // استدعاء الميثود اللي في الـ LicenseService
+        bool isActivated = _licenseService.ActivateSystemWithPackage(fullPackageKey, out string errorMessage);
+
+        if (isActivated)
+            TempData["LicenseSuccess"] = "ممتاز! تم تحديث تفعيل النظام بنجاح وفتح جميع الصلاحيات المقررة.";
+        else
+            TempData["LicenseError"] = errorMessage;
+
+        return RedirectToAction(nameof(About));
+    }
 }

@@ -220,10 +220,10 @@ public class ApplicationDbContext : DbContext
             .Property(x => x.CostPrice)
             .HasColumnType("decimal(18,2)");
 
-        modelBuilder.Entity<Procedure>().HasData(
-            new Procedure { Id = 1, Name = "Medical Consultation", Price = 50m },
-            new Procedure { Id = 2, Name = "Follow-up Visit", Price = 25m },
-            new Procedure { Id = 3, Name = "Basic Checkup", Price = 40m });
+        //modelBuilder.Entity<Procedure>().HasData(
+        //    new Procedure { Id = 1, Name = "Medical Consultation", Price = 50m },
+        //    new Procedure { Id = 2, Name = "Follow-up Visit", Price = 25m },
+        //    new Procedure { Id = 3, Name = "Basic Checkup", Price = 40m });
 
         modelBuilder.Entity<AppUser>()
             .HasIndex(x => x.Username)

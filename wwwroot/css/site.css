@@ -50,7 +50,6 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-    /* عدلت الجراديانت عشان يقرا الألوان المتغيرة */
     background: linear-gradient(135deg, rgba(15, 118, 110, .05), transparent 28%), linear-gradient(315deg, rgba(37, 99, 235, .05), transparent 24%), var(--bg);
     color: var(--text);
     font-family: "Cairo", "Tahoma", sans-serif;
@@ -261,12 +260,6 @@ a {
     }
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
 .user-info {
     display: flex;
     flex-direction: column;
@@ -275,7 +268,7 @@ a {
 
     .user-info strong {
         font-size: 0.95rem;
-        color: var(--text); /* متمشية مع الدارك مود */
+        color: var(--text);
     }
 
     .user-info span {
@@ -337,6 +330,7 @@ a {
 }
 
 .user-profile {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -675,7 +669,7 @@ a {
 .chart-total {
     border-radius: 999px;
     padding: 7px 12px;
-    background: rgba(34, 197, 94, 0.15); /* لون متغير ليتناسب مع النمطين */
+    background: rgba(34, 197, 94, 0.15);
     color: var(--green);
     font-weight: 800;
     white-space: nowrap;
@@ -1128,11 +1122,6 @@ a {
     letter-spacing: 0.05em;
 }
 
-/* User Profile Dropdown Menu */
-.user-profile {
-    position: relative;
-}
-
 .profile-menu {
     display: none;
     position: absolute;
@@ -1202,18 +1191,27 @@ a {
     font-weight: 700;
 }
 
+/* 🎯 تعديل الـ Dropdown والـ Form Control لربطهم بالـ Variables وحمايتهم من عك إضافات المتصفح */
 .form-control,
 .form-select {
     border-radius: 12px;
-    background-color: var(--input-bg);
-    color: var(--text);
+    background-color: var(--input-bg) !important;
+    color: var(--text) !important;
     border: 1px solid var(--border);
 }
 
     .form-control:focus,
     .form-select:focus {
-        background-color: var(--surface);
-        color: var(--text);
+        background-color: var(--surface) !important;
+        color: var(--text) !important;
+    }
+
+    /* تثبيت صريح لألوان الخيارات جوة الـ Dropdown عشان تمنع المربع الأبيض عند صاحبك */
+    select.form-select option,
+    select.form-control option,
+    .form-select option {
+        background-color: var(--surface) !important;
+        color: var(--text) !important;
     }
 
 @media (max-width: 1199.98px) {
@@ -1320,7 +1318,7 @@ a {
     }
 }
 
-/* --- تأثير تفاعلي لأيقونات البطاقات --- */
+/* تأثير تفاعلي لأيقونات البطاقات */
 .stat-icon {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: grid;
@@ -1465,7 +1463,6 @@ a.stat-icon:hover {
     }
 }
 
-/* الكلاس اللي ضفناه في الـ TR */
 .row-cancelled {
     opacity: 0.5;
     background-color: var(--row-cancelled-bg) !important;

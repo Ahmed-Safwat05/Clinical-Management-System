@@ -1,4 +1,4 @@
-﻿@model LicenseDto
+﻿@model ClinicManagementSystem.DTOs.License.LicenseDto
 
 @{
     ViewData["Title"] = "حول النظام";
@@ -7,10 +7,8 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <!-- الكارت الأساسي يتأقلم تلقائياً مع الثيم بفضل bg-body و border -->
             <div class="card shadow-lg border border-secondary border-opacity-10 rounded-4 text-center p-4 bg-body">
 
-                <!-- الجزء العلوي للوجو واسم النظام -->
                 <div class="my-3">
                     <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
                         <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
@@ -20,6 +18,21 @@
                 </div>
 
                 <hr class="my-4 opacity-25">
+
+                @if (TempData["LicenseSuccess"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show text-end" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> @TempData["LicenseSuccess"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["LicenseError"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show text-end" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["LicenseError"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
 
                 <div class="mb-4 p-4 rounded-3 border border-primary border-opacity-10 shadow-sm" style="background-color: var(--bs-hover-bg, rgba(0,0,0,0.015)); text-align: left; direction: ltr;">
 
@@ -35,7 +48,7 @@
 
                         <div class="text-body text-nowrap d-flex align-items-center">
                             <strong class="text-muted">License Status:</strong>
-                            <span class="badge bg-warning text-dark border border-warning border-opacity-50 fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
+                            <span class="badge @(Model.IsLifetime ? "bg-success text-white" : "bg-warning text-dark") border fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
                                 @Model.LicenseType
                             </span>
                         </div>
@@ -44,21 +57,30 @@
                     <div class="d-flex flex-row justify-content-between align-items-center w-100">
                         <div class="text-body text-nowrap d-flex align-items-center">
                             <strong class="text-muted">Expiration Date:</strong>
-                            <span class="badge bg-danger text-white border border-danger border-opacity-50 fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
-                                @Model.ExpirationDate.ToString("dd MMM yyyy")
+                            <span class="badge @(Model.IsLifetime ? "bg-success text-white" : "bg-danger text-white") border fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
+                                @(Model.IsLifetime ? "Permanent" : Model.ExpirationDate.ToString("dd MMM yyyy"))
                             </span>
                         </div>
 
                         <div class="text-body text-nowrap d-flex align-items-center">
                             <strong class="text-muted">Remaining:</strong>
                             <span class="badge bg-dark text-light border border-secondary border-opacity-50 fw-bold ms-2 px-2 py-1" style="font-size: 0.75rem;">
-                                @Model.DaysRemaining Days
+                                @(Model.IsLifetime ? "∞" : $"{Model.DaysRemaining} Days")
                             </span>
                         </div>
                     </div>
 
-                </div>  
-                <!-- كارت المطور المحترف (جراديانت فخم ثابت اللون في الوضعين) -->
+                    @if (!Model.IsLifetime)
+                    {
+                        <hr class="my-3 opacity-25">
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-sm btn-primary py-2" data-bs-toggle="modal" data-bs-target="#activateLicenseModal">
+                                <i class="bi bi-arrow-repeat me-1"></i> تجديد الاشتراك / شراء النسخة الدائمة
+                            </button>
+                        </div>
+                    }
+                </div>
+
                 <div class="bg-dark text-white p-4 rounded-4 shadow-sm position-relative overflow-hidden" style="background: linear-gradient(135deg, #1e1e24 0%, #0f0f12 100%);">
                     <div class="position-absolute border border-white border-opacity-5 rounded-circle" style="width: 150px; height: 150px; top: -50px; right: -50px;"></div>
 
@@ -67,12 +89,10 @@
                     <p class="text-white-50 mb-4" style="font-size: 0.85rem;">Backend .NET Developer & Software Engineer</p>
 
                     <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
-                        <!-- زر الواتساب -->
                         <a href="https://wa.me/201220015827" target="_blank" class="btn btn-sm btn-outline-light border-white border-opacity-25 py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-2 text-white text-decoration-none custom-hover-btn" dir="ltr">
                             <i class="bi bi-whatsapp text-success fs-5"></i>
                             <span class="btn-text">+20 122 001 5827</span>
                         </a>
-                        <!-- زر الجيميل -->
                         <a href="https://mail.google.com/mail/?view=cm&fs=1&to=safwata677@gmail.com" target="_blank" class="btn btn-sm btn-outline-light border-white border-opacity-25 py-2 px-3 rounded-3 d-flex align-items-center justify-content-center gap-2 text-white text-decoration-none custom-hover-btn">
                             <i class="bi bi-envelope-fill text-danger fs-5"></i>
                             <span class="btn-text">safwata677@gmail.com</span>
@@ -85,7 +105,39 @@
     </div>
 </div>
 
-<!-- ستايل حماية الألوان من الـ Hover الخاص بالبوتستراب الافتراضي -->
+<div class="modal fade" id="activateLicenseModal" tabindex="-1" aria-labelledby="activateLicenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-end" dir="rtl">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-primary" id="activateLicenseModalLabel"><i class="bi bi-shield-lock-fill me-2"></i>تجديد تفعيل النظام</h5>
+                <button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="ActivateSystem" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">بصمة الجهاز الحالية (انسخها وابعتها للمطور):</label>
+                        <div class="input-group" dir="ltr">
+                            <input type="text" id="deviceFingerprint" class="form-control bg-light"
+                                   value="@Model.DeviceFingerprint|@Model.ExpirationDate.ToString("yyyy-MM-dd")" readonly />
+                            <button class="btn btn-outline-primary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('deviceFingerprint').value); alert('تم نسخ حزمة البصمة بنجاح!');">
+                                <i class="bi bi-clipboard"></i> نسخ
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">كود التفعيل الجديد:</label>
+                        <textarea name="fullPackageKey" class="form-control" rows="4" dir="ltr" placeholder="CMS-LIC:..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-start">
+                    <button type="submit" class="btn btn-success px-4">تفعيل الآن</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
     .custom-hover-btn:hover {
         background-color: rgba(255, 255, 255, 0.08) !important;
@@ -95,8 +147,4 @@
         .custom-hover-btn:hover .btn-text {
             color: #fff !important;
         }
-
-    .custom-sidebar-logout-btn:hover {
-        opacity: 0.8;
-    }
 </style>

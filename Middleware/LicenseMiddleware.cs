@@ -18,7 +18,7 @@ public class LicenseMiddleware
         var path = context.Request.Path.Value?.ToLower() ?? "";
 
         // 🎯 التعديل الجوهري: السماح لأي ميثود داخل الـ LicenseController بالمرور (سواء عرض أو تفعيل)
-        if (path.StartsWith("/license"))
+        if (path.StartsWith("/license") || path.StartsWith("/setup"))
         {
             await _next(context);
             return;

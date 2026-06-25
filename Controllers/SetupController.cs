@@ -1,4 +1,6 @@
-﻿namespace ClinicManagementSystem.Controllers
+﻿using DocumentFormat.OpenXml.InkML;
+
+namespace ClinicManagementSystem.Controllers
 {
     public class SetupController : Controller
     {

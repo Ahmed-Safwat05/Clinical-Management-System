@@ -167,16 +167,13 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// كود الفتح التلقائي للبراوزر - معدل ليكون ديناميكي تماماً بناءً على البورت الفعلي للـ Server
 app.Lifetime.ApplicationStarted.Register(() =>
 {
-    if (!app.Environment.IsDevelopment()) // يشتغل في البابلش بس
+    if (!app.Environment.IsDevelopment())
     {
         try
         {
-            // 🎯 جلب الـ URL الفعلي اللي الـ Kestrel اشتغل عليه (سواء 5000 أو غيره)
             var serverUrl = app.Urls.FirstOrDefault() ?? "http://localhost:5000";
-
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = serverUrl,
@@ -190,4 +187,67 @@ app.Lifetime.ApplicationStarted.Register(() =>
     }
 });
 
-app.Run();
+// 📌 تشغيل الـ Tray Icon في Thread منفصل عشان ميعطلش الـ Web Server
+if (!app.Environment.IsDevelopment())
+{
+    Thread trayThread = new Thread(() =>
+    {
+        // إنشاء الأيقونة
+        NotifyIcon trayIcon = new NotifyIcon();
+
+        // 🎨 تحميل الأيقونة
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "Icons", "icon.ico");
+
+        if (File.Exists(iconPath))
+        {
+            trayIcon.Icon = new Icon(iconPath);
+        }
+        else
+        {
+            trayIcon.Icon = SystemIcons.Application;
+        }
+
+        trayIcon.Text = "Clinical Management System";
+        trayIcon.Visible = true;
+
+        // 📝 إنشاء القائمة اليمين (Context Menu)
+        ContextMenuStrip contextMenu = new ContextMenuStrip();
+
+        var btnOpen = new ToolStripMenuItem("فتح لوحة التحكم (العيادة)");
+        btnOpen.Click += (s, e) =>
+        {
+            var serverUrl = app.Urls.FirstOrDefault() ?? "http://localhost:5000";
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = serverUrl, UseShellExecute = true });
+        };
+
+        var btnExit = new ToolStripMenuItem("إغلاق البرنامج نهائياً");
+        btnExit.Click += (s, e) =>
+        {
+            trayIcon.Visible = false; // إخفاء الأيقونة
+            System.Windows.Forms.Application.Exit(); // قفل الـ UI Thread
+            Environment.Exit(0); // قفل الـ Kestrel Web Server تماماً 🎯
+        };
+
+        contextMenu.Items.Add(btnOpen);
+        contextMenu.Items.Add(new ToolStripSeparator()); // خط فاصل شيك
+        contextMenu.Items.Add(btnExit);
+
+        trayIcon.ContextMenuStrip = contextMenu;
+
+        // دبل كليك يفتح العيادة علطول
+        trayIcon.DoubleClick += (s, e) =>
+        {
+            var serverUrl = app.Urls.FirstOrDefault() ?? "http://localhost:5000";
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = serverUrl, UseShellExecute = true });
+        };
+
+        // 🎯 تم التعديل هنا لـ System.Windows.Forms.Application للحفاظ على الـ UI Loop حية
+        System.Windows.Forms.Application.Run();
+    });
+
+    trayThread.SetApartmentState(ApartmentState.STA);
+    trayThread.Start();
+}
+
+// تشغيل الـ Web App الافتراضي
+await app.RunAsync();   

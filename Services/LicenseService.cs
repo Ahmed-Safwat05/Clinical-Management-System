@@ -1,4 +1,5 @@
-﻿using ClinicManagementSystem.Helpers;
+﻿using ClinicManagementSystem.DTOs.License;
+using ClinicManagementSystem.Helpers;
 using System.Runtime.Versioning;
 using System.Text.Json;
 
@@ -201,7 +202,12 @@ namespace ClinicManagementSystem.Services
         }
 
         public LicenseDto GetCurrentLicenseInfo() => _currentLicense;
-        public bool IsExpired() => _currentLicense.IsTrialExpired || !_currentLicense.IsDeviceValid;
+        public bool IsExpired()
+        {
+            if (!_currentLicense.IsDeviceValid) return true;
+
+            return DateTime.Today.Date > _currentLicense.ExpirationDate.Date;
+        }
         public int GetRemainingDays() => _currentLicense.DaysRemaining;
     }
 
