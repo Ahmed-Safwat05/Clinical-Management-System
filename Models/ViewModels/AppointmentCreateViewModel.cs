@@ -2,10 +2,10 @@ namespace ClinicManagementSystem.Models.ViewModels;
 
 public class AppointmentCreateViewModel
 {
-    [Required]
+    [Required(ErrorMessage = "يرجى اختيار المريض")]
     public int PatientId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "يرجى اختيار الطبيب")]
     public int DoctorId { get; set; }
 
     [Required]

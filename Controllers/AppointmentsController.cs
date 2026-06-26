@@ -32,7 +32,7 @@ public class AppointmentsController : Controller
                 .GroupBy(x => new { x.DoctorId, DoctorName = x.Doctor?.Name ?? "-" })
                 .Select(group => new DoctorQueueTabViewModel
                 {
-                    DoctorId = group.Key.DoctorId,
+                    DoctorId = group.Key.DoctorId,  
                     DoctorName = group.Key.DoctorName,
 
                     // Scheduled Queue (IsWalkIn == false && Status == Waiting)
@@ -69,6 +69,7 @@ public class AppointmentsController : Controller
     {
         if (!ModelState.IsValid)
         {
+            ViewBag.Doctors = new SelectList(await _doctorService.GetAllAsync(), "Id", "Name", model.DoctorId);
             return View(await BuildCreateModelAsync(model));
         }
 

@@ -224,6 +224,8 @@ public class VisitsController : Controller
 
         return View(visit);
     }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         try

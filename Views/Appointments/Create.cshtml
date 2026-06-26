@@ -31,7 +31,7 @@
                     </div>
                     <div class="col-md-6">
                         <label asp-for="DoctorId" class="form-label">الطبيب</label>
-                        <select asp-for="DoctorId" asp-items="Model.Doctors" class="form-select"></select>
+                        <select asp-for="DoctorId" asp-items="ViewBag.Doctors" class="form-select"></select>
                         <span asp-validation-for="DoctorId" class="text-danger"></span>
                     </div>
                 </div>
@@ -118,3 +118,6 @@
             }
         }
     </style>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

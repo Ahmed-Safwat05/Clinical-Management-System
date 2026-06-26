@@ -8,17 +8,20 @@ namespace ClinicManagementSystem.Controllers
         private readonly IAuthService _authService;
         private readonly IAppUserRepository _userRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<SetupController> _logger;
 
         public SetupController(
             ISettingsService settingsService,
             IAuthService authService,
             IAppUserRepository userRepository,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            ILogger<SetupController> logger)
         {
             _settingsService = settingsService;
             _authService = authService;
             _userRepository = userRepository;
             _environment = environment;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -113,14 +116,13 @@ namespace ClinicManagementSystem.Controllers
             }
             catch (DbUpdateException ex)
             {
-                // 🎯 هنا بنجيب الرسالة الداخلية اللي فيها الخلاصة
-                var innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-
-                return Json(new { success = false, message = "خطأ في قاعدة البيانات: " + innerMessage });
+                _logger.LogError(ex, "Database error during setup completion.");
+                return Json(new { success = false, message = "حدث خطأ أثناء حفظ بيانات الإعداد. يرجى مراجعة المدخلات والمحاولة مرة أخرى." });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "حدث خطأ غير متوقع: " + ex.Message });
+                _logger.LogError(ex, "Unexpected error during setup completion.");
+                return Json(new { success = false, message = "حدث خطأ غير متوقع أثناء الإعداد. يرجى المحاولة مرة أخرى أو التواصل مع الدعم." });
             }
         }
     }
